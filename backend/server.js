@@ -53,6 +53,11 @@ async function getUserId() {
     return data.data[0].id;
 }
 
+// Endpoint: Keep-alive ping (prevents Render free tier spin-down)
+app.get('/api/ping', (req, res) => {
+    res.json({ status: 'Backend is alive ✈️' });
+});
+
 // Endpoint: Get live status
 app.get('/api/live-status', async (req, res) => {
     try {
