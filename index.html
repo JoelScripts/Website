@@ -597,43 +597,60 @@
         // Run on page load
         window.addEventListener('load', highlightToday);
 
-        // Timezone selector functionality
-        const tzSelect = document.getElementById('timezone-select');
-        
-        // Load saved timezone preference or use auto-detect
-        const savedTz = localStorage.getItem('preferredTimezone') || 'auto';
-        if (tzSelect) {
+        // Timezone selector setup - runs after DOM is loaded
+        function setupTimezoneSelector() {
+            const tzSelect = document.getElementById('timezone-select');
+            if (!tzSelect) {
+                console.log('Timezone select not found');
+                return;
+            }
+            
+            // Load saved timezone preference or use auto-detect
+            const savedTz = localStorage.getItem('preferredTimezone') || 'auto';
             tzSelect.value = savedTz;
             
             tzSelect.addEventListener('change', function() {
+                console.log('Timezone changed to:', this.value);
                 localStorage.setItem('preferredTimezone', this.value);
                 const tz = this.value === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : this.value;
                 convertZuluToSelectedTimezone(tz);
             });
-        }
-        
-        // Auto-detect timezone on load
-        window.addEventListener('load', function() {
+            
+            // Apply initial timezone conversion
             if (savedTz === 'auto') {
                 const autoTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                console.log('Auto-detected timezone:', autoTz);
                 convertZuluToSelectedTimezone(autoTz);
             } else {
+                console.log('Using saved timezone:', savedTz);
                 convertZuluToSelectedTimezone(savedTz);
             }
-        });
+        }
+
+        // Setup timezone selector on page load
+        window.addEventListener('load', setupTimezoneSelector);
 
         function convertZuluToSelectedTimezone(timezone) {
+            console.log('Converting times for timezone:', timezone);
             const selectedTz = timezone || document.getElementById('timezone-select').value;
             const actualTz = selectedTz === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : selectedTz;
+            console.log('Actual timezone to use:', actualTz);
             
             const dayCards = document.querySelectorAll('.day-card');
-            dayCards.forEach(card => {
+            console.log('Found', dayCards.length, 'day cards');
+            
+            dayCards.forEach((card, index) => {
                 const streamTimeEl = card.querySelector('.stream-time');
-                if (!streamTimeEl) return;
+                if (!streamTimeEl) {
+                    console.log('No stream-time element in card', index);
+                    return;
+                }
                 
                 // Get original Zulu time from data attribute or parse from text
                 const originalText = streamTimeEl.getAttribute('data-zulu-time');
                 let zuluTimeStr = originalText;
+                
+                console.log('Card', index, '- Original data-zulu-time:', originalText);
                 
                 if (!zuluTimeStr) {
                     // Try to extract from current text (fallback for legacy cards)
@@ -647,18 +664,26 @@
                 
                 try {
                     const localTime = convertTimeToTimezone(zuluTimeStr, actualTz);
+                    console.log('Card', index, '- Converting:', zuluTimeStr, '-> Result:', localTime);
                     streamTimeEl.textContent = localTime;
+                    console.log('Card', index, '- After update textContent:', streamTimeEl.textContent);
                 } catch (e) {
-                    console.log('Could not convert time:', zuluTimeStr);
+                    console.error('Could not convert time:', zuluTimeStr, e);
                 }
             });
+            
+            // Update live status after conversion
+            updateLiveStatus();
         }
 
         function convertTimeToTimezone(zuluTimeStr, timezone) {
             // Parse time like "18:00 Zulu", "15:30 Zulu", "11:00 AM Zulu"
             const timeMatch = zuluTimeStr.match(/(\d{1,2}):(\d{2})(?:\s(AM|PM))?\s+Zulu/i);
             
-            if (!timeMatch) return zuluTimeStr;
+            if (!timeMatch) {
+                console.log('Could not parse time:', zuluTimeStr);
+                return zuluTimeStr;
+            }
             
             let hours = parseInt(timeMatch[1]);
             const minutes = timeMatch[2];
@@ -677,27 +702,32 @@
             const utcDate = new Date();
             utcDate.setUTCHours(hours, parseInt(minutes), 0);
             
-            // Format to the selected timezone
-            const formatter = new Intl.DateTimeFormat('en-US', {
-                timeZone: timezone,
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-            
-            const timeParts = formatter.format(utcDate);
-            const [tzHours, tzMinutes] = timeParts.split(':');
-            
-            // Get timezone abbreviation
-            const tzFormatter = new Intl.DateTimeFormat('en-US', {
-                timeZone: timezone,
-                timeZoneName: 'short'
-            });
-            const tzParts = tzFormatter.formatToParts(utcDate);
-            const tzPart = tzParts.find(p => p.type === 'timeZoneName');
-            const tz = tzPart ? tzPart.value : '';
-            
-            return `${tzHours}:${tzMinutes} ${tz}`;
+            try {
+                // Format to the selected timezone
+                const formatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: timezone,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                });
+                
+                const timeParts = formatter.format(utcDate);
+                const [tzHours, tzMinutes] = timeParts.split(':');
+                
+                // Get timezone abbreviation
+                const tzFormatter = new Intl.DateTimeFormat('en-US', {
+                    timeZone: timezone,
+                    timeZoneName: 'short'
+                });
+                const tzParts = tzFormatter.formatToParts(utcDate);
+                const tzPart = tzParts.find(p => p.type === 'timeZoneName');
+                const tz = tzPart ? tzPart.value : '';
+                
+                return `${tzHours}:${tzMinutes} ${tz}`;
+            } catch (e) {
+                console.error('Error converting timezone:', e, 'Timezone:', timezone);
+                return zuluTimeStr;
+            }
         }
 
         // Run on page load
