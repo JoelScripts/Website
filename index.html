@@ -11,7 +11,12 @@
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">flywithjoel</div>
-            <ul class="nav-links">
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
                 <li><a href="#schedule">Schedule</a></li>
                 <li><a href="#highlights">Highlights</a></li>
                 <li><a href="#setup">My Setup</a></li>
@@ -383,6 +388,24 @@
 
     <script src="js/main.js"></script>
     <script>
+        // Hamburger Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        // Close menu when a link is clicked
+        const navItems = navLinks.querySelectorAll('a');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+
         // Fetch live Twitch follower count
         const TWITCH_CHANNEL_NAME = '';
         const TWITCH_OAUTH_TOKEN = '';
