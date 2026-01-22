@@ -187,11 +187,30 @@ body {
 }
 
 .live-badge {
-    display: inline-block;
-    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 0.7rem 1.2rem;
+    border-radius: 2rem;
     margin-bottom: 1rem;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    box-shadow: 0 0 20px rgba(255, 140, 66, 0.6);
+    animation: livePulse 1.5s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+    0%, 100% {
+        box-shadow: 0 0 20px rgba(255, 140, 66, 0.6), 0 0 30px rgba(255, 90, 54, 0.3);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 30px rgba(255, 140, 66, 0.8), 0 0 50px rgba(255, 90, 54, 0.5);
+        transform: scale(1.05);
+    }
 }
 
 .hero-content h1 {
@@ -594,6 +613,29 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+/* Scrollbar styling */
+.addon-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.addon-list::-webkit-scrollbar-track {
+    background: rgba(255, 140, 66, 0.1);
+    border-radius: 10px;
+}
+
+.addon-list::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.addon-list::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
 }
 
 .addon-item {
