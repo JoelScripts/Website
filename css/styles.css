@@ -814,31 +814,396 @@ body {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .hero {
         grid-template-columns: 1fr;
         padding: 2rem 1rem;
+        gap: 2rem;
     }
 
     .hero-content h1 {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
 
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem;
+    }
+
+    .logo {
+        font-size: 1.1rem;
+    }
+
+    .nav-links {
+        gap: 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .nav-links a {
+        font-size: 0.75rem;
+    }
+
+    .follow-btn {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.7rem;
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+        padding: 1.5rem 1rem;
+        gap: 1.5rem;
+    }
+
+    .hero-content h1 {
+        font-size: 1.8rem;
+    }
+
+    .hero-content p {
+        font-size: 0.85rem;
+    }
+
+    .cta-btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.85rem;
+    }
+
+    .stats {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .stat-box {
+        padding: 1rem;
+    }
+
+    .stat-number {
+        font-size: 1.2rem;
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+    }
+
+    .hero-image img {
+        max-height: 250px;
+    }
+
+    /* Upcoming Streams */
+    .upcoming-section,
+    .highlights-section,
+    .setup-section,
+    .contact-section,
+    .affiliates-section {
+        padding: 2rem 1rem;
+    }
+
+    .upcoming-section h2,
+    .highlights-section h2,
+    .setup-section h2,
+    .contact-section h2,
+    .affiliates-section h2 {
+        font-size: 1.8rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.9rem;
+    }
+
+    .streams-grid,
+    .highlights-grid,
+    .content-grid,
+    .contact-container,
+    .affiliates-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .stream-card,
+    .highlight-card,
+    .card,
+    .contact-card,
+    .affiliate-card {
+        padding: 1rem;
+    }
+
+    .card h3,
+    .affiliate-card h3,
+    .contact-card h3 {
+        font-size: 0.95rem;
+    }
+
+    .stream-card h4,
+    .highlight-card h4 {
+        font-size: 0.9rem;
+    }
+
+    .stream-card p,
+    .highlight-card p,
+    .contact-card p {
+        font-size: 0.8rem;
+    }
+
+    .stream-info {
+        gap: 0.3rem;
+    }
+
+    .info-item {
+        font-size: 0.75rem;
+    }
+
+    /* Tabs */
     .tabs-container {
         flex-direction: column;
+        gap: 0.5rem;
     }
 
     .tab-btn {
         width: 100%;
         justify-content: center;
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
     }
 
-    .nav-links {
-        gap: 1rem;
+    .tab-btn .icon {
+        font-size: 1rem;
+    }
+
+    /* Next Stream Banner */
+    .next-stream-banner {
+        padding: 1rem;
+    }
+
+    .next-stream-content {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .next-stream-content h3 {
+        font-size: 1rem;
+    }
+
+    .next-stream-content p {
         font-size: 0.85rem;
     }
 
-    .content-grid {
-        grid-template-columns: 1fr;
+    .live-indicator {
+        font-size: 0.75rem;
+    }
+
+    .notify-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    /* Performance Tips */
+    .performance-tips-card {
+        grid-column: 1;
+    }
+
+    .tips-list {
+        gap: 0.4rem;
+    }
+
+    .tips-list li {
+        font-size: 0.8rem;
+    }
+
+    /* Specs List */
+    .specs-list,
+    .sim-settings,
+    .graphics-settings {
+        gap: 0.6rem;
+    }
+
+    .spec-row,
+    .setting-group {
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .spec-label,
+    .setting-label {
+        font-size: 0.8rem;
+    }
+
+    .spec-value,
+    .setting-value {
+        font-size: 0.85rem;
+    }
+
+    .control-list li {
+        font-size: 0.75rem;
+    }
+
+    .tag-group {
+        gap: 0.3rem;
+    }
+
+    .tag {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .addon-list {
+        gap: 0.6rem;
+    }
+
+    .addon-item {
+        padding: 0.6rem;
+    }
+
+    .addon-name {
+        font-size: 0.85rem;
+    }
+
+    .addon-info {
+        font-size: 0.75rem;
+    }
+
+    .contact-email {
+        font-size: 0.95rem;
+    }
+
+    .contact-link,
+    .affiliate-btn {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+    }
+
+    .affiliate-badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.5rem;
+    }
+
+    .affiliate-description {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar {
+        padding: 0.75rem;
+    }
+
+    .logo {
+        font-size: 0.95rem;
+    }
+
+    .nav-links {
+        gap: 0.3rem;
+        font-size: 0.65rem;
+    }
+
+    .nav-links a {
+        font-size: 0.65rem;
+    }
+
+    .follow-btn {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.6rem;
+    }
+
+    .hero {
+        padding: 1rem 0.75rem;
+        gap: 1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 1.4rem;
+    }
+
+    .hero-content p {
+        font-size: 0.8rem;
+    }
+
+    .cta-btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    .stat-box {
+        padding: 0.75rem;
+    }
+
+    .stat-number {
+        font-size: 1rem;
+    }
+
+    .hero-image img {
+        max-height: 200px;
+    }
+
+    /* Section Padding */
+    .upcoming-section,
+    .highlights-section,
+    .setup-section,
+    .contact-section,
+    .affiliates-section {
+        padding: 1.5rem 0.75rem;
+    }
+
+    .upcoming-section h2,
+    .highlights-section h2,
+    .setup-section h2,
+    .contact-section h2,
+    .affiliates-section h2 {
+        font-size: 1.4rem;
+    }
+
+    .section-subtitle {
+        font-size: 0.8rem;
+    }
+
+    .next-stream-banner {
+        padding: 0.75rem;
+    }
+
+    .next-stream-content {
+        gap: 0.5rem;
+    }
+
+    .next-stream-content h3 {
+        font-size: 0.9rem;
+    }
+
+    .next-stream-content p {
+        font-size: 0.75rem;
+    }
+
+    .notify-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.65rem;
+    }
+
+    .stream-card,
+    .highlight-card,
+    .card,
+    .contact-card,
+    .affiliate-card {
+        padding: 0.75rem;
+    }
+
+    .card h3 {
+        font-size: 0.9rem;
+    }
+
+    .stream-card h4,
+    .highlight-card h4 {
+        font-size: 0.85rem;
+    }
+
+    .contact-email {
+        font-size: 0.9rem;
+    }
+
+    .contact-link,
+    .affiliate-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
     }
 }
