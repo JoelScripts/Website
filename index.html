@@ -81,7 +81,7 @@
         </div>
         <div class="weekly-schedule" id="weekly-schedule">
             <!-- MONDAY JAN 19 -->
-            <div class="day-card">
+            <div class="day-card" data-date="1-19">
                 <div class="day-name">MON</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 19</div>
                 <div class="game-logo">-</div>
@@ -89,7 +89,7 @@
                 <div class="stream-title">-</div>
             </div>
             <!-- TUESDAY JAN 20 -->
-            <div class="day-card has-stream completed">
+            <div class="day-card has-stream completed" data-date="1-20">
                 <div class="day-name">TUE</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 20</div>
                 <div class="game-logo">✈️</div>
@@ -98,24 +98,25 @@
                 <div style="font-size: 0.8rem; color: #66BB6A; margin-top: 0.5rem; font-weight: 600;">✓ Completed</div>
             </div>
             <!-- WEDNESDAY JAN 21 -->
-            <div class="day-card has-stream cancelled">
+            <div class="day-card has-stream completed" data-date="1-21">
                 <div class="day-name">WED</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 21</div>
                 <div class="game-logo">✈️</div>
-                <div class="stream-time">11:00 AM Zulu</div>
+                <div class="stream-time">18:00 Zulu</div>
+                <div class="stream-title">Microsoft Flight Simulator</div>
+                <div style="font-size: 0.8rem; color: #66BB6A; margin-top: 0.5rem; font-weight: 600;">✓ Completed</div>
+            </div>
+            <!-- THURSDAY JAN 22 -->
+            <div class="day-card has-stream cancelled" data-date="1-22">
+                <div class="day-name">THU</div>
+                <div class="day-date" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 22</div>
+                <div class="game-logo">✈️</div>
+                <div class="stream-time">15:30 PM Zulu</div>
                 <div class="stream-title">Microsoft Flight Simulator</div>
                 <div style="font-size: 0.8rem; color: #ff6666; margin-top: 0.5rem; font-weight: 600;">✖️ Cancelled</div>
             </div>
-            <!-- THURSDAY JAN 22 (TODAY) -->
-            <div class="day-card has-stream">
-                <div class="day-name">THU</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 22 (Today)</div>
-                <div class="game-logo">✈️</div>
-                <div class="stream-time">15:30 Zulu</div>
-                <div class="stream-title">Microsoft Flight Simulator</div>
-            </div>
             <!-- FRIDAY JAN 23 -->
-            <div class="day-card has-stream">
+            <div class="day-card has-stream" data-date="1-23">
                 <div class="day-name">FRI</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 23</div>
                 <div class="game-logo">✈️</div>
@@ -123,7 +124,7 @@
                 <div class="stream-title">Microsoft Flight Simulator</div>
             </div>
             <!-- SATURDAY JAN 24 -->
-            <div class="day-card has-stream">
+            <div class="day-card has-stream" data-date="1-24">
                 <div class="day-name">SAT</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 24</div>
                 <div class="game-logo">✈️</div>
@@ -131,7 +132,7 @@
                 <div class="stream-title">Microsoft Flight Simulator</div>
             </div>
             <!-- SUNDAY JAN 25 -->
-            <div class="day-card has-stream">
+            <div class="day-card has-stream" data-date="1-25">
                 <div class="day-name">SUN</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 25</div>
                 <div class="game-logo">✈️</div>
@@ -500,6 +501,27 @@
 
         // Load highlights on page load
         window.addEventListener('load', loadHighlights);
+
+        // Add "(Today)" to current day's schedule card
+        function highlightToday() {
+            const today = new Date();
+            const month = today.getMonth() + 1; // getMonth() returns 0-11
+            const date = today.getDate();
+            const dateString = `${month}-${date}`;
+            
+            const dayCards = document.querySelectorAll('[data-date]');
+            dayCards.forEach(card => {
+                if (card.getAttribute('data-date') === dateString) {
+                    const dateDiv = card.querySelector('.day-date');
+                    if (dateDiv && !dateDiv.textContent.includes('(Today)')) {
+                        dateDiv.textContent += ' (Today)';
+                    }
+                }
+            });
+        }
+
+        // Run on page load
+        window.addEventListener('load', highlightToday);
     </script>
 </body>
 </html>
