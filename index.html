@@ -403,6 +403,19 @@
         const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
         const API_BASE_URL = 'https://website-cji.onrender.com/api'; // Backend deployed on Render
 
+        // Keep-alive: Ping backend every 14 minutes to prevent spin-down on Render free tier
+        async function keepAlive() {
+            try {
+                await fetch(`${API_BASE_URL}/ping`);
+            } catch (error) {
+                console.log('Keep-alive ping failed (backend may be spinning up):', error);
+            }
+        }
+
+        // Start keep-alive immediately and every 14 minutes
+        keepAlive();
+        setInterval(keepAlive, 14 * 60 * 1000);
+
         async function checkLiveStatus() {
             try {
                 const response = await fetch(`${API_BASE_URL}/live-status`);
