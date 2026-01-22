@@ -63,9 +63,14 @@
 
     <!-- Upcoming Streams Section -->
     <section id="schedule" class="upcoming-section">
-        <h2>Upcoming Streams</h2>
-        <p class="section-subtitle">Join me for these exciting flights</p>
-        <div class="streams-grid" id="streams-grid">
+        <div class="schedule-header">
+            <div class="schedule-icon">📅</div>
+            <div>
+                <h2>7 Day Schedule</h2>
+                <p class="schedule-subtitle">Check out when I'm taking off next.<br>Times are in UTC.</p>
+            </div>
+        </div>
+        <div class="weekly-schedule" id="weekly-schedule">
             <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Loading schedule...</p>
         </div>
     </section>
@@ -394,26 +399,18 @@
             });
         });
 
-        // Fetch live Twitch follower count
+        // API Configuration
         const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
-        const TWITCH_OAUTH_TOKEN = '';
-        const TWITCH_CLIENT_ID = '';
+        const API_BASE_URL = 'http://localhost:3001/api'; // Change to your backend URL when deployed
 
         async function checkLiveStatus() {
             try {
-                const streamResponse = await fetch(`https://api.twitch.tv/helix/streams?user_login=${TWITCH_CHANNEL_NAME}`, {
-                    headers: {
-                        'Client-ID': TWITCH_CLIENT_ID,
-                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
-                    }
-                });
-
-                if (!streamResponse.ok) throw new Error('Failed to fetch stream status');
-                const streamData = await streamResponse.json();
+                const response = await fetch(`${API_BASE_URL}/live-status`);
+                if (!response.ok) throw new Error('Failed to fetch stream status');
+                const data = await response.json();
                 
                 // Show badge only if streaming
-                const isLive = streamData.data && streamData.data.length > 0;
-                document.getElementById('live-badge').style.display = isLive ? 'flex' : 'none';
+                document.getElementById('live-badge').style.display = data.isLive ? 'flex' : 'none';
             } catch (error) {
                 console.log('Could not check live status:', error);
                 document.getElementById('live-badge').style.display = 'none';
@@ -422,32 +419,12 @@
 
         async function updateFollowerCount() {
             try {
-                // Get the user ID
-                const userResponse = await fetch(`https://api.twitch.tv/helix/users?login=${TWITCH_CHANNEL_NAME}`, {
-                    headers: {
-                        'Client-ID': TWITCH_CLIENT_ID,
-                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
-                    }
-                });
-
-                if (!userResponse.ok) throw new Error('Failed to fetch user');
-                const userData = await userResponse.json();
-                const userId = userData.data[0].id;
-
-                // Get the follower count
-                const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${userId}`, {
-                    headers: {
-                        'Client-ID': TWITCH_CLIENT_ID,
-                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
-                    }
-                });
-
-                if (!followResponse.ok) throw new Error('Failed to fetch followers');
-                const followData = await followResponse.json();
-                const followerCount = followData.total;
-
+                const response = await fetch(`${API_BASE_URL}/followers`);
+                if (!response.ok) throw new Error('Failed to fetch followers');
+                const data = await response.json();
+                
                 // Format the number with commas
-                const formattedCount = followerCount.toLocaleString();
+                const formattedCount = data.followerCount.toLocaleString();
                 document.getElementById('follower-count').textContent = formattedCount;
             } catch (error) {
                 console.log('Could not fetch live follower count:', error);
@@ -504,40 +481,27 @@
 
         async function loadUpcomingStreams() {
             try {
-                // Get the user ID first
-                const userResponse = await fetch(`https://api.twitch.tv/helix/users?login=${TWITCH_CHANNEL_NAME}`, {
-                    headers: {
-                        'Client-ID': TWITCH_CLIENT_ID,
-                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
-                    }
-                });
-
-                if (!userResponse.ok) {
-                    throw new Error('Failed to fetch user');
-                }
-                const userData = await userResponse.json();
-                const userId = userData.data[0].id;
-
-                // Get the schedule
-                const scheduleResponse = await fetch(`https://api.twitch.tv/helix/schedule?broadcaster_id=${userId}&first=10`, {
-                    headers: {
-                        'Client-ID': TWITCH_CLIENT_ID,
-                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
-                    }
-                });
-
-                if (!scheduleResponse.ok) {
-                    throw new Error('Failed to fetch schedule');
-                }
-                const scheduleData = await scheduleResponse.json();
-                const streams = scheduleData.data;
+                const response = await fetch(`${API_BASE_URL}/schedule`);
+                if (!response.ok) throw new Error('Failed to fetch schedule');
+                const scheduleData = await response.json();
+                const streams = scheduleData.data.segments;
 
                 if (!streams || streams.length === 0) {
-                    document.getElementById('streams-grid').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No upcoming streams scheduled</p>';
+                    document.getElementById('weekly-schedule').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No upcoming streams scheduled</p>';
                     return;
                 }
 
-                // Get the next stream
+                // Create a 7-day schedule
+                const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+                const dayMap = {0: 'MON', 1: 'TUE', 2: 'WED', 3: 'THU', 4: 'FRI', 5: 'SAT', 6: 'SUN'};
+                const scheduleByDay = {};
+
+                // Initialize all days as OFF
+                days.forEach(day => {
+                    scheduleByDay[day] = null;
+                });
+
+                // Get the next stream overall
                 const now = new Date();
                 const nextStream = streams.find(stream => new Date(stream.start_time) > now);
                 
@@ -545,38 +509,70 @@
                     const startTime = new Date(nextStream.start_time);
                     const date = startTime.toLocaleDateString('en-US', { weekday: 'long' });
                     const time = startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+                    const title = nextStream.title || (nextStream.category ? nextStream.category.name : 'Stream');
                     
-                    document.getElementById('next-stream-title').textContent = nextStream.title;
+                    document.getElementById('next-stream-title').textContent = title;
                     document.getElementById('next-stream-time').textContent = `${date} at ${time}`;
                     document.getElementById('next-stream-banner').style.display = 'block';
                 }
 
-                // Generate HTML for all streams
-                const streamsHTML = streams.map(stream => {
-                    const startTime = new Date(stream.start_time);
-                    const date = startTime.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
-                    const time = startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+                // Populate schedule by day of week
+                streams.forEach(stream => {
+                    const streamTime = new Date(stream.start_time);
+                    const dayIndex = streamTime.getDay();
+                    const dayName = dayMap[dayIndex === 0 ? 6 : dayIndex - 1]; // Adjust for Monday = 0
                     
-                    return `
-                        <div class="stream-card">
-                            <div class="stream-header">
-                                <span class="sim-badge">${stream.category?.name || 'Stream'}</span>
-                                <span class="plane-icon">✈️</span>
+                    if (!scheduleByDay[dayName]) {
+                        // Format time in UTC (HH:MM UTC)
+                        const hours = String(streamTime.getUTCHours()).padStart(2, '0');
+                        const minutes = String(streamTime.getUTCMinutes()).padStart(2, '0');
+                        const time = `${hours}:${minutes} UTC`;
+                        
+                        // Use category name if title is empty
+                        const title = stream.title || (stream.category ? stream.category.name : 'Stream');
+                        
+                        scheduleByDay[dayName] = {
+                            time: time,
+                            title: title
+                        };
+                    }
+                });
+
+                // Generate HTML for 7-day schedule
+                const scheduleHTML = days.map(day => {
+                    const dayInfo = scheduleByDay[day];
+                    if (!dayInfo) {
+                        return `
+                            <div class="day-card">
+                                <div class="day-name">${day}</div>
+                                <div class="stream-time" style="color: var(--text-muted); font-size: 1.3rem;">OFF</div>
+                                <div class="stream-title">No stream scheduled</div>
                             </div>
-                            <h4>${stream.title}</h4>
-                            <p>${stream.is_recurring ? '🔄 Recurring Stream' : 'Upcoming Stream'}</p>
-                            <div class="stream-info">
-                                <span class="info-item">📅 ${date}</span>
-                                <span class="info-item">🕐 ${time}</span>
+                        `;
+                    } else {
+                        // Determine game logo based on title
+                        let logo = '🎮';
+                        if (dayInfo.title.includes('Microsoft Flight Simulator') || dayInfo.title.includes('MSFS')) {
+                            logo = '✈️';
+                        } else if (dayInfo.title.includes('X-Plane')) {
+                            logo = '🛩️';
+                        }
+                        
+                        return `
+                            <div class="day-card has-stream">
+                                <div class="day-name">${day}</div>
+                                <div class="game-logo">${logo}</div>
+                                <div class="stream-time">${dayInfo.time}</div>
+                                <div class="stream-title">${dayInfo.title}</div>
                             </div>
-                        </div>
-                    `;
+                        `;
+                    }
                 }).join('');
 
-                document.getElementById('streams-grid').innerHTML = streamsHTML;
+                document.getElementById('weekly-schedule').innerHTML = scheduleHTML;
             } catch (error) {
                 console.error('Could not load streams:', error);
-                document.getElementById('streams-grid').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);"><a href="https://www.twitch.tv/' + TWITCH_CHANNEL_NAME + '/schedule" target="_blank" style="color: var(--primary); text-decoration: none;">View schedule on Twitch →</a></p>';
+                document.getElementById('weekly-schedule').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);"><a href="https://www.twitch.tv/' + TWITCH_CHANNEL_NAME + '/schedule" target="_blank" style="color: var(--primary); text-decoration: none;">View schedule on Twitch →</a></p>';
             }
         }
 
