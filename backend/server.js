@@ -7,27 +7,10 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Enable CORS for your domain
-const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:8000',
-    'http://flyingwithjoel.co.uk',
-    'https://flyingwithjoel.co.uk',
-    'http://www.flyingwithjoel.co.uk',
-    'https://www.flyingwithjoel.co.uk',
-    'https://joelscripts.github.io'
-];
-
 app.use(cors({
-    origin: function(origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    origin: '*',
+    credentials: false,
+    methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
