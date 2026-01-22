@@ -400,6 +400,49 @@ body {
     color: #66BB6A;
 }
 
+.day-card.live {
+    border-color: #ff0000;
+    background: linear-gradient(135deg, rgba(255, 0, 0, 0.15) 0%, rgba(26, 26, 26, 0.9) 100%);
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.4), inset 0 0 20px rgba(255, 0, 0, 0.1);
+    animation: liveGlow 1.5s ease-in-out infinite;
+    cursor: pointer;
+}
+
+@keyframes liveGlow {
+    0%, 100% {
+        box-shadow: 0 0 30px rgba(255, 0, 0, 0.4), inset 0 0 20px rgba(255, 0, 0, 0.1);
+    }
+    50% {
+        box-shadow: 0 0 50px rgba(255, 0, 0, 0.6), inset 0 0 30px rgba(255, 0, 0, 0.2);
+    }
+}
+
+.day-card.live .day-name {
+    color: #ff0000;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.day-card.live .stream-time {
+    color: #ff3333;
+    font-weight: bold;
+}
+
+.day-card.live::after {
+    content: '🔴 LIVE';
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: linear-gradient(135deg, #ff0000, #cc0000);
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    animation: pulse 1.5s ease-in-out infinite;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+}
+
 .day-name {
     font-size: 0.95rem;
     font-weight: 700;
