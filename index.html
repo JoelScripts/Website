@@ -40,7 +40,7 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <div class="live-badge">● Live on Twitch</div>
+            <div class="live-badge" id="live-badge" style="display: flex;">● Live on Twitch</div>
             <h1>Flying With Joel</h1>
             <p>Welcome to my flight simulation channel! Join me as I explore the skies in Microsoft Flight Simulator 2024 and X-Plane 12. From scenic flights to challenging approaches, we'll experience aviation together.</p>
             <a href="https://linktr.ee/AviationJoel" target="_blank" class="cta-btn">
@@ -152,11 +152,7 @@
                             <div class="setting-group">
                                 <span class="setting-label">Realism Settings</span>
                                 <div class="tag-group">
-                                    <span class="tag">bird Strikes</span>
-                                    <span class="tag">icing</span>
                                     <span class="tag">turbulence</span>
-                                    <span class="tag">prop Wash</span>
-                                    <span class="tag">engine Stress</span>
                                 </div>
                             </div>
                         </div>
@@ -237,6 +233,7 @@
                                 <span class="addon-info">MSFS 2024 • High Fidelity Airliner</span>
                             </a>
 
+                            
                             <!-- Add new aircraft addons below this line -->
                         </div>
                     </div>
@@ -244,19 +241,10 @@
                     <div class="card">
                         <h3>🌍 Scenery</h3>
                         <div class="addon-list">
-                            <a href="https://www.orbxdirect.com/" target="_blank" class="addon-item addon-link">
-                                <span class="addon-name">Orbx Norway</span>
-                                <span class="addon-info">MSFS 2024 • Regional Scenery</span>
-                            </a>
 
-                            <a href="https://www.latinvfr.com/" target="_blank" class="addon-item addon-link">
-                                <span class="addon-name">LatinVFR KATL</span>
-                                <span class="addon-info">MSFS 2024 • Airport</span>
-                            </a>
-
-                            <a href="https://x-plane.org/" target="_blank" class="addon-item addon-link">
-                                <span class="addon-name">MisterX6 Airports Pack</span>
-                                <span class="addon-info">X-Plane 12 • Airport Collection</span>
+                            <a href="LINK HERE" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">Soon to be Updated</span>
+                                <span class="addon-info">Soon to be Updated</span>
                             </a>
 
                             <!-- Add new scenery addons below this line -->
@@ -407,9 +395,30 @@
         });
 
         // Fetch live Twitch follower count
-        const TWITCH_CHANNEL_NAME = '';
+        const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
         const TWITCH_OAUTH_TOKEN = '';
         const TWITCH_CLIENT_ID = '';
+
+        async function checkLiveStatus() {
+            try {
+                const streamResponse = await fetch(`https://api.twitch.tv/helix/streams?user_login=${TWITCH_CHANNEL_NAME}`, {
+                    headers: {
+                        'Client-ID': TWITCH_CLIENT_ID,
+                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
+                    }
+                });
+
+                if (!streamResponse.ok) throw new Error('Failed to fetch stream status');
+                const streamData = await streamResponse.json();
+                
+                // Show badge only if streaming
+                const isLive = streamData.data && streamData.data.length > 0;
+                document.getElementById('live-badge').style.display = isLive ? 'flex' : 'none';
+            } catch (error) {
+                console.log('Could not check live status:', error);
+                document.getElementById('live-badge').style.display = 'none';
+            }
+        }
 
         async function updateFollowerCount() {
             try {
@@ -449,6 +458,11 @@
         window.addEventListener('load', updateFollowerCount);
         // Update every 5 minutes
         setInterval(updateFollowerCount, 5 * 60 * 1000);
+
+        // Check live status on page load
+        window.addEventListener('load', checkLiveStatus);
+        // Check every 30 seconds for real-time updates
+        setInterval(checkLiveStatus, 30 * 1000);
 
         async function loadHighlights() {
             try {
