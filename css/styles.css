@@ -144,6 +144,37 @@ body {
     transform: scale(1.05);
 }
 
+/* Hamburger Menu */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    gap: 0.4rem;
+    z-index: 101;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background-color: var(--primary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(10px, 10px);
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+}
+
 /* Hero Section */
 .hero {
     max-width: 1400px;
@@ -839,18 +870,44 @@ body {
         font-size: 1.1rem;
     }
 
+    .hamburger {
+        display: flex;
+    }
+
     .nav-links {
-        gap: 0.5rem;
-        font-size: 0.75rem;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background-color: var(--dark-bg);
+        border-bottom: 1px solid var(--border);
+        flex-direction: column;
+        gap: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        align-items: stretch;
+    }
+
+    .nav-links.active {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .nav-links li {
+        border-bottom: 1px solid var(--border);
     }
 
     .nav-links a {
-        font-size: 0.75rem;
+        display: block;
+        padding: 1rem 2rem;
+        font-size: 0.9rem;
     }
 
     .follow-btn {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.7rem;
+        display: inline-block;
+        margin: 1rem 2rem;
+        padding: 0.6rem 1.2rem;
     }
 
     .hero {
