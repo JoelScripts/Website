@@ -27,20 +27,12 @@
         </div>
     </nav>
 
-    <!-- Next Stream Banner -->
-    <div id="next-stream-banner" class="next-stream-banner" style="display: none;">
-        <div class="next-stream-content">
-            <span class="live-indicator">🔴 NEXT STREAM</span>
-            <h3 id="next-stream-title">Microsoft Flight Simulator 2024</h3>
-            <p id="next-stream-time">Thursday at 3:30 PM GMT</p>
-            <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="notify-btn">Notify Me</a>
-        </div>
-    </div>
+    <!-- Next Stream Banner (Hidden - no longer needed) -->
+    <div id="next-stream-banner" style="display: none;"></div>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <div class="live-badge" id="live-badge" style="display: flex;">● Live on Twitch</div>
             <h1>Flying With Joel</h1>
             <p>Welcome to my flight simulation channel! Join me as I explore the skies in Microsoft Flight Simulator 2024 and X-Plane 12. From scenic flights to challenging approaches, we'll experience aviation together.</p>
             <a href="https://linktr.ee/AviationJoel" target="_blank" class="cta-btn">
@@ -50,7 +42,7 @@
                 <div class="stat-box">
                     <span class="stat-icon">👥</span>
                     <div>
-                        <span class="stat-number" id="follower-count">478</span>
+                        <span class="stat-number">500+</span>
                         <span class="stat-label">Twitch Followers</span>
                     </div>
                 </div>
@@ -71,7 +63,10 @@
             </div>
         </div>
         <div class="weekly-schedule" id="weekly-schedule">
-            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Loading schedule...</p>
+            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 2rem;">
+                📅 Check my schedule on Twitch for the latest stream times<br><br>
+                <a href="https://www.twitch.tv/Flyingwithjoel/schedule" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 600;">View Full Schedule →</a>
+            </p>
         </div>
     </section>
 
@@ -399,64 +394,10 @@
             });
         });
 
-        // API Configuration
-        const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
-        const API_BASE_URL = 'https://website-cji.onrender.com/api'; // Backend deployed on Render
-
-        // Keep-alive: Ping backend every 14 minutes to prevent spin-down on Render free tier
-        async function keepAlive() {
-            try {
-                await fetch(`${API_BASE_URL}/ping`);
-            } catch (error) {
-                console.log('Keep-alive ping failed (backend may be spinning up):', error);
-            }
-        }
-
-        // Start keep-alive immediately and every 14 minutes
-        keepAlive();
-        setInterval(keepAlive, 14 * 60 * 1000);
-
-        async function checkLiveStatus() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/live-status`);
-                if (!response.ok) throw new Error('Failed to fetch stream status');
-                const data = await response.json();
-                
-                // Show badge only if streaming
-                document.getElementById('live-badge').style.display = data.isLive ? 'flex' : 'none';
-            } catch (error) {
-                console.log('Could not check live status:', error);
-                document.getElementById('live-badge').style.display = 'none';
-            }
-        }
-
-        async function updateFollowerCount() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/followers`);
-                if (!response.ok) throw new Error('Failed to fetch followers');
-                const data = await response.json();
-                
-                // Format the number with commas
-                const formattedCount = data.followerCount.toLocaleString();
-                document.getElementById('follower-count').textContent = formattedCount;
-            } catch (error) {
-                console.log('Could not fetch live follower count:', error);
-            }
-        }
-
-        // Update follower count on page load
-        window.addEventListener('load', updateFollowerCount);
-        // Update every 5 minutes
-        setInterval(updateFollowerCount, 5 * 60 * 1000);
-
-        // Check live status on page load
-        window.addEventListener('load', checkLiveStatus);
-        // Check every 30 seconds for real-time updates
-        setInterval(checkLiveStatus, 30 * 1000);
-
+        // Load highlights (static links to Twitch)
         async function loadHighlights() {
             try {
-                // Create simple cards linking to Twitch clips
+                const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
                 const highlightsHTML = `
                     <div class="highlight-card" style="cursor: pointer;" onclick="window.open('https://www.twitch.tv/${TWITCH_CHANNEL_NAME}/clips', '_blank')">
                         <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); position: relative;">
@@ -487,112 +428,7 @@
         }
 
         // Load highlights on page load
-        const originalLoad = window.onload;
         window.addEventListener('load', loadHighlights);
-        // Refresh highlights every 10 minutes for new random selection
-        setInterval(loadHighlights, 10 * 60 * 1000);
-
-        async function loadUpcomingStreams() {
-            try {
-                const response = await fetch(`${API_BASE_URL}/schedule`);
-                if (!response.ok) throw new Error('Failed to fetch schedule');
-                const scheduleData = await response.json();
-                const streams = scheduleData.data.segments;
-
-                if (!streams || streams.length === 0) {
-                    document.getElementById('weekly-schedule').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No upcoming streams scheduled</p>';
-                    return;
-                }
-
-                // Create a 7-day schedule
-                const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-                const dayMap = {0: 'MON', 1: 'TUE', 2: 'WED', 3: 'THU', 4: 'FRI', 5: 'SAT', 6: 'SUN'};
-                const scheduleByDay = {};
-
-                // Initialize all days as OFF
-                days.forEach(day => {
-                    scheduleByDay[day] = null;
-                });
-
-                // Get the next stream overall
-                const now = new Date();
-                const nextStream = streams.find(stream => new Date(stream.start_time) > now);
-                
-                if (nextStream) {
-                    const startTime = new Date(nextStream.start_time);
-                    const date = startTime.toLocaleDateString('en-US', { weekday: 'long' });
-                    const time = startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
-                    const title = nextStream.title || (nextStream.category ? nextStream.category.name : 'Stream');
-                    
-                    document.getElementById('next-stream-title').textContent = title;
-                    document.getElementById('next-stream-time').textContent = `${date} at ${time}`;
-                    document.getElementById('next-stream-banner').style.display = 'block';
-                }
-
-                // Populate schedule by day of week
-                streams.forEach(stream => {
-                    const streamTime = new Date(stream.start_time);
-                    const dayIndex = streamTime.getDay();
-                    const dayName = dayMap[dayIndex === 0 ? 6 : dayIndex - 1]; // Adjust for Monday = 0
-                    
-                    if (!scheduleByDay[dayName]) {
-                        // Format time in UTC (HH:MM UTC)
-                        const hours = String(streamTime.getUTCHours()).padStart(2, '0');
-                        const minutes = String(streamTime.getUTCMinutes()).padStart(2, '0');
-                        const time = `${hours}:${minutes} UTC`;
-                        
-                        // Use category name if title is empty
-                        const title = stream.title || (stream.category ? stream.category.name : 'Stream');
-                        
-                        scheduleByDay[dayName] = {
-                            time: time,
-                            title: title
-                        };
-                    }
-                });
-
-                // Generate HTML for 7-day schedule
-                const scheduleHTML = days.map(day => {
-                    const dayInfo = scheduleByDay[day];
-                    if (!dayInfo) {
-                        return `
-                            <div class="day-card">
-                                <div class="day-name">${day}</div>
-                                <div class="stream-time" style="color: var(--text-muted); font-size: 1.3rem;">OFF</div>
-                                <div class="stream-title">No stream scheduled</div>
-                            </div>
-                        `;
-                    } else {
-                        // Determine game logo based on title
-                        let logo = '🎮';
-                        if (dayInfo.title.includes('Microsoft Flight Simulator') || dayInfo.title.includes('MSFS')) {
-                            logo = '✈️';
-                        } else if (dayInfo.title.includes('X-Plane')) {
-                            logo = '🛩️';
-                        }
-                        
-                        return `
-                            <div class="day-card has-stream">
-                                <div class="day-name">${day}</div>
-                                <div class="game-logo">${logo}</div>
-                                <div class="stream-time">${dayInfo.time}</div>
-                                <div class="stream-title">${dayInfo.title}</div>
-                            </div>
-                        `;
-                    }
-                }).join('');
-
-                document.getElementById('weekly-schedule').innerHTML = scheduleHTML;
-            } catch (error) {
-                console.error('Could not load streams:', error);
-                document.getElementById('weekly-schedule').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);"><a href="https://www.twitch.tv/' + TWITCH_CHANNEL_NAME + '/schedule" target="_blank" style="color: var(--primary); text-decoration: none;">View schedule on Twitch →</a></p>';
-            }
-        }
-
-        // Load streams on page load
-        window.addEventListener('load', loadUpcomingStreams);
-        // Refresh streams every 5 minutes
-        setInterval(loadUpcomingStreams, 5 * 60 * 1000);
     </script>
 </body>
 </html>
