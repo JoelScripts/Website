@@ -77,7 +77,39 @@
             <div class="schedule-icon">📅</div>
             <div>
                 <h2>7 Day Schedule</h2>
-                <p class="schedule-subtitle">Check out when I'm taking off next.<br>Times are in Zulu or local time. VOD availability varies by stream.</p>
+                <p class="schedule-subtitle">Check out when I'm taking off next. VOD availability varies by stream.</p>
+                <div style="margin-top: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                    <label for="timezone-select" style="color: #a0a0a0; font-size: 0.9rem; font-weight: 500;">Your Timezone:</label>
+                    <select id="timezone-select" style="background-color: #1a1a1a; color: #e0e0e0; border: 1px solid #2a2a2a; padding: 0.5rem 0.8rem; border-radius: 0.4rem; font-size: 0.9rem; cursor: pointer;">
+                        <option value="auto">Auto-detect (Recommended)</option>
+                        <optgroup label="Americas">
+                            <option value="America/New_York">Eastern Time (ET)</option>
+                            <option value="America/Chicago">Central Time (CT)</option>
+                            <option value="America/Denver">Mountain Time (MT)</option>
+                            <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                        </optgroup>
+                        <optgroup label="Europe">
+                            <option value="Europe/London">London (GMT)</option>
+                            <option value="Europe/Paris">Central European (CET)</option>
+                            <option value="Europe/Moscow">Moscow (MSK)</option>
+                        </optgroup>
+                        <optgroup label="Asia">
+                            <option value="Asia/Dubai">Dubai (GST)</option>
+                            <option value="Asia/Kolkata">India (IST)</option>
+                            <option value="Asia/Bangkok">Bangkok (ICT)</option>
+                            <option value="Asia/Shanghai">Shanghai (CST)</option>
+                            <option value="Asia/Tokyo">Tokyo (JST)</option>
+                            <option value="Asia/Seoul">Seoul (KST)</option>
+                        </optgroup>
+                        <optgroup label="Pacific">
+                            <option value="Australia/Sydney">Sydney (AEDT)</option>
+                            <option value="Pacific/Auckland">Auckland (NZDT)</option>
+                        </optgroup>
+                        <optgroup label="Other">
+                            <option value="UTC">UTC / Zulu</option>
+                        </optgroup>
+                    </select>
+                </div>
             </div>
         </div>
         <div class="weekly-schedule" id="weekly-schedule">
@@ -94,7 +126,7 @@
                 <div class="day-name">TUE</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 20</div>
                 <div class="game-logo">✈️</div>
-                <div class="stream-time">18:00 Zulu</div>
+                <div class="stream-time" data-zulu-time="18:00 Zulu">18:00 Zulu</div>
                 <div class="stream-title">Microsoft Flight Simulator</div>
                 <a href="https://www.twitch.tv/Flyingwithjoel/videos" target="_blank" style="font-size: 0.8rem; color: #66BB6A; margin-top: 0.5rem; font-weight: 600; text-decoration: none; display: block; cursor: pointer; transition: color 0.2s;">✓ Completed - Watch VOD</a>
             </div>
@@ -103,7 +135,7 @@
                 <div class="day-name">WED</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 21</div>
                 <div class="game-logo">✈️</div>
-                <div class="stream-time">18:00 Zulu</div>
+                <div class="stream-time" data-zulu-time="18:00 Zulu">18:00 Zulu</div>
                 <div class="stream-title">Microsoft Flight Simulator</div>
                 <a href="https://www.twitch.tv/Flyingwithjoel/videos" target="_blank" style="font-size: 0.8rem; color: #66BB6A; margin-top: 0.5rem; font-weight: 600; text-decoration: none; display: block; cursor: pointer; transition: color 0.2s;">✓ Completed - Watch VOD</a>
             </div>
@@ -112,7 +144,7 @@
                 <div class="day-name">THU</div>
                 <div class="day-date" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 22</div>
                 <div class="game-logo">✈️</div>
-                <div class="stream-time">15:30  Zulu</div>
+                <div class="stream-time" data-zulu-time="15:30 Zulu">15:30 Zulu</div>
                 <div class="stream-title">Microsoft Flight Simulator</div>
                 <div style="font-size: 0.8rem; color: #ff6666; margin-top: 0.5rem; font-weight: 600;">✖️ Cancelled</div>
             </div>
@@ -121,7 +153,7 @@
                 <div class="day-name">FRI</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 23</div>
                 <div class="game-logo">✈️</div>
-                <div class="stream-time">18:00 Zulu</div>
+                <div class="stream-time" data-zulu-time="18:00 Zulu">18:00 Zulu</div>
                 <div class="stream-title">Microsoft Flight Simulator</div>
             </div>
             <!-- SATURDAY JAN 24 -->
@@ -129,7 +161,7 @@
                 <div class="day-name">SAT</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 24</div>
                 <div class="game-logo">✈️</div>
-                <div class="stream-time">11:00 AM Zulu</div>
+                <div class="stream-time" data-zulu-time="11:00 AM Zulu">11:00 AM Zulu</div>
                 <div class="stream-title">Microsoft Flight Simulator</div>
             </div>
             <!-- SUNDAY JAN 25 -->
@@ -137,7 +169,7 @@
                 <div class="day-name">SUN</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 25</div>
                 <div class="game-logo">✈️</div>
-                <div class="stream-time">11:00 AM Zulu</div>
+                <div class="stream-time" data-zulu-time="11:00 AM Zulu">11:00 AM Zulu</div>
                 <div class="stream-title">Microsoft Flight Simulator</div>
             </div>
         </div>
@@ -565,30 +597,64 @@
         // Run on page load
         window.addEventListener('load', highlightToday);
 
-        // Convert Zulu times to local times
-        function convertZuluToLocal() {
+        // Timezone selector functionality
+        const tzSelect = document.getElementById('timezone-select');
+        
+        // Load saved timezone preference or use auto-detect
+        const savedTz = localStorage.getItem('preferredTimezone') || 'auto';
+        if (tzSelect) {
+            tzSelect.value = savedTz;
+            
+            tzSelect.addEventListener('change', function() {
+                localStorage.setItem('preferredTimezone', this.value);
+                const tz = this.value === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : this.value;
+                convertZuluToSelectedTimezone(tz);
+            });
+        }
+        
+        // Auto-detect timezone on load
+        window.addEventListener('load', function() {
+            if (savedTz === 'auto') {
+                const autoTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                convertZuluToSelectedTimezone(autoTz);
+            } else {
+                convertZuluToSelectedTimezone(savedTz);
+            }
+        });
+
+        function convertZuluToSelectedTimezone(timezone) {
+            const selectedTz = timezone || document.getElementById('timezone-select').value;
+            const actualTz = selectedTz === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : selectedTz;
+            
             const dayCards = document.querySelectorAll('.day-card');
             dayCards.forEach(card => {
                 const streamTimeEl = card.querySelector('.stream-time');
-                if (streamTimeEl && streamTimeEl.textContent.includes('Zulu')) {
-                    const zuluTime = streamTimeEl.textContent.trim();
-                    
-                    // Don't convert if it's "No Stream Planned" or just "-"
-                    if (zuluTime === 'No Stream Planned' || zuluTime === '-' || zuluTime === 'OFF') {
+                if (!streamTimeEl) return;
+                
+                // Get original Zulu time from data attribute or parse from text
+                const originalText = streamTimeEl.getAttribute('data-zulu-time');
+                let zuluTimeStr = originalText;
+                
+                if (!zuluTimeStr) {
+                    // Try to extract from current text (fallback for legacy cards)
+                    const text = streamTimeEl.textContent.trim();
+                    if (text.includes(':')) {
+                        zuluTimeStr = text.split(' ').slice(0, 2).join(' ') + ' Zulu';
+                    } else {
                         return;
                     }
-                    
-                    try {
-                        const localTime = convertTime(zuluTime);
-                        streamTimeEl.textContent = localTime;
-                    } catch (e) {
-                        console.log('Could not convert time:', zuluTime);
-                    }
+                }
+                
+                try {
+                    const localTime = convertTimeToTimezone(zuluTimeStr, actualTz);
+                    streamTimeEl.textContent = localTime;
+                } catch (e) {
+                    console.log('Could not convert time:', zuluTimeStr);
                 }
             });
         }
 
-        function convertTime(zuluTimeStr) {
+        function convertTimeToTimezone(zuluTimeStr, timezone) {
             // Parse time like "18:00 Zulu", "15:30 Zulu", "11:00 AM Zulu"
             const timeMatch = zuluTimeStr.match(/(\d{1,2}):(\d{2})(?:\s(AM|PM))?\s+Zulu/i);
             
@@ -611,28 +677,41 @@
             const utcDate = new Date();
             utcDate.setUTCHours(hours, parseInt(minutes), 0);
             
-            // Get user's local timezone offset
-            const localDate = new Date(utcDate.toLocaleString('en-US', { timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone }));
+            // Format to the selected timezone
+            const formatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: timezone,
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
             
-            // Format as local time (24-hour format to match original)
-            const localHours = String(localDate.getHours()).padStart(2, '0');
-            const localMins = String(localDate.getMinutes()).padStart(2, '0');
+            const timeParts = formatter.format(utcDate);
+            const [tzHours, tzMinutes] = timeParts.split(':');
             
             // Get timezone abbreviation
-            const formatter = new Intl.DateTimeFormat('en-US', {
-                timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            const tzFormatter = new Intl.DateTimeFormat('en-US', {
+                timeZone: timezone,
                 timeZoneName: 'short'
             });
-            const parts = formatter.formatToParts(utcDate);
-            const tzPart = parts.find(p => p.type === 'timeZoneName');
+            const tzParts = tzFormatter.formatToParts(utcDate);
+            const tzPart = tzParts.find(p => p.type === 'timeZoneName');
             const tz = tzPart ? tzPart.value : '';
             
-            return `${localHours}:${localMins} ${tz}`;
+            return `${tzHours}:${tzMinutes} ${tz}`;
         }
 
         // Run on page load
-        window.addEventListener('load', convertZuluToLocal);
         window.addEventListener('load', updateLiveStatus);
+        window.addEventListener('load', function() {
+            // Apply timezone conversion after DOM is ready
+            const savedTz = localStorage.getItem('preferredTimezone') || 'auto';
+            if (savedTz === 'auto') {
+                const autoTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                convertZuluToSelectedTimezone(autoTz);
+            } else {
+                convertZuluToSelectedTimezone(savedTz);
+            }
+        });
         
         // Update live status and check every minute
         setInterval(updateLiveStatus, 60000);
