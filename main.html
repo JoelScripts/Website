@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flying With Joel - Flight Sim Setup</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">flywithjoel</div>
+            <ul class="nav-links">
+                <li><a href="#schedule">Schedule</a></li>
+                <li><a href="#highlights">Highlights</a></li>
+                <li><a href="#setup">My Setup</a></li>
+                <li><a href="#affiliates">Affiliates</a></li>
+                <li><a href="#contact">Contact Me</a></li>
+                <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="follow-btn">Follow Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Next Stream Banner -->
+    <div id="next-stream-banner" class="next-stream-banner" style="display: none;">
+        <div class="next-stream-content">
+            <span class="live-indicator">🔴 NEXT STREAM</span>
+            <h3 id="next-stream-title">Microsoft Flight Simulator 2024</h3>
+            <p id="next-stream-time">Thursday at 3:30 PM GMT</p>
+            <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="notify-btn">Notify Me</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="live-badge">● Live on Twitch</div>
+            <h1>Flying With Joel</h1>
+            <p>Welcome to my flight simulation channel! Join me as I explore the skies in Microsoft Flight Simulator 2024 and X-Plane 12. From scenic flights to challenging approaches, we'll experience aviation together.</p>
+            <a href="https://linktr.ee/AviationJoel" target="_blank" class="cta-btn">
+                <span class="icon">↗</span> Connect With Me
+            </a>
+            <div class="stats">
+                <div class="stat-box">
+                    <span class="stat-icon">👥</span>
+                    <div>
+                        <span class="stat-number" id="follower-count">478</span>
+                        <span class="stat-label">Twitch Followers</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-image">
+            <img src="assets/hero-plane.jpg" alt="Flight Simulator">
+        </div>
+    </section>
+
+    <!-- Upcoming Streams Section -->
+    <section id="schedule" class="upcoming-section">
+        <h2>Upcoming Streams</h2>
+        <p class="section-subtitle">Join me for these exciting flights</p>
+        <div class="streams-grid" id="streams-grid">
+            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Loading schedule...</p>
+        </div>
+    </section>
+
+    <!-- Highlights Section -->
+    <section id="highlights" class="highlights-section">
+        <h2>Recent Highlights</h2>
+        <p class="section-subtitle">Check out the best moments from recent streams</p>
+        <div class="highlights-grid" id="highlights-grid">
+            <!-- Highlights will be loaded here by JavaScript -->
+            <p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">Loading highlights...</p>
+        </div>
+    </section>
+
+    <!-- My Setup Section -->
+    <section id="setup" class="setup-section">
+        <h2>My Setup</h2>
+        <p class="section-subtitle">Explore my sim configuration and hardware</p>
+
+        <!-- Tab Navigation -->
+        <div class="tabs-container">
+            <button class="tab-btn active" data-tab="sim-settings">
+                <span class="icon">⚙️</span> Sim Settings
+            </button>
+            <button class="tab-btn" data-tab="addons">
+                <span class="icon">🎁</span> Addons
+            </button>
+            <button class="tab-btn" data-tab="graphics">
+                <span class="icon">📺</span> Graphics
+            </button>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="tabs-content">
+            <!-- Sim Settings Tab -->
+            <div id="sim-settings" class="tab-content active">
+                <div class="content-grid">
+                    <div class="card">
+                        <h3>💻 PC Specifications</h3>
+                        <div class="specs-list">
+                            <div class="spec-row">
+                                <span class="spec-label">Cpu:</span>
+                                <span class="spec-value">Intel Core i9-13900K</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Gpu:</span>
+                                <span class="spec-value">NVIDIA RTX 4080 16GB</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Ram:</span>
+                                <span class="spec-value">32GB DDR5-6000</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Storage:</span>
+                                <span class="spec-value">2TB NVMe SSD</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label">Monitor:</span>
+                                <span class="spec-value">LG 34" Ultrawide 144Hz</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🛩️ Microsoft Flight Simulator 2024</h3>
+                        <div class="sim-settings">
+                            <div class="setting-group">
+                                <span class="setting-label">Flight Model</span>
+                                <span class="setting-value">Modern</span>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Assistance Preset</span>
+                                <span class="setting-value">Hard</span>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Control Settings</span>
+                                <ul class="control-list">
+                                    <li>Joystick: Thrustmaster T.16000M</li>
+                                    <li>Rudder: Thrustmaster TFRP</li>
+                                    <li>Throttle: Thrustmaster TWCS</li>
+                                    <li>Sensitivity: Medium</li>
+                                </ul>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Realism Settings</span>
+                                <div class="tag-group">
+                                    <span class="tag">bird Strikes</span>
+                                    <span class="tag">icing</span>
+                                    <span class="tag">turbulence</span>
+                                    <span class="tag">prop Wash</span>
+                                    <span class="tag">engine Stress</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>✈️ X-Plane 12</h3>
+                        <div class="sim-settings">
+                            <div class="setting-group">
+                                <span class="setting-label">Flight Model</span>
+                                <span class="setting-value">High Fidelity</span>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Weather Engine</span>
+                                <span class="setting-value">Real Weather Connector</span>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Control Settings</span>
+                                <ul class="control-list">
+                                    <li>Joystick: Thrustmaster T.16000M</li>
+                                    <li>Rudder: Thrustmaster TFRP</li>
+                                    <li>Throttle: Thrustmaster TWCS</li>
+                                    <li>Response: 80%</li>
+                                </ul>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Physics Settings</span>
+                                <div class="tag-group">
+                                    <span class="tag">true</span>
+                                    <span class="tag">Realistic</span>
+                                    <span class="tag">High Detail</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="performance-tips-card">
+                    <h3>💡 Performance Tips</h3>
+                    <ul class="tips-list">
+                        <li>Use NVIDIA DLSS if available for better performance</li>
+                        <li>Limit terrain detail pre-caching to 100 miles for smooth FPS</li>
+                        <li>Disable rolling cache if experiencing stutters</li>
+                        <li>Use High instead of Ultra for clouds if FPS drops below 40</li>
+                        <li>Keep GPU drivers updated for optimal performance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Addons Tab -->
+            <div id="addons" class="tab-content">
+                <div class="content-grid">
+                    <div class="card">
+                        <h3>✈️ Aircraft</h3>
+                        <div class="addon-list">
+                            <a href="https://www.pmdg.com/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">PMDG 737-800</span>
+                                <span class="addon-info">MSFS 2024 • Study-level Airliner</span>
+                            </a>
+
+                            <a href="https://www.fenixsim.com/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">Fenix A320</span>
+                                <span class="addon-info">MSFS 2024 • Study-level Airliner</span>
+                            </a>
+
+                            <a href="https://inibuilds.com/products/inibuilds-a350-airliner-msfs-2024" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">Inibuilds A350</span>
+                                <span class="addon-info">MSFS 2024 • High Fidelity Airliner</span>
+                            </a>
+
+                            <a href="https://inibuilds.com/products/inibuilds-a340-airliner-msfs-2024" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">inibuilds A340 Airliner</span>
+                                <span class="addon-info">MSFS 2024 • High Fidelity Airliner</span>
+                            </a>
+
+                                 <a href="https://inibuilds.com/products/tfdi-design-md-11-msfs" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">TFDI Design MD-11</span>
+                                <span class="addon-info">MSFS 2024 • High Fidelity Airliner</span>
+                            </a>
+
+                            <!-- Add new aircraft addons below this line -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🌍 Scenery</h3>
+                        <div class="addon-list">
+                            <a href="https://www.orbxdirect.com/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">Orbx Norway</span>
+                                <span class="addon-info">MSFS 2024 • Regional Scenery</span>
+                            </a>
+
+                            <a href="https://www.latinvfr.com/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">LatinVFR KATL</span>
+                                <span class="addon-info">MSFS 2024 • Airport</span>
+                            </a>
+
+                            <a href="https://x-plane.org/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">MisterX6 Airports Pack</span>
+                                <span class="addon-info">X-Plane 12 • Airport Collection</span>
+                            </a>
+
+                            <!-- Add new scenery addons below this line -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🛠️ Utilities</h3>
+                        <div class="addon-list">
+                            <a href="https://www.littlenavmap.org/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">Little Navmap</span>
+                                <span class="addon-info">Flight Planning & Navigation</span>
+                            </a>
+
+                            <a href="https://www.vatsim.net/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">VATSIM vPilot</span>
+                                <span class="addon-info">Online Flying Network</span>
+                            </a>
+
+                            <a href="https://www.simbrief.com/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">SimBrief</span>
+                                <span class="addon-info">Flight Plan Generator</span>
+                            </a>
+
+                            <a href="https://skyvector.com/" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">SkyVector</span>
+                                <span class="addon-info">Aviation Charts</span>
+                            </a>
+
+                              <a href="https://navigraph.com" target="_blank" class="addon-item addon-link">
+                                <span class="addon-name">Navigraph Charts</span>
+                                <span class="addon-info">Aviation Charts</span>
+                            </a>
+
+                            <!-- Add new utility addons below this line -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphics Tab -->
+            <div id="graphics" class="tab-content">
+                <div class="content-grid">
+                    <div class="card">
+                        <h3>🎮 MSFS 2024 Graphics</h3>
+                        <div class="graphics-settings">
+                            <div class="setting-group">
+                                <span class="setting-label">Preset</span>
+                                <span class="setting-value">Custom High-Ultra Mix</span>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Render Scale</span>
+                                <span class="setting-value">100%</span>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Key Settings</span>
+                                <div class="tag-group">
+                                    <span class="tag">Clouds: Ultra</span>
+                                    <span class="tag">Terrain: Ultra</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>🎮 X-Plane 12 Graphics</h3>
+                        <div class="graphics-settings">
+                            <div class="setting-group">
+                                <span class="setting-label">Preset</span>
+                                <span class="setting-value">Custom High</span>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Texture Quality</span>
+                                <span class="setting-value">Maximum</span>
+                            </div>
+                            <div class="setting-group">
+                                <span class="setting-label">Key Settings</span>
+                                <div class="tag-group">
+                                    <span class="tag">AA: 4x SSAA</span>
+                                    <span class="tag">VFX: Maximum</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Affiliates Section -->
+    <section id="affiliates" class="affiliates-section">
+        <h2>Affiliate Partners</h2>
+        <p class="section-subtitle">Companies and products I recommend and use</p>
+        <div class="affiliates-grid">
+            <!-- Affiliate Template - Copy this entire div to add more -->
+            <div class="affiliate-card">
+                <div class="affiliate-header">
+                    <h3>NONE YET</h3>
+                    <span class="affiliate-badge">Soom™️</span>
+                </div>
+                <p class="affiliate-description">Soon™️</p>
+                <a href="LINK HERE" target="_blank" class="affiliate-btn">Shop Now</a>
+            </div>
+
+            <!-- Add more affiliate cards below this line -->
+            <!-- Copy and paste the template above, then update: h3 (company name), affiliate-badge (category), affiliate-description (description), and href (link) -->
+
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <h2>Contact Me</h2>
+        <p class="section-subtitle">Get in touch for business enquiries</p>
+        <div class="contact-container">
+            <div class="contact-card">
+                <h3>📧 Business Enquiries</h3>
+                <p>For sponsorships, collaborations, and business opportunities:</p>
+                <a href="mailto:flywithjoeluk@gmail.com" class="contact-email">flywithjoeluk@gmail.com</a>
+                <p class="contact-note">I'll get back to you as soon as possible!</p>
+            </div>
+            <div class="contact-card">
+                <h3>🎥 Connect on Twitch</h3>
+                <p>Chat with me live during streams and join the community:</p>
+                <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="contact-link">Visit My Twitch Channel</a>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/main.js"></script>
+    <script>
+        // Fetch live Twitch follower count
+        const TWITCH_CHANNEL_NAME = '';
+        const TWITCH_OAUTH_TOKEN = '';
+        const TWITCH_CLIENT_ID = '';
+
+        async function updateFollowerCount() {
+            try {
+                // Get the user ID
+                const userResponse = await fetch(`https://api.twitch.tv/helix/users?login=${TWITCH_CHANNEL_NAME}`, {
+                    headers: {
+                        'Client-ID': TWITCH_CLIENT_ID,
+                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
+                    }
+                });
+
+                if (!userResponse.ok) throw new Error('Failed to fetch user');
+                const userData = await userResponse.json();
+                const userId = userData.data[0].id;
+
+                // Get the follower count
+                const followResponse = await fetch(`https://api.twitch.tv/helix/channels/followers?broadcaster_id=${userId}`, {
+                    headers: {
+                        'Client-ID': TWITCH_CLIENT_ID,
+                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
+                    }
+                });
+
+                if (!followResponse.ok) throw new Error('Failed to fetch followers');
+                const followData = await followResponse.json();
+                const followerCount = followData.total;
+
+                // Format the number with commas
+                const formattedCount = followerCount.toLocaleString();
+                document.getElementById('follower-count').textContent = formattedCount;
+            } catch (error) {
+                console.log('Could not fetch live follower count:', error);
+            }
+        }
+
+        // Update follower count on page load
+        window.addEventListener('load', updateFollowerCount);
+        // Update every 5 minutes
+        setInterval(updateFollowerCount, 5 * 60 * 1000);
+
+        async function loadHighlights() {
+            try {
+                // Create simple cards linking to Twitch clips
+                const highlightsHTML = `
+                    <div class="highlight-card" style="cursor: pointer;" onclick="window.open('https://www.twitch.tv/${TWITCH_CHANNEL_NAME}/clips', '_blank')">
+                        <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); position: relative;">
+                            <span style="font-size: 3rem;">🎬</span>
+                        </div>
+                        <h4>Watch Your Latest Clips</h4>
+                        <span class="view-count">👁️ View all clips on Twitch</span>
+                    </div>
+                    <div class="highlight-card" style="cursor: pointer;" onclick="window.open('https://www.twitch.tv/${TWITCH_CHANNEL_NAME}/videos', '_blank')">
+                        <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--secondary), #FF2C5A); position: relative;">
+                            <span style="font-size: 3rem;">📹</span>
+                        </div>
+                        <h4>Best Moments from Streams</h4>
+                        <span class="view-count">👁️ View all videos</span>
+                    </div>
+                    <div class="highlight-card" style="cursor: pointer;" onclick="window.open('https://www.twitch.tv/${TWITCH_CHANNEL_NAME}', '_blank')">
+                        <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #9147ff, #5D29FF); position: relative;">
+                            <span style="font-size: 3rem;">📺</span>
+                        </div>
+                        <h4>Follow on Twitch</h4>
+                        <span class="view-count">👁️ Join the community</span>
+                    </div>
+                `;
+                document.getElementById('highlights-grid').innerHTML = highlightsHTML;
+            } catch (error) {
+                console.error('Could not load highlights:', error);
+            }
+        }
+
+        // Load highlights on page load
+        const originalLoad = window.onload;
+        window.addEventListener('load', loadHighlights);
+        // Refresh highlights every 10 minutes for new random selection
+        setInterval(loadHighlights, 10 * 60 * 1000);
+
+        async function loadUpcomingStreams() {
+            try {
+                // Get the user ID first
+                const userResponse = await fetch(`https://api.twitch.tv/helix/users?login=${TWITCH_CHANNEL_NAME}`, {
+                    headers: {
+                        'Client-ID': TWITCH_CLIENT_ID,
+                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
+                    }
+                });
+
+                if (!userResponse.ok) {
+                    throw new Error('Failed to fetch user');
+                }
+                const userData = await userResponse.json();
+                const userId = userData.data[0].id;
+
+                // Get the schedule
+                const scheduleResponse = await fetch(`https://api.twitch.tv/helix/schedule?broadcaster_id=${userId}&first=10`, {
+                    headers: {
+                        'Client-ID': TWITCH_CLIENT_ID,
+                        'Authorization': `Bearer ${TWITCH_OAUTH_TOKEN}`
+                    }
+                });
+
+                if (!scheduleResponse.ok) {
+                    throw new Error('Failed to fetch schedule');
+                }
+                const scheduleData = await scheduleResponse.json();
+                const streams = scheduleData.data;
+
+                if (!streams || streams.length === 0) {
+                    document.getElementById('streams-grid').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No upcoming streams scheduled</p>';
+                    return;
+                }
+
+                // Get the next stream
+                const now = new Date();
+                const nextStream = streams.find(stream => new Date(stream.start_time) > now);
+                
+                if (nextStream) {
+                    const startTime = new Date(nextStream.start_time);
+                    const date = startTime.toLocaleDateString('en-US', { weekday: 'long' });
+                    const time = startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+                    
+                    document.getElementById('next-stream-title').textContent = nextStream.title;
+                    document.getElementById('next-stream-time').textContent = `${date} at ${time}`;
+                    document.getElementById('next-stream-banner').style.display = 'block';
+                }
+
+                // Generate HTML for all streams
+                const streamsHTML = streams.map(stream => {
+                    const startTime = new Date(stream.start_time);
+                    const date = startTime.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
+                    const time = startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', timeZoneName: 'short' });
+                    
+                    return `
+                        <div class="stream-card">
+                            <div class="stream-header">
+                                <span class="sim-badge">${stream.category?.name || 'Stream'}</span>
+                                <span class="plane-icon">✈️</span>
+                            </div>
+                            <h4>${stream.title}</h4>
+                            <p>${stream.is_recurring ? '🔄 Recurring Stream' : 'Upcoming Stream'}</p>
+                            <div class="stream-info">
+                                <span class="info-item">📅 ${date}</span>
+                                <span class="info-item">🕐 ${time}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('streams-grid').innerHTML = streamsHTML;
+            } catch (error) {
+                console.error('Could not load streams:', error);
+                document.getElementById('streams-grid').innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);"><a href="https://www.twitch.tv/' + TWITCH_CHANNEL_NAME + '/schedule" target="_blank" style="color: var(--primary); text-decoration: none;">View schedule on Twitch →</a></p>';
+            }
+        }
+
+        // Load streams on page load
+        window.addEventListener('load', loadUpcomingStreams);
+        // Refresh streams every 5 minutes
+        setInterval(loadUpcomingStreams, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
