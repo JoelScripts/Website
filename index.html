@@ -632,6 +632,77 @@
 
         // Run on page load
         window.addEventListener('load', convertZuluToLocal);
+        window.addEventListener('load', updateLiveStatus);
+        
+        // Update live status and check every minute
+        setInterval(updateLiveStatus, 60000);
+
+        function updateLiveStatus() {
+            const now = new Date();
+            const currentHours = now.getHours();
+            const currentMinutes = now.getMinutes();
+            const currentTime = currentHours * 60 + currentMinutes; // Convert to minutes for easier comparison
+            
+            const dayCards = document.querySelectorAll('.day-card');
+            dayCards.forEach(card => {
+                const streamTimeEl = card.querySelector('.stream-time');
+                if (!streamTimeEl) return;
+                
+                const timeText = streamTimeEl.textContent.trim();
+                
+                // Extract hours and minutes from time
+                const timeMatch = timeText.match(/(\d{1,2}):(\d{2})/);
+                if (!timeMatch) {
+                    card.classList.remove('live');
+                    return;
+                }
+                
+                const streamHours = parseInt(timeMatch[1]);
+                const streamMinutes = parseInt(timeMatch[2]);
+                const streamTime = streamHours * 60 + streamMinutes;
+                
+                // Check if current time is within 3 hours after stream start
+                const streamDuration = 600; // 3 hours in minutes
+                const timeUntilStream = streamTime - currentTime;
+                const isLive = timeUntilStream >= -streamDuration && timeUntilStream < 0;
+                
+                // Also check if it's the right day
+                const cardDate = card.getAttribute('data-date');
+                const today = new Date();
+                const month = today.getMonth() + 1;
+                const date = today.getDate();
+                const dateString = `${month}-${date}`;
+                const isToday = cardDate === dateString;
+                
+                if (isLive && isToday && !card.classList.contains('cancelled')) {
+                    card.classList.add('live');
+                    card.style.cursor = 'pointer';
+                } else {
+                    card.classList.remove('live');
+                    card.style.cursor = 'default';
+                }
+            });
+        }
+
+        // Make live cards clickable - direct to Twitch
+        function addLiveCardClickHandler() {
+            const dayCards = document.querySelectorAll('.day-card');
+            dayCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    if (this.classList.contains('live')) {
+                        window.open('https://www.twitch.tv/Flyingwithjoel', '_blank');
+                    }
+                });
+            });
+        }
+
+        window.addEventListener('load', function() {
+            addLiveCardClickHandler();
+            // Also update click handlers every minute when live status updates
+            setInterval(addLiveCardClickHandler, 60000);
+                }
+            });
+        }
     </script>
 </body>
 </html>
