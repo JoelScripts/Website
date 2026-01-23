@@ -8,6 +8,127 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .policy-content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .policy-intro {
+            background: linear-gradient(135deg, rgba(255, 140, 66, 0.1), rgba(102, 187, 106, 0.1));
+            padding: 2rem;
+            border-radius: 0.8rem;
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            margin-bottom: 3rem;
+        }
+        .policy-intro h1 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+        .policy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        .policy-card {
+            background: rgba(255, 140, 66, 0.03);
+            border: 1px solid rgba(255, 140, 66, 0.15);
+            border-radius: 0.8rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .policy-card:hover {
+            border-color: rgba(255, 140, 66, 0.4);
+            box-shadow: 0 8px 24px rgba(255, 140, 66, 0.1);
+            transform: translateY(-4px);
+        }
+        .policy-card h2 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .policy-card p {
+            color: var(--text-muted);
+            margin: 0.5rem 0;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .policy-card ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+            list-style: none;
+        }
+        .policy-card ul li {
+            color: var(--text-muted);
+            margin: 0.6rem 0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .policy-card ul li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        .policy-card strong {
+            color: #e0e0e0;
+        }
+        .policy-card a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        .policy-card a:hover {
+            text-decoration: underline;
+        }
+        .section-title {
+            grid-column: 1 / -1;
+            font-size: 2rem;
+            color: var(--primary);
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 140, 66, 0.2);
+        }
+        .highlight-badge {
+            display: inline-block;
+            background: rgba(102, 187, 106, 0.2);
+            color: #66BB6A;
+            padding: 0.3rem 0.8rem;
+            border-radius: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .warning-badge {
+            display: inline-block;
+            background: rgba(255, 140, 66, 0.2);
+            color: var(--primary);
+            padding: 0.3rem 0.8rem;
+            border-radius: 0.4rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        @media (max-width: 768px) {
+            .policy-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Header -->
@@ -26,199 +147,349 @@
                 <li><a href="index.html#faq">FAQ</a></li>
                 <li><a href="index.html#affiliates">Affiliates</a></li>
                 <li><a href="index.html#contact">Contact Me</a></li>
-                <li><a href="privacy.html">Privacy</a></li>
-                <li><a href="terms.html">Terms</a></li>
                 <li><a href="suggestions.html">Suggestions</a></li>
                 <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="follow-btn">Follow Me</a></li>
             </ul>
         </div>
     </nav>
 
-    <!-- Hero Section for Privacy Page -->
-    <section class="hero" style="padding: 2.5rem 2rem; text-align: center;">
-        <div class="hero-content" style="max-width: 800px; margin: 0 auto;">
-            <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem;">Privacy & Data Protection</h1>
-            <p style="font-size: 1rem; color: var(--text-muted); margin-bottom: 1.5rem;">Your privacy is our priority. Here's exactly how we protect your data.</p>
-            <a href="index.html" style="display: inline-block; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 0.6rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; cursor: pointer;">← Return to Main Site</a>
+    <div class="policy-content">
+        <div class="policy-intro">
+            <h1>🔒 Privacy & Data Notice</h1>
+            <p style="color: var(--text-muted); margin: 0.5rem 0 0 0;">Last Updated: January 2026</p>
+            <p>We are committed to protecting your privacy. This website is designed to minimize personal data collection and maintain full compliance with GDPR, CCPA, COPPA, and UK ICO regulations.</p>
         </div>
-    </section>
 
-    <!-- Last Updated Notice -->
-    <div style="text-align: center; padding: 1rem 2rem; background: rgba(102, 187, 106, 0.08); color: var(--text-muted); font-size: 0.85rem; border-bottom: 1px solid var(--border);">
-        Last Updated: January 2026 | This privacy policy complies with GDPR, CCPA, UK ICO, and COPPA regulations
+        <!-- Data Collection Section -->
+        <div class="section-title">📊 Data Collection</div>
+        <div class="policy-grid">
+            <div class="policy-card">
+                <h2>📝 Information You Provide</h2>
+                <ul>
+                    <li>Contact form submissions via email</li>
+                    <li>Business enquiry messages</li>
+                    <li>Suggestions for the website</li>
+                    <li>Communications to flywithjoeluk@gmail.com</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.85rem; color: #888;"><strong>Retention:</strong> Kept for 2 years or until deleted.</p>
+            </div>
+
+            <div class="policy-card">
+                <h2>🔄 Automatic Collection</h2>
+                <ul>
+                    <li>Server security logs (IP, browser type)</li>
+                    <li>Timezone preference (local storage only)</li>
+                    <li>Google Fonts data sharing</li>
+                    <li>Twitch integration data</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.85rem; color: #888;"><strong>Note:</strong> No personal tracking or analytics.</p>
+            </div>
+
+            <div class="policy-card">
+                <h2>🍪 Cookies & Storage</h2>
+                <ul>
+                    <li>Minimal cookie usage</li>
+                    <li>Timezone stored in browser only</li>
+                    <li>No third-party tracking</li>
+                    <li>User-managed preferences</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.85rem; color: #888;"><strong>Control:</strong> Manage via browser settings anytime.</p>
+            </div>
+        </div>
+
+        <!-- Rights Section -->
+        <div class="section-title">⚖️ Your Rights</div>
+        <div class="policy-grid">
+            <div class="policy-card">
+                <span class="highlight-badge">🇬🇧 GDPR - UK & EU</span>
+                <h2>Right to Access</h2>
+                <p>Request all personal data we hold about you</p>
+                <ul>
+                    <li>Complete data transparency</li>
+                    <li>Delivered in standard format</li>
+                    <li>Within 30 days</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <span class="highlight-badge">🇬🇧 GDPR - UK & EU</span>
+                <h2>Right to Erasure</h2>
+                <p>Request deletion of your data ("Right to be Forgotten")</p>
+                <ul>
+                    <li>Delete contact submissions</li>
+                    <li>Remove personal records</li>
+                    <li>Within 30 days</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <span class="highlight-badge">🇬🇧 GDPR - UK & EU</span>
+                <h2>Other GDPR Rights</h2>
+                <p>Additional protections available</p>
+                <ul>
+                    <li>Right to Rectification</li>
+                    <li>Right to Restrict Processing</li>
+                    <li>Right to Data Portability</li>
+                    <li>Right to Object</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <span class="warning-badge">🌎 CCPA - California</span>
+                <h2>California Rights</h2>
+                <p>CCPA consumer protection rights</p>
+                <ul>
+                    <li>Right to Know what we collect</li>
+                    <li>Right to Delete your data</li>
+                    <li>Right to Opt-Out (we don't sell)</li>
+                    <li>Right to Correct information</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <span class="warning-badge">🌎 CCPA - California</span>
+                <h2>No Discrimination</h2>
+                <p>We will not discriminate against you</p>
+                <ul>
+                    <li>For exercising your rights</li>
+                    <li>For opting out</li>
+                    <li>For data deletion requests</li>
+                    <li>Full compliance guaranteed</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <h2>📧 How to Request</h2>
+                <p>Exercise your rights anytime</p>
+                <p style="margin: 1rem 0;">Email: <strong style="color: var(--primary);">flywithjoeluk@gmail.com</strong></p>
+                <p style="font-size: 0.9rem;">Subject: "Data Request - [Your Name]"</p>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #888;">Response within 30-45 days</p>
+            </div>
+        </div>
+
+        <!-- Children & Age Section -->
+        <div class="section-title">👶 Children & Age Restrictions</div>
+        <div class="policy-grid">
+            <div class="policy-card">
+                <span class="warning-badge">⚠️ COPPA Compliance</span>
+                <h2>Minimum Age: 16+</h2>
+                <p>This website is intended for users 16 and older</p>
+                <ul>
+                    <li>No tracking of under-16s</li>
+                    <li>Parental consent required if under 16</li>
+                    <li>Special protections for under-13s</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <span class="warning-badge">⚠️ COPPA Compliance</span>
+                <h2>Under 13 Protection</h2>
+                <p>Strict protections for children</p>
+                <ul>
+                    <li>No data collection without parental consent</li>
+                    <li>Immediate deletion if discovered</li>
+                    <li>No behavioral tracking</li>
+                    <li>No data selling</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <span class="warning-badge">⚠️ COPPA Compliance</span>
+                <h2>Parents & Guardians</h2>
+                <p>You have full control of children's data</p>
+                <ul>
+                    <li>Review your child's data</li>
+                    <li>Request data deletion</li>
+                    <li>Restrict data collection</li>
+                    <li>Contact us anytime</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Security & Compliance Section -->
+        <div class="section-title">🛡️ Security & Data Protection</div>
+        <div class="policy-grid">
+            <div class="policy-card">
+                <h2>🔐 Security Measures</h2>
+                <ul>
+                    <li>HTTPS encryption for all data</li>
+                    <li>Limited staff access</li>
+                    <li>Regular security audits</li>
+                    <li>Secure deletion procedures</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.85rem; color: #888;">Industry-standard protections</p>
+            </div>
+
+            <div class="policy-card">
+                <h2>📋 Data Retention</h2>
+                <ul>
+                    <li><strong>Contact Forms:</strong> 2 years max</li>
+                    <li><strong>Server Logs:</strong> 90 days</li>
+                    <li><strong>Timezone Pref:</strong> Local only</li>
+                    <li><strong>Emails:</strong> Per provider policy</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.85rem; color: #888;">Minimal retention principle</p>
+            </div>
+
+            <div class="policy-card">
+                <h2>❌ What We DON'T Do</h2>
+                <ul>
+                    <li>No Google Analytics</li>
+                    <li>No user tracking</li>
+                    <li>No data selling</li>
+                    <li>No behavioral profiling</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.85rem; color: #888;">Your privacy is respected</p>
+            </div>
+
+            <div class="policy-card">
+                <h2>✅ Full GDPR Compliance</h2>
+                <ul>
+                    <li>UK ICO compliant</li>
+                    <li>EU GDPR compliant</li>
+                    <li>Legal basis established</li>
+                    <li>Lawful processing only</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.85rem; color: #888;">Fully regulated</p>
+            </div>
+
+            <div class="policy-card">
+                <h2>⚡ Data Breach Response</h2>
+                <ul>
+                    <li>72-hour notification</li>
+                    <li>Immediate investigation</li>
+                    <li>User notification</li>
+                    <li>Authority reporting</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.85rem; color: #888;">GDPR Article 33</p>
+            </div>
+        </div>
+
+        <!-- Third Parties Section -->
+        <div class="section-title">🔗 Third-Party Services</div>
+        <div class="policy-grid">
+            <div class="policy-card">
+                <h2>🔤 Google Fonts</h2>
+                <p>Fonts loaded from Google servers</p>
+                <ul>
+                    <li>May receive your IP address</li>
+                    <li>Subject to Google's privacy policy</li>
+                    <li>Not controlled by us</li>
+                </ul>
+                <p style="margin-top: auto;"><a href="https://policies.google.com/privacy" target="_blank">View Google Privacy Policy →</a></p>
+            </div>
+
+            <div class="policy-card">
+                <h2>📺 Twitch</h2>
+                <p>Embedded streams and authentication</p>
+                <ul>
+                    <li>May collect viewer data</li>
+                    <li>Subject to Twitch's privacy policy</li>
+                    <li>Not controlled by us</li>
+                </ul>
+                <p style="margin-top: auto;"><a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank">View Twitch Privacy Policy →</a></p>
+            </div>
+
+            <div class="policy-card">
+                <h2>📧 Email Services</h2>
+                <p>Contact submissions via email</p>
+                <ul>
+                    <li>Stored in email system</li>
+                    <li>Subject to email provider policy</li>
+                    <li>Standard retention practices</li>
+                </ul>
+                <p style="margin-top: auto; font-size: 0.9rem; color: #888;">Secure encrypted transmission</p>
+            </div>
+        </div>
+
+        <!-- Contact & Authorities Section -->
+        <div class="section-title">📞 Contact & Complaints</div>
+        <div class="policy-grid">
+            <div class="policy-card" style="grid-column: 1 / -1; background: rgba(102, 187, 106, 0.05); border-color: rgba(102, 187, 106, 0.3);">
+                <h2>✉️ Contact Flying With Joel</h2>
+                <p style="font-size: 1.1rem; margin: 1rem 0;"><strong style="color: var(--primary);">Email:</strong> <a href="mailto:flywithjoeluk@gmail.com">flywithjoeluk@gmail.com</a></p>
+                <p style="font-size: 1.1rem; margin: 0;"><strong style="color: var(--primary);">Website:</strong> <a href="https://flyingwithjoel.co.uk">flyingwithjoel.co.uk</a></p>
+                <p style="margin-top: 1rem; color: var(--text-muted);">We will respond to all data requests within 30 days as required by law.</p>
+            </div>
+
+            <div class="policy-card">
+                <h2>🇬🇧 UK Complaints</h2>
+                <p>File a complaint with the UK data authority</p>
+                <p style="margin: 1rem 0;"><strong><a href="https://ico.org.uk" target="_blank" style="color: var(--primary);">Information Commissioner's Office (ICO)</a></strong></p>
+                <ul>
+                    <li>Free to file complaint</li>
+                    <li>No time limit</li>
+                    <li>Full investigation</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <h2>🇪🇺 EU Complaints</h2>
+                <p>Contact your local data authority</p>
+                <ul>
+                    <li>Each EU country has one</li>
+                    <li>Can file online</li>
+                    <li>Protected process</li>
+                </ul>
+                <p style="margin-top: 1rem; font-size: 0.9rem;">Examples: CNIL (France), TICA (Spain)</p>
+            </div>
+
+            <div class="policy-card">
+                <h2>🌎 California Complaints</h2>
+                <p>File a complaint with the state</p>
+                <p style="margin: 1rem 0;"><strong><a href="https://oag.ca.gov" target="_blank" style="color: var(--primary);">California Attorney General</a></strong></p>
+                <ul>
+                    <li>CCPA enforcement</li>
+                    <li>Consumer protection</li>
+                    <li>Free process</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Accessibility Section -->
+        <div class="section-title">♿ Accessibility</div>
+        <div class="policy-grid">
+            <div class="policy-card">
+                <h2>📋 WCAG 2.1 Level AA</h2>
+                <p>This website meets accessibility standards</p>
+                <ul>
+                    <li>Keyboard navigation support</li>
+                    <li>Screen reader compatible</li>
+                    <li>Color contrast compliant</li>
+                    <li>Responsive design</li>
+                </ul>
+            </div>
+
+            <div class="policy-card">
+                <h2>🤝 Having Issues?</h2>
+                <p>We want your feedback on accessibility</p>
+                <p style="margin: 1rem 0;">Email any barriers you encounter:</p>
+                <p><strong><a href="mailto:flywithjoeluk@gmail.com">flywithjoeluk@gmail.com</a></strong></p>
+                <p style="font-size: 0.85rem; margin-top: 0.5rem; color: #888;">We'll work to resolve promptly</p>
+            </div>
+        </div>
+
+        <!-- Footer Notice -->
+        <div style="text-align: center; margin: 3rem 0 2rem 0; padding: 2rem; background: rgba(255, 140, 66, 0.08); border-radius: 0.8rem; border-top: 2px solid rgba(255, 140, 66, 0.2);">
+            <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                <strong>Legal Disclaimer:</strong> This privacy policy is not legal advice. While we ensure compliance with GDPR, CCPA, COPPA, and UK regulations, consult with a legal professional regarding your specific needs. Laws change frequently and vary by jurisdiction.
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 1rem;">
+                By using this website, you consent to the data practices outlined in this notice.
+            </p>
+        </div>
     </div>
 
-    <!-- Main Privacy Content Section -->
-    <section class="privacy-section" style="margin: 0; padding: 2rem 2rem; background: linear-gradient(135deg, rgba(102, 187, 106, 0.03) 0%, rgba(66, 165, 245, 0.03) 100%);">
-        <div class="privacy-container-full">
-            <div class="privacy-card-full">
-                <h2>🔍 Data Controller</h2>
-                <p><strong style="color: var(--text-light);">Flying With Joel</strong></p>
-                <p style="margin-bottom: 0.5rem; font-size: 0.95rem;">
-                    <strong>Email:</strong> <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a>
-                </p>
-                <p style="font-size: 0.85rem; color: var(--text-muted);">This website is operated as a personal streaming channel. We are the data controller responsible for your information under GDPR Article 4.</p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>🔒 Data Protection</h2>
-                <p><strong style="color: var(--text-light);">No personal data is logged or saved</strong> when you browse this website.</p>
-                <p style="margin-bottom: 0.5rem;"><strong style="color: var(--text-light);">Browser Storage (localStorage):</strong></p>
-                <ul>
-                    <li>Timezone preference stored locally on your device</li>
-                    <li>No data sent to our servers</li>
-                    <li>You can clear this anytime via browser settings</li>
-                </ul>
-                <p style="margin-top: 1rem; margin-bottom: 0.5rem;"><strong style="color: var(--text-light);">Suggestions Only:</strong></p>
-                <ul>
-                    <li>Stored securely on our server</li>
-                    <li>Automatically deleted after 30 days</li>
-                    <li>Used only to improve the website</li>
-                    <li>Never shared with third parties</li>
-                </ul>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>🍪 Cookies & Storage Policy</h2>
-                <p><strong style="color: var(--text-light);">Non-Essential Storage:</strong></p>
-                <ul>
-                    <li>Timezone preference stored in browser localStorage</li>
-                    <li>Essential for functionality, not for tracking</li>
-                    <li>Automatically cleared if you delete browser data</li>
-                    <li>No third-party tracking cookies</li>
-                </ul>
-                <p style="margin-top: 1rem; margin-bottom: 0.5rem; font-size: 0.85rem; color: var(--text-muted);"><strong>By using this website, you consent to localStorage use for timezone preferences.</strong></p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>🔗 Third-Party Services</h2>
-                <ul>
-                    <li><strong>Google Fonts:</strong> Loads font files to display website text</li>
-                    <li><strong>Twitch:</strong> Links to Twitch channel (external service)</li>
-                    <li><strong>Linktr.ee:</strong> Connect With Me button (external service)</li>
-                </ul>
-                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">These services may collect data according to their own privacy policies. We do not control their data practices.</p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>✅ GDPR Compliant</h2>
-                <p><strong style="color: var(--text-light);">Fully compliant with GDPR and UK regulations</strong></p>
-                <ul>
-                    <li>No tracking cookies or analytics</li>
-                    <li>Your activity stays private</li>
-                    <li>All data handling follows GDPR</li>
-                    <li>You control your data completely</li>
-                    <li>Legal basis: Legitimate interests & consent</li>
-                </ul>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>📋 What We Don't Do</h2>
-                <ul>
-                    <li class="negative">No Google Analytics or tracking</li>
-                    <li class="negative">No selling or sharing your information</li>
-                    <li class="negative">No monitoring your behavior</li>
-                    <li class="negative">No storing IP addresses</li>
-                    <li class="negative">No user profile creation</li>
-                    <li class="negative">No automated decision making</li>
-                </ul>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>📝 Your GDPR Rights</h2>
-                <ul>
-                    <li>Access - Request all data about you</li>
-                    <li>Rectification - Correct inaccurate data</li>
-                    <li>Erasure - Delete your suggestions anytime</li>
-                    <li>Restrict - Limit how we use your data</li>
-                    <li>Portability - Receive data in standard format</li>
-                    <li>Withdraw - Consent withdrawal anytime</li>
-                    <li>Complaint - File with UK ICO or relevant authority</li>
-                </ul>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>📅 Data Retention</h2>
-                <ul>
-                    <li><strong>Suggestions:</strong> Stored for 30 days, then deleted</li>
-                    <li><strong>Timezone Preference:</strong> Stored locally on your device indefinitely</li>
-                    <li><strong>Contact Messages:</strong> Kept for responding to enquiries only</li>
-                </ul>
-                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);"><strong>We only keep data as long as necessary for its stated purpose.</strong></p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>🛡️ Data Security & Breaches</h2>
-                <ul>
-                    <li>Secure storage with industry safeguards</li>
-                    <li>Encrypted data transmission</li>
-                    <li>No permanent personal storage</li>
-                    <li>Regular security reviews</li>
-                    <li>Minimal data retention principle</li>
-                </ul>
-                <p style="margin-top: 1rem; font-size: 0.85rem;"><strong style="color: var(--primary);">Data Breach Notification:</strong> We will notify affected users within 72 hours of discovering any data breach, as required by GDPR Article 33.</p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>📧 Data Requests & Contact</h2>
-                <p>For privacy questions, data access requests, or to exercise your rights:</p>
-                <p style="margin: 1rem 0 0.5rem 0; font-size: 0.95rem;">
-                    <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a>
-                </p>
-                <p style="font-size: 0.85rem; color: var(--text-muted);"><strong>We will respond within 30 days</strong> as required by GDPR Article 12.</p>
-                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">You also have the right to lodge a complaint with the <strong>UK Information Commissioner's Office (ICO)</strong> at <a href="https://www.ico.org.uk" target="_blank" style="color: var(--primary); text-decoration: none;">ico.org.uk</a></p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>� Age Compliance & COPPA</h2>
-                <p><strong style="color: var(--text-light);">Minimum Age Requirement:</strong></p>
-                <ul>
-                    <li>This website is intended for users 16 years or older</li>
-                    <li>If you are under 16, you must have parental consent to use this site</li>
-                    <li>If you are under 13, parental consent is required under COPPA (Children's Online Privacy Protection Act)</li>
-                    <li>Parents/guardians are responsible for monitoring their children's internet usage</li>
-                </ul>
-                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">By using this website, you confirm that you meet the minimum age requirement or have obtained necessary parental consent.</p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>🌎 CCPA Compliance (US Residents)</h2>
-                <p><strong style="color: var(--text-light);">California Consumer Privacy Act Rights:</strong></p>
-                <ul>
-                    <li>Right to Know - Request what personal data we collect about you</li>
-                    <li>Right to Delete - Request deletion of your personal data</li>
-                    <li>Right to Opt-Out - Opt out of data selling or sharing (though we do not sell data)</li>
-                    <li>Right to Non-Discrimination - No discrimination for exercising your rights</li>
-                </ul>
-                <p style="margin-top: 1rem;"><strong style="color: var(--primary);">CCPA Requests:</strong> Contact <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a> with "CCPA Request" in the subject line. We will respond within 45 days.</p>
-                <p style="font-size: 0.85rem; color: var(--text-muted);"><strong>Note:</strong> We do not sell or share personal information with third parties for commercial purposes.</p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>♿ Accessibility Statement</h2>
-                <p>Flying With Joel is committed to ensuring digital accessibility for all users, including those with disabilities.</p>
-                <ul>
-                    <li>Website designed to comply with WCAG 2.1 Level AA standards</li>
-                    <li>Keyboard navigation fully supported</li>
-                    <li>Screen reader compatible</li>
-                    <li>Sufficient color contrast for readability</li>
-                    <li>Responsive design for all devices</li>
-                </ul>
-                <p style="margin-top: 1rem;"><strong style="color: var(--primary);">Accessibility Issues?</strong> If you encounter any accessibility barriers, please contact <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a> with details.</p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>⚖️ Legal Disclaimer</h2>
-                <p style="font-size: 0.85rem; color: var(--text-muted);"><strong>IMPORTANT NOTICE:</strong> This privacy policy is not legal advice. While we have made efforts to ensure compliance with applicable laws including GDPR, CCPA, COPPA, UK ICO regulations, and other privacy laws, you should consult with a qualified legal professional regarding your specific situation. Laws vary by jurisdiction and change frequently. Flying With Joel assumes no liability for interpretation or application of this policy.</p>
-            </div>
-
-            <div class="privacy-card-full">
-                <h2>�📜 Policy Changes</h2>
-                <p>We may update this privacy policy to reflect changes in our practices or legal requirements. Any changes will be posted here with an updated "Last Updated" date.</p>
-                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">Continued use of the website after changes constitutes acceptance of the updated policy.</p>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
             </div>
         </div>
-    </section>
+    </footer>
 
     <script>
         // Hamburger Menu Toggle
@@ -239,34 +510,5 @@
             });
         });
     </script>
-
-    <!-- Disclaimer Notice -->
-    <div style="background: rgba(102, 187, 106, 0.06); border-top: 1px solid rgba(102, 187, 106, 0.2); padding: 1.5rem 2rem; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
-        <p><strong>Disclaimer:</strong> This privacy policy is not legal advice. We recommend consulting with a qualified legal professional. For questions, contact <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a></p>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-content">
-            <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
-            <div class="footer-links">
-                <a href="privacy.html">Privacy Policy</a>
-                <a href="terms.html">Terms of Service</a>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Cookie Consent Banner -->
-    <div id="cookie-consent-banner" class="cookie-consent-banner">
-        <div class="cookie-consent-content">
-            <p>We use essential cookies to store your timezone preference and improve your experience. <a href="privacy.html">Learn more about our privacy practices</a>.</p>
-        </div>
-        <div class="cookie-consent-buttons">
-            <button id="cookie-accept" class="cookie-consent-btn accept">Accept</button>
-            <button id="cookie-decline" class="cookie-consent-btn decline">Decline</button>
-        </div>
-    </div>
-
-    <script src="js/main.js"></script>
 </body>
 </html>
