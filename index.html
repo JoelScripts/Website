@@ -803,32 +803,49 @@
         setInterval(updateLiveStatus, 60000);
 
         function updateLiveStatus() {
+            // Use UTC/Zulu time for accurate comparison across all timezones
             const now = new Date();
-            const currentHours = now.getHours();
-            const currentMinutes = now.getMinutes();
-            const currentTime = currentHours * 60 + currentMinutes; // Convert to minutes for easier comparison
+            const currentUTCHours = now.getUTCHours();
+            const currentUTCMinutes = now.getUTCMinutes();
+            const currentUTCTime = currentUTCHours * 60 + currentUTCMinutes; // Convert to minutes for easier comparison
             
             const dayCards = document.querySelectorAll('.day-card');
             dayCards.forEach(card => {
                 const streamTimeEl = card.querySelector('.stream-time');
                 if (!streamTimeEl) return;
                 
-                const timeText = streamTimeEl.textContent.trim();
+                // Get the original Zulu time from data attribute
+                const zuluTimeStr = streamTimeEl.getAttribute('data-zulu-time');
+                if (!zuluTimeStr) {
+                    card.classList.remove('live');
+                    return;
+                }
                 
-                // Extract hours and minutes from time
-                const timeMatch = timeText.match(/(\d{1,2}):(\d{2})/);
+                // Parse the Zulu time (e.g., "18:00 Zulu", "15:30 Zulu", "11:00 AM Zulu")
+                const timeMatch = zuluTimeStr.match(/(\d{1,2}):(\d{2})(?:\s(AM|PM))?\s+Zulu/i);
                 if (!timeMatch) {
                     card.classList.remove('live');
                     return;
                 }
                 
-                const streamHours = parseInt(timeMatch[1]);
+                let streamHours = parseInt(timeMatch[1]);
                 const streamMinutes = parseInt(timeMatch[2]);
-                const streamTime = streamHours * 60 + streamMinutes;
+                const period = timeMatch[3];
                 
-                // Check if current time is within 3 hours after stream start
+                // Handle 12-hour format with AM/PM
+                if (period) {
+                    if (period.toUpperCase() === 'PM' && streamHours !== 12) {
+                        streamHours += 12;
+                    } else if (period.toUpperCase() === 'AM' && streamHours === 12) {
+                        streamHours = 0;
+                    }
+                }
+                
+                const streamUTCTime = streamHours * 60 + streamMinutes;
+                
+                // Check if current UTC time is within 3 hours after stream start
                 const streamDuration = 600; // 3 hours in minutes
-                const timeUntilStream = streamTime - currentTime;
+                const timeUntilStream = streamUTCTime - currentUTCTime;
                 const isLive = timeUntilStream >= -streamDuration && timeUntilStream < 0;
                 
                 // Also check if it's the right day
