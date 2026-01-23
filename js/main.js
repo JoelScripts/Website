@@ -12,6 +12,26 @@ document.querySelectorAll('.tab-btn').forEach(button => {
     });
 });
 
+// Terms of Service Enforcement - Redirect new users to terms page
+document.addEventListener('DOMContentLoaded', () => {
+    // Pages that don't require terms acceptance
+    const whitelistedPages = ['terms.html', 'access_denied.html', 'privacy.html'];
+    
+    // Get current page filename
+    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    
+    // Check if current page is whitelisted
+    const isWhitelisted = whitelistedPages.some(page => currentPage.includes(page));
+    
+    // Check if user has accepted terms
+    const termsAccepted = localStorage.getItem('termsAccepted');
+    
+    // If not accepted and not on whitelisted page, redirect to terms
+    if (!termsAccepted && !isWhitelisted) {
+        window.location.href = 'terms.html';
+    }
+});
+
 // Cookie Consent Banner
 document.addEventListener('DOMContentLoaded', () => {
     const cookieBanner = document.getElementById('cookie-consent-banner');

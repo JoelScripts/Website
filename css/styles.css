@@ -2042,3 +2042,24 @@ body {
         width: 100%;
     }
 }
+
+/* Terms of Service Page Centering */
+body.terms-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Center the terms hero section */
+.hero[style*="text-align: center"] h1 {
+    font-size: 2.8rem;
+    text-align: center;
+    max-width: 100%;
+}
+
+.hero[style*="text-align: center"] p {
+    text-align: center;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
