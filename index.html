@@ -23,6 +23,8 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Twitch Embed SDK -->
+    <script src="https://embed.twitch.tv/embed.js"></script>
 </head>
 <body>
     <!-- Navigation Header -->
@@ -597,24 +599,24 @@
             });
         });
 
-        // Load highlights (static links to Twitch)
+        // Load highlights with embedded Twitch clips
         async function loadHighlights() {
             try {
                 const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
                 const highlightsHTML = `
-                    <div class="highlight-card" style="cursor: pointer;" onclick="window.open('https://www.twitch.tv/${TWITCH_CHANNEL_NAME}/clips', '_blank')">
-                        <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); position: relative;">
-                            <span style="font-size: 3rem;">🎬</span>
+                    <div class="highlight-card">
+                        <div class="highlight-iframe-container">
+                            <iframe src="https://clips.twitch.tv/embed?clip=MagnificentAverageLobsterOMGScoots-Ko6Vkp-DxaBMqKJO&parent=flyingwithjoel.co.uk" allowfullscreen></iframe>
                         </div>
                         <h4>Watch Your Latest Clips</h4>
-                        <span class="view-count">👁️ View all clips on Twitch</span>
+                        <span class="view-count">🎬 Embedded Twitch Clip</span>
                     </div>
-                    <div class="highlight-card" style="cursor: pointer;" onclick="window.open('https://www.twitch.tv/${TWITCH_CHANNEL_NAME}/videos', '_blank')">
-                        <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--secondary), #FF2C5A); position: relative;">
-                            <span style="font-size: 3rem;">📹</span>
+                    <div class="highlight-card">
+                        <div class="highlight-iframe-container">
+                            <iframe src="https://clips.twitch.tv/embed?clip=HotOddGalagoPJSalt-VOO8JQkss9I0bVjJ&parent=flyingwithjoel.co.uk" allowfullscreen></iframe>
                         </div>
                         <h4>Best Moments from Streams</h4>
-                        <span class="view-count">👁️ View all videos</span>
+                        <span class="view-count">🎬 Embedded Twitch Clip</span>
                     </div>
                     <div class="highlight-card" style="cursor: pointer;" onclick="window.open('https://www.twitch.tv/${TWITCH_CHANNEL_NAME}', '_blank')">
                         <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #9147ff, #5D29FF); position: relative;">
@@ -625,6 +627,15 @@
                     </div>
                 `;
                 document.getElementById('highlights-grid').innerHTML = highlightsHTML;
+                
+                // Initialize Twitch embeds
+                if (window.Twitch && window.Twitch.Embed) {
+                    window.Twitch.Embed.lib.twitch.embed('highlight-card', {
+                        layout: 'video',
+                        width: '100%',
+                        height: '100%'
+                    });
+                }
             } catch (error) {
                 console.error('Could not load highlights:', error);
             }
