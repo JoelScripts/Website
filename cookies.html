@@ -48,75 +48,128 @@
             color: #ff6600;
         }
 
-        .navbar {
-            background: #0a0a0a;
-            border-bottom: 2px solid #ff6600;
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .navbar-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #ff6600;
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            color: #e0e0e0;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .nav-links a:hover {
-            color: #ff6600;
-        }
-
         /* Main Container */
         .container {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 3rem auto;
             padding: 0 2rem;
         }
 
-        /* Header */
-        .page-header {
+        /* Header Card */
+        .header-card {
+            background: rgba(255, 102, 0, 0.08);
+            border: 1px solid rgba(255, 102, 0, 0.3);
+            border-radius: 0.8rem;
+            padding: 2.5rem;
             margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: none;
-            text-align: center;
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
         }
 
-        .page-header h1 {
-            font-size: 2.5rem;
+        .header-card h1 {
+            font-size: 2rem;
             color: #ff6600;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .last-updated {
-            color: #aaa;
+        .header-card .last-updated {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-card p {
+            color: #d0d0d0;
             font-size: 0.95rem;
+            line-height: 1.6;
         }
 
-        /* Sections - Card Based */
+        /* Section Title */
+        .section-title {
+            font-size: 1.8rem;
+            color: #ff6600;
+            margin: 2.5rem 0 2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 102, 0, 0.2);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 102, 0, 0.2);
+            border-radius: 0.6rem;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 102, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            color: #ff6600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card p {
+            color: #b0b0b0;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .card ul {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .card li {
+            color: #b0b0b0;
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .card li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #ff6600;
+        }
+
+        .card-note {
+            font-size: 0.85rem;
+            color: #999;
+            border-top: 1px solid rgba(255, 102, 0, 0.1);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .card-note strong {
+            color: #aaa;
+            display: inline;
+        }
+
+        /* Content Sections */
         .section {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 102, 0, 0.2);
             border-radius: 0.6rem;
@@ -134,8 +187,6 @@
             font-size: 1.3rem;
             color: #ff6600;
             margin-bottom: 1rem;
-            padding-bottom: 0;
-            border-bottom: none;
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -151,7 +202,7 @@
         }
 
         .section h3 {
-            font-size: 1.15rem;
+            font-size: 1rem;
             color: #d0d0d0;
             margin-top: 1.5rem;
             margin-bottom: 0.75rem;
@@ -173,34 +224,23 @@
             line-height: 1.6;
         }
 
-        /* Tables */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 1.5rem 0;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 102, 0, 0.15);
-            border-radius: 0.5rem;
-            overflow: hidden;
+        /* Highlight Boxes */
+        .highlight-box {
+            background: rgba(255, 102, 0, 0.08);
+            border: 1.5px solid #ff6600;
+            padding: 1.5rem;
+            margin: 1.5rem 0 3rem 0;
+            border-radius: 0.6rem;
+            box-shadow: 0 2px 8px rgba(255, 102, 0, 0.05);
         }
 
-        th {
-            background: rgba(255, 102, 0, 0.15);
+        .highlight-box strong {
             color: #ff6600;
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            border-bottom: 1px solid rgba(255, 102, 0, 0.2);
         }
 
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        .highlight-box p {
+            margin: 0.5rem 0 0 0;
             color: #b0b0b0;
-        }
-
-        tr:last-child td {
-            border-bottom: none;
         }
 
         /* Links */
@@ -213,25 +253,6 @@
         a:hover {
             color: #ff8833;
             text-decoration: underline;
-        }
-
-        /* Info Box */
-        .info-box {
-            background: rgba(255, 102, 0, 0.08);
-            border: 1.5px solid #ff6600;
-            padding: 1.5rem;
-            margin: 1.5rem 0;
-            border-radius: 0.6rem;
-            box-shadow: 0 2px 8px rgba(255, 102, 0, 0.05);
-        }
-
-        .info-box strong {
-            color: #e0e0e0;
-        }
-
-        .info-box p {
-            color: #b0b0b0;
-            margin: 0.5rem 0 0 0;
         }
 
         /* Footer */
@@ -252,192 +273,448 @@
             color: #ff6600;
         }
 
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .page-header h1 {
-                font-size: 1.8rem;
+            .header-card h1 {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 1.4rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+
+            .navbar-content {
+                gap: 1rem;
             }
 
             .nav-links {
                 gap: 1rem;
                 font-size: 0.9rem;
             }
-
-            table {
-                font-size: 0.9rem;
-            }
-
-            th, td {
-                padding: 0.75rem;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Header -->
+    <!-- Main Navigation -->
     <nav class="navbar" style="background: #0a0a0a; border-bottom: 2px solid #ff6600; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100;">
-        <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem;">
-            <a href="index.html" style="font-size: 1.5rem; font-weight: 700; color: #ff6600; text-decoration: none;">flywithjoel</a>
-            <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-                <a href="index.html#schedule" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Schedule</a>
-                <a href="index.html#highlights" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Highlights</a>
-                <a href="index.html#setup" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Setup</a>
-                <a href="index.html#faq" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">FAQ</a>
-                <a href="index.html#contact" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Contact</a>
-                <a href="suggestions.html" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Suggestions</a>
-                <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" style="background: #ff6600; color: white; padding: 0.5rem 1.2rem; border-radius: 0.4rem; text-decoration: none; font-weight: 600; transition: background 0.2s; margin-left: auto;" onmouseover="this.style.background='#ff8833'" onmouseout="this.style.background='#ff6600'">Follow</a>
-            </div>
+        <div class="navbar-content" style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem;">        
+            <a href="index.html" class="logo" style="font-size: 1.5rem; font-weight: 700; color: #ff6600; text-decoration: none;">flywithjoel</a>
+            <ul class="nav-links" style="list-style: none; display: flex; gap: 2rem; flex-wrap: wrap; margin: 0; padding: 0;">        
+                <li><a href="index.html#schedule" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Schedule</a></li>
+                <li><a href="index.html#highlights" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Highlights</a></li>
+                <li><a href="index.html#setup" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Setup</a></li>
+                <li><a href="index.html#faq" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">FAQ</a></li>
+                <li><a href="index.html#contact" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Contact</a></li>
+                <li><a href="suggestions.html" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Suggestions</a></li>
+                <li style="margin-left: auto;"><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" style="background: #ff6600; color: white; padding: 0.5rem 1.2rem; border-radius: 0.4rem; text-decoration: none; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#ff8833'" onmouseout="this.style.background='#ff6600'">Follow</a></li>
+            </ul>
         </div>
     </nav>
 
     <!-- Main Content -->
     <div class="container">
-        <div class="page-header">
-            <h1>Cookie Policy</h1>
-            <p class="last-updated">Last Updated: January 23, 2026</p>
+        <!-- Header Card -->
+        <div class="header-card">
+            <h1>🍪 Cookie Policy</h1>
+            <p class="last-updated">Last Updated: January 2026</p>
+            <p>This Cookie Policy explains what cookies are, how we use them, and your choices regarding cookie usage on our website. We are committed to transparency and compliance with GDPR, CCPA, and other privacy regulations.</p>
         </div>
 
-        <div class="section">
-            <h2>1. What Are Cookies?</h2>
-            <p>Cookies are small text files that are stored on your device when you visit a website. They are widely used to make websites work more efficiently, as well as to provide information to the website owners.</p>
-        </div>
+        <!-- Section 1: What Are Cookies? -->
+        <div class="section-title">📖 What Are Cookies?</div>
 
-        <div class="section">
-            <h2>2. How We Use Cookies</h2>
-            <p>Flying With Joel uses cookies and browser storage technologies for the following purposes:</p>
+        <div class="cards-grid">
+            <!-- Card 1: Definition -->
+            <div class="card">
+                <h3>🔍 Definition</h3>
+                <p>Cookies are small text files stored on your device (computer, tablet, or mobile phone) when you visit a website. They are used to remember information about your visit, preferences, and browsing behavior.</p>
+                <div class="card-note">
+                    <strong>Size:</strong> Typically a few kilobytes of data.
+                </div>
+            </div>
 
-            <h3>2.1 Essential/Functional Cookies</h3>
-            <table>
-                <tr>
-                    <th>Cookie Name</th>
-                    <th>Purpose</th>
-                    <th>Duration</th>
-                    <th>Type</th>
-                </tr>
-                <tr>
-                    <td>gdpr-consent-accepted</td>
-                    <td>Stores your cookie consent preference</td>
-                    <td>Until deleted</td>
-                    <td>localStorage</td>
-                </tr>
-                <tr>
-                    <td>preferredTimezone</td>
-                    <td>Remembers your selected timezone for stream times</td>
-                    <td>Until deleted</td>
-                    <td>localStorage</td>
-                </tr>
-            </table>
+            <!-- Card 2: How They Work -->
+            <div class="card">
+                <h3>⚙️ How Cookies Work</h3>
+                <p>When you visit a website, the server sends a cookie to your browser, which stores it locally. On subsequent visits, your browser sends the cookie back to the website, allowing it to recognize you and remember your preferences or login information.</p>
+                <div class="card-note">
+                    <strong>Process:</strong> Automatic client-server exchange.
+                </div>
+            </div>
 
-            <h3>2.2 Third-Party Cookies</h3>
-            <p>Our Website integrates services that may use their own cookies:</p>
-            <table>
-                <tr>
-                    <th>Service</th>
-                    <th>Purpose</th>
-                    <th>Your Control</th>
-                </tr>
-                <tr>
-                    <td>Google Fonts</td>
-                    <td>Font loading and optimization</td>
-                    <td>Reject via cookie preference; use browser settings</td>
-                </tr>
-                <tr>
-                    <td>Twitch Embed</td>
-                    <td>Stream embedding and tracking</td>
-                    <td>See Twitch privacy settings; use browser settings</td>
-                </tr>
-            </table>
-        </div>
-
-        <div class="section">
-            <h2>3. Cookie Consent</h2>
-            <p>When you first visit our Website, you will see a cookie consent banner. You have the following options:</p>
-            <ul>
-                <li><strong>Accept All:</strong> All cookies and tracking technologies are enabled</li>
-                <li><strong>Reject:</strong> Only essential functional cookies are used; third-party and analytics cookies are disabled</li>
-            </ul>
-            <p>You can change your consent preference at any time by revisiting the consent banner.</p>
-        </div>
-
-        <div class="section">
-            <h2>4. How to Control Cookies</h2>
-            <p>You can control and/or delete cookies as you wish. Most browsers allow you to:</p>
-            <ul>
-                <li>Refuse to accept cookies</li>
-                <li>Alert you when a cookie is being set</li>
-                <li>Delete cookies from your device</li>
-            </ul>
-
-            <h3>Browser-Specific Instructions:</h3>
-            <ul>
-                <li><strong>Chrome:</strong> Settings → Privacy and security → Cookies and other site data</li>
-                <li><strong>Firefox:</strong> Options → Privacy & Security → Cookies and Site Data</li>
-                <li><strong>Safari:</strong> Preferences → Privacy → Manage Website Data</li>
-                <li><strong>Edge:</strong> Settings → Privacy, search, and services → Clear browsing data</li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>5. localStorage vs Cookies</h2>
-            <p>We primarily use browser localStorage rather than traditional cookies. localStorage:</p>
-            <ul>
-                <li>Stores data locally on your device</li>
-                <li>Does NOT send data to our servers automatically</li>
-                <li>Persists until you manually clear it or withdraw consent</li>
-                <li>Is NOT sent with HTTP requests (unlike cookies)</li>
-                <li>Offers greater privacy than traditional cookies</li>
-            </ul>
-        </div>
-
-        <div class="section">
-            <h2>6. Analytics and Tracking</h2>
-            <div class="info-box">
-                <strong>No Analytics Platforms:</strong>
-                <p>We currently do NOT use any analytics platforms (e.g., Google Analytics, Matomo) that track individual user behavior. This means we do not track page views, user journeys, or demographic information. We respect your privacy by default.</p>
+            <!-- Card 3: Cookie Lifespan -->
+            <div class="card">
+                <h3>⏱️ Cookie Lifespan</h3>
+                <p>Cookies can be either session-based (deleted when you close your browser) or persistent (stored for a specified duration). Their lifetime depends on the expiration date set by the website that creates them.</p>
+                <div class="card-note">
+                    <strong>Duration:</strong> Minutes to years depending on type.
+                </div>
             </div>
         </div>
 
-        <div class="section">
-            <h2>7. GDPR Compliance</h2>
-            <p>Our cookie usage complies with GDPR requirements:</p>
-            <ul>
-                <li>We obtain explicit consent before non-essential cookies are set</li>
-                <li>Consent is opt-in (not pre-checked)</li>
-                <li>You can easily withdraw or modify consent</li>
-                <li>We provide clear disclosure of third-party services</li>
-            </ul>
+        <!-- Section 2: How We Use Cookies -->
+        <div class="section-title">🎯 How We Use Cookies</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Functionality Cookies -->
+            <div class="card">
+                <h3>⚡ Functionality Cookies</h3>
+                <p>These cookies are essential for our website to function properly. They enable basic features like page navigation, accessing secure areas, and remembering user preferences such as timezone settings and language choices.</p>
+                <ul>
+                    <li>Remembering timezone preferences</li>
+                    <li>Session authentication</li>
+                    <li>Website navigation state</li>
+                    <li>User preference persistence</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Status:</strong> Automatically enabled, cannot be disabled.
+                </div>
+            </div>
+
+            <!-- Card 2: Security Cookies -->
+            <div class="card">
+                <h3>🛡️ Security Cookies</h3>
+                <p>Security-related cookies help protect your account and data from unauthorized access. They verify your identity, prevent fraudulent activity, and maintain session security during your visit to our website.</p>
+                <ul>
+                    <li>CSRF (Cross-Site Request Forgery) protection</li>
+                    <li>Session token validation</li>
+                    <li>Account security verification</li>
+                    <li>Access control management</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Purpose:</strong> Your account protection.
+                </div>
+            </div>
+
+            <!-- Card 3: Analytics Cookies -->
+            <div class="card">
+                <h3>📊 Analytics Cookies</h3>
+                <p>We DO NOT use analytics cookies for tracking. We have intentionally disabled Google Analytics and third-party tracking to respect your privacy. Our server logs are used only for security purposes.</p>
+                <ul>
+                    <li>No Google Analytics integration</li>
+                    <li>No personal behavior tracking</li>
+                    <li>No cross-site tracking</li>
+                    <li>Server logs for security only</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Promise:</strong> Your behavior is not tracked.
+                </div>
+            </div>
+
+            <!-- Card 4: Marketing Cookies -->
+            <div class="card">
+                <h3>📢 Marketing Cookies</h3>
+                <p>We do not use marketing or advertising cookies on our website. We do not engage in targeted advertising, user profiling for marketing purposes, or sharing your data with advertisers.</p>
+                <ul>
+                    <li>No retargeting cookies</li>
+                    <li>No advertising partnerships</li>
+                    <li>No demographic profiling</li>
+                    <li>No ad network integration</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Commitment:</strong> No intrusive advertising tracking.
+                </div>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>8. Disabling Cookies</h2>
-            <p>If you choose to disable cookies, some Website features may not work as intended:</p>
-            <ul>
-                <li>Your timezone preference will not be remembered</li>
-                <li>You may see the cookie consent banner repeatedly</li>
-            </ul>
+        <!-- Section 3: Cookie Consent -->
+        <div class="section-title">✅ Cookie Consent</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Essential Cookies -->
+            <div class="card">
+                <h3>✔️ Essential Cookies (Required)</h3>
+                <p>Essential cookies are necessary for website operation and security. You cannot disable them without breaking core website functionality. These are exempt from consent requirements under GDPR Article 82 (or equivalent regulations).</p>
+                <div class="card-note">
+                    <strong>Action:</strong> No consent needed, always enabled.
+                </div>
+            </div>
+
+            <!-- Card 2: Optional Cookies -->
+            <div class="card">
+                <h3>🔆 Optional Cookies (Consent Required)</h3>
+                <p>Currently, we do not implement optional cookies beyond essential and security cookies. If we introduce any optional functionality in the future, we will provide clear consent mechanisms and allow you to manage your preferences at any time.</p>
+                <div class="card-note">
+                    <strong>Status:</strong> Not currently used on our site.
+                </div>
+            </div>
+
+            <!-- Card 3: Withdrawing Consent -->
+            <div class="card">
+                <h3>⏹️ Withdrawing Consent</h3>
+                <p>You can withdraw your consent for any optional cookies at any time through your browser settings. Withdrawing consent does not affect the lawfulness of processing that occurred before the withdrawal.</p>
+                <div class="card-note">
+                    <strong>Method:</strong> Browser settings or contact us.
+                </div>
+            </div>
+
+            <!-- Card 4: Cookie Preferences -->
+            <div class="card">
+                <h3>⚙️ Managing Cookie Preferences</h3>
+                <p>You have full control over cookies through your browser settings. Most modern browsers allow you to view, delete, and control which cookies are accepted. You can also use "Do Not Track" signals if your browser supports them.</p>
+                <div class="card-note">
+                    <strong>Control:</strong> Fully in your hands.
+                </div>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>9. Children's Privacy</h2>
-            <p>Our Website is not directed to children under 13 years of age. We do not knowingly collect personal information from children.</p>
+        <!-- Section 4: How to Control Cookies -->
+        <div class="section-title">🎮 How to Control Cookies</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Browser Settings -->
+            <div class="card">
+                <h3>🌐 Browser Settings</h3>
+                <p>Every major browser (Chrome, Firefox, Safari, Edge) has built-in controls for managing cookies. You can set your browser to accept or reject cookies, delete cookies automatically on exit, or receive notifications before cookies are set.</p>
+                <ul>
+                    <li>Enable/disable all cookies</li>
+                    <li>Delete existing cookies</li>
+                    <li>Clear cookies on browser exit</li>
+                    <li>Block third-party cookies</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Note:</strong> Disabling may affect functionality.
+                </div>
+            </div>
+
+            <!-- Card 2: Do Not Track -->
+            <div class="card">
+                <h3>🚫 Do Not Track (DNT)</h3>
+                <p>Most browsers support a "Do Not Track" (DNT) feature that signals your preference not to be tracked. Our website respects DNT signals. If you enable DNT in your browser, you are telling all websites you visit that you do not want to be tracked.</p>
+                <ul>
+                    <li>Available in most modern browsers</li>
+                    <li>A privacy signal to websites</li>
+                    <li>We honor DNT requests</li>
+                    <li>Voluntary compliance by websites</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Effectiveness:</strong> Depends on website compliance.
+                </div>
+            </div>
+
+            <!-- Card 3: Third-Party Cookie Managers -->
+            <div class="card">
+                <h3>🛠️ Third-Party Cookie Managers</h3>
+                <p>Several third-party services and browser extensions offer advanced cookie management capabilities. These tools can provide additional controls and insights into cookie tracking across the web.</p>
+                <ul>
+                    <li>Privacy-focused browser extensions</li>
+                    <li>Cookie management tools</li>
+                    <li>Opt-out services</li>
+                    <li>Browser privacy modes</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Examples:</strong> uBlock Origin, Privacy Badger.
+                </div>
+            </div>
+
+            <!-- Card 4: Private/Incognito Browsing -->
+            <div class="card">
+                <h3>🕵️ Private/Incognito Browsing</h3>
+                <p>Using your browser's private or incognito mode prevents cookies from being stored permanently. When you close the private session, all cookies are automatically deleted. This is ideal for sensitive browsing or testing.</p>
+                <ul>
+                    <li>No persistent cookie storage</li>
+                    <li>Automatic deletion on session close</li>
+                    <li>No browsing history saved</li>
+                    <li>Temporary cache only</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Limitation:</strong> Not anonymous to ISP/websites.
+                </div>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>10. Updates to This Policy</h2>
-            <p>We may update this Cookie Policy from time to time. We will notify you of significant changes by posting the updated policy on our Website and updating the "Last Updated" date.</p>
+        <!-- Section 5: localStorage vs Cookies -->
+        <div class="section-title">⚔️ localStorage vs Cookies</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: localStorage Overview -->
+            <div class="card">
+                <h3>💾 What is localStorage?</h3>
+                <p>localStorage is a browser feature that allows websites to store data locally on your device. Unlike cookies, localStorage data is not automatically sent to the server with each request. It persists until explicitly deleted by the user or website.</p>
+                <ul>
+                    <li>Larger storage capacity (5-10MB)</li>
+                    <li>Only accessible to the website</li>
+                    <li>Not sent with HTTP requests</li>
+                    <li>Persists across browser sessions</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Use:</strong> Client-side storage for preferences.
+                </div>
+            </div>
+
+            <!-- Card 2: Key Differences -->
+            <div class="card">
+                <h3>🔄 Key Differences</h3>
+                <p>Cookies and localStorage serve different purposes. Cookies are designed for client-server communication, while localStorage is for client-side storage. Understanding these differences helps you make informed choices about your privacy.</p>
+                <ul>
+                    <li><strong>Cookies:</strong> Sent with every request</li>
+                    <li><strong>localStorage:</strong> Client-side only</li>
+                    <li><strong>Cookies:</strong> Smaller capacity</li>
+                    <li><strong>localStorage:</strong> Larger capacity</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Privacy:</strong> Both should be considered.
+                </div>
+            </div>
+
+            <!-- Card 3: Our Use of localStorage -->
+            <div class="card">
+                <h3>🎯 Our Use of localStorage</h3>
+                <p>We use localStorage only to store your timezone preference for improved user experience. This data is stored entirely on your device and is never sent to our servers or shared with third parties.</p>
+                <ul>
+                    <li>Timezone preference storage</li>
+                    <li>No personal data collection</li>
+                    <li>Entirely client-side</li>
+                    <li>Deleted when you clear browser data</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Control:</strong> Delete via browser settings anytime.
+                </div>
+            </div>
+
+            <!-- Card 4: Clearing localStorage -->
+            <div class="card">
+                <h3>🗑️ How to Clear localStorage</h3>
+                <p>Clearing localStorage is as simple as clearing your browser cookies. Open your browser developer tools (F12), go to the Application/Storage tab, and delete the stored data. You can also clear it when clearing your browsing data.</p>
+                <ul>
+                    <li>Open Developer Tools (F12)</li>
+                    <li>Go to Application/Storage tab</li>
+                    <li>Select localStorage</li>
+                    <li>Click Delete or Clear All</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Effect:</strong> Resets stored preferences.
+                </div>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>11. Contact Us</h2>
-            <p>If you have questions about our cookie practices:</p>
-            <ul>
-                <li><strong>Email:</strong> contact@flyingwithjoel.co.uk</li>
-                <li><strong>Website:</strong> flyingwithjoel.co.uk</li>
-            </ul>
+        <!-- Section 6: Third-Party Integrations -->
+        <div class="section-title">🔗 Third-Party Integrations</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Google Fonts -->
+            <div class="card">
+                <h3>🔤 Google Fonts</h3>
+                <p>Our website uses Google Fonts for typography. When you visit our site, your browser requests fonts from Google servers. Google may set cookies or collect data about the request (IP address, browser type, etc.). Review Google's privacy policy for details.</p>
+                <p><a href="https://policies.google.com/privacy" target="_blank">View Google Privacy Policy →</a></p>
+                <div class="card-note">
+                    <strong>Data Shared:</strong> IP address, browser info.
+                </div>
+            </div>
+
+            <!-- Card 2: Twitch Integration -->
+            <div class="card">
+                <h3>📺 Twitch Embed SDK</h3>
+                <p>We use Twitch's embed SDK for streaming content. Twitch may set its own cookies and collect data about your interactions with embedded streams. We are not responsible for Twitch's cookie practices or data collection policies.</p>
+                <p><a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank">View Twitch Privacy Policy →</a></p>
+                <div class="card-note">
+                    <strong>Control:</strong> Manage via Twitch settings.
+                </div>
+            </div>
+
+            <!-- Card 3: No Analytics Cookies -->
+            <div class="card">
+                <h3>❌ No Analytics or Tracking</h3>
+                <p>We have deliberately NOT integrated Google Analytics, Facebook Pixel, or other tracking services. We do not use cookies or similar technologies to track your behavior, build user profiles, or share data with advertisers.</p>
+                <ul>
+                    <li>No Google Analytics</li>
+                    <li>No Facebook Pixel</li>
+                    <li>No behavior tracking</li>
+                    <li>No data sharing with third parties</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Commitment:</strong> Your privacy is respected.
+                </div>
+            </div>
+
+            <!-- Card 4: Cookie Consent Tools -->
+            <div class="card">
+                <h3>✅ Cookie Consent Management</h3>
+                <p>Currently, our website does not require a cookie consent banner because we only use essential and security cookies. If we introduce optional functionality requiring consent in the future, we will implement transparent consent mechanisms.</p>
+                <ul>
+                    <li>Essential cookies: No consent needed</li>
+                    <li>Security cookies: No consent needed</li>
+                    <li>Optional: Future consent tool</li>
+                    <li>Transparency: Always prioritized</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Standard:</strong> GDPR and CCPA compliant.
+                </div>
+            </div>
         </div>
 
-        <div class="info-box">
-            <strong>Need More Information?</strong>
-            <p>See our <a href="privacy.html">Privacy Policy</a> for details about data collection, or <a href="security.html">Security & Hosting</a> for information about data protection.</p>
+        <!-- Section 7: Legal Compliance -->
+        <div class="section-title">⚖️ Legal Compliance</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: GDPR Compliance -->
+            <div class="card">
+                <h3>🇪🇺 GDPR Compliance</h3>
+                <p>Our cookie practices comply with the General Data Protection Regulation (GDPR). Essential cookies are permitted without prior consent under GDPR Article 82. We provide transparent information about all cookies used and honor user preferences.</p>
+                <ul>
+                    <li>Minimal data collection</li>
+                    <li>Transparent cookie usage</li>
+                    <li>User control prioritized</li>
+                    <li>Right to erasure honored</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Status:</strong> Fully GDPR compliant.
+                </div>
+            </div>
+
+            <!-- Card 2: CCPA Compliance -->
+            <div class="card">
+                <h3>🇺🇸 CCPA Compliance</h3>
+                <p>For California residents, we comply with the California Consumer Privacy Act (CCPA). You have the right to know what data we collect, delete it, and opt-out of certain uses. We do not "sell" personal information as defined by CCPA.</p>
+                <ul>
+                    <li>Right to know data collection</li>
+                    <li>Right to delete data</li>
+                    <li>Right to opt-out</li>
+                    <li>No data sales</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Status:</strong> Fully CCPA compliant.
+                </div>
+            </div>
+
+            <!-- Card 3: Other Regulations -->
+            <div class="card">
+                <h3>📜 Other Privacy Laws</h3>
+                <p>Our website respects privacy laws globally, including COPPA (children's privacy), UK ICO regulations, and other jurisdictional requirements. Our minimal data collection approach ensures we meet standards across different legal frameworks.</p>
+                <ul>
+                    <li>COPPA compliance (no tracking under 13)</li>
+                    <li>UK ICO regulations</li>
+                    <li>Emerging privacy laws</li>
+                    <li>Industry best practices</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Approach:</strong> Global privacy standards.
+                </div>
+            </div>
+
+            <!-- Card 4: Legal Contact -->
+            <div class="card">
+                <h3>📧 Legal Questions</h3>
+                <p>If you have questions about our cookie practices, legal compliance, or privacy matters, please contact us. We are committed to addressing your concerns transparently and promptly.</p>
+                <p><strong>Email:</strong> <a href="mailto:flywithjoel@gmail.com">flywithjoel@gmail.com</a></p>
+                <div class="card-note">
+                    <strong>Response Time:</strong> Within 7 business days.
+                </div>
+            </div>
+        </div>
+
+        <!-- Policy Updates Info Box -->
+        <div class="highlight-box">
+            <strong>📢 Updates to This Policy</strong>
+            <p>We may update this Cookie Policy periodically to reflect changes in technology, legal requirements, or our practices. Significant changes will be announced on this website, and the "Last Updated" date will be modified. Your continued use of our website indicates acceptance of any updates. We recommend reviewing this policy periodically to stay informed about our cookie practices.</p>
         </div>
     </div>
 
@@ -445,9 +722,9 @@
     <div class="footer">
         <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
         <p style="margin-top: 1rem; font-size: 0.9rem;">
-            <a href="privacy.html">Privacy Policy</a> • 
-            <a href="terms.html">Terms of Service</a> • 
-            <a href="cookies.html">Cookie Policy</a> • 
+            <a href="privacy.html">Privacy Policy</a> •
+            <a href="terms.html">Terms of Service</a> •
+            <a href="cookies.html">Cookie Policy</a> •
             <a href="security.html">Security & Hosting</a>
         </p>
     </div>

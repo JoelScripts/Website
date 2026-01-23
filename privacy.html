@@ -129,6 +129,12 @@
             gap: 0.75rem;
         }
 
+        .card p {
+            color: #b0b0b0;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
         .card ul {
             list-style: none;
             margin-bottom: 1.5rem;
@@ -223,7 +229,7 @@
             background: rgba(255, 102, 0, 0.08);
             border: 1.5px solid #ff6600;
             padding: 1.5rem;
-            margin: 1.5rem 0;
+            margin: 1.5rem 0 3rem 0;
             border-radius: 0.6rem;
             box-shadow: 0 2px 8px rgba(255, 102, 0, 0.05);
         }
@@ -329,9 +335,9 @@
 <body>
     <!-- Main Navigation -->
     <nav class="navbar" style="background: #0a0a0a; border-bottom: 2px solid #ff6600; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100;">
-        <div class="navbar-content" style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem;">
+        <div class="navbar-content" style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem;">        
             <a href="index.html" class="logo" style="font-size: 1.5rem; font-weight: 700; color: #ff6600; text-decoration: none;">flywithjoel</a>
-            <ul class="nav-links" style="list-style: none; display: flex; gap: 2rem; flex-wrap: wrap; margin: 0; padding: 0;">
+            <ul class="nav-links" style="list-style: none; display: flex; gap: 2rem; flex-wrap: wrap; margin: 0; padding: 0;">        
                 <li><a href="index.html#schedule" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Schedule</a></li>
                 <li><a href="index.html#highlights" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Highlights</a></li>
                 <li><a href="index.html#setup" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Setup</a></li>
@@ -347,7 +353,7 @@
     <div class="container">
         <!-- Header Card -->
         <div class="header-card">
-            <h1>🔒 Privacy & Data Notice</h1>
+            <h1>🔐 Privacy & Data Notice</h1>
             <p class="last-updated">Last Updated: January 2026</p>
             <p>We are committed to protecting your privacy. This website is designed to minimize personal data collection and maintain full compliance with GDPR, CCPA, COPPA, and UK ICO regulations.</p>
         </div>
@@ -398,52 +404,191 @@
                 </div>
             </div>
         </div>
-    </div>
 
-        <!-- Additional Sections -->
-        <div class="section">
-            <h2>Legal Basis for Processing</h2>
-            <p>We process your data under the following legal bases:</p>
-            <ul>
-                <li><strong>Consent:</strong> For non-essential cookies and third-party integrations</li>
-                <li><strong>Legitimate Interests:</strong> To keep our website secure and functioning</li>
-                <li><strong>Performance of Contract:</strong> To respond to your enquiries</li>
-                <li><strong>Legal Obligation:</strong> To comply with applicable laws</li>
-            </ul>
+        <!-- Legal Basis for Processing Section -->
+        <div class="section-title">⚖️ Legal Basis for Processing</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Consent -->
+            <div class="card">
+                <h3>✅ Consent</h3>
+                <p>For non-essential cookies and third-party integrations. You have full control to withdraw consent at any time without affecting the lawfulness of prior processing.</p>
+                <div class="card-note">
+                    <strong>Action:</strong> Manage preferences in browser settings.
+                </div>
+            </div>
+
+            <!-- Card 2: Legitimate Interests -->
+            <div class="card">
+                <h3>🛡️ Legitimate Interests</h3>
+                <p>To keep our website secure and functioning properly. This includes security monitoring, website optimization, and preventing fraud or abuse.</p>
+                <div class="card-note">
+                    <strong>Balanced:</strong> Your rights are protected from our legitimate interests.
+                </div>
+            </div>
+
+            <!-- Card 3: Performance of Contract -->
+            <div class="card">
+                <h3>📝 Performance of Contract</h3>
+                <p>To respond to your enquiries, process your requests, and fulfill any agreements. This ensures we can communicate effectively and address your needs.</p>
+                <div class="card-note">
+                    <strong>Purpose:</strong> Essential for service delivery.
+                </div>
+            </div>
+
+            <!-- Card 4: Legal Obligation -->
+            <div class="card">
+                <h3>📋 Legal Obligation</h3>
+                <p>To comply with applicable laws and regulations. This includes data retention requirements, tax obligations, and regulatory compliance mandates.</p>
+                <div class="card-note">
+                    <strong>Requirement:</strong> Mandatory under law.
+                </div>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>Your GDPR Rights</h2>
-            <ul>
-                <li><strong>Right to Access:</strong> Request a copy of your data</li>
-                <li><strong>Right to Rectification:</strong> Correct inaccurate data</li>
-                <li><strong>Right to Erasure:</strong> Request deletion of your data</li>
-                <li><strong>Right to Restrict Processing:</strong> Limit how we use your data</li>
-                <li><strong>Right to Data Portability:</strong> Receive data in a portable format</li>
-                <li><strong>Right to Object:</strong> Object to certain processing</li>
-            </ul>
-            <p style="margin-top: 1rem;">To exercise these rights, contact: <strong>flywithjoel@gmail.com</strong></p>
+        <!-- Your GDPR Rights Section -->
+        <div class="section-title">👤 Your GDPR Rights</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Right to Access -->
+            <div class="card">
+                <h3>👁️ Right to Access</h3>
+                <p>You have the right to request a copy of all personal data we hold about you. We will provide this information in a clear and accessible format within 30 days of your request.</p>
+                <div class="card-note">
+                    <strong>Email:</strong> flywithjoel@gmail.com
+                </div>
+            </div>
+
+            <!-- Card 2: Right to Rectification -->
+            <div class="card">
+                <h3>✏️ Right to Rectification</h3>
+                <p>You can request correction of inaccurate or incomplete data held about you. We will update your information promptly upon receiving a verified request.</p>
+                <div class="card-note">
+                    <strong>Timeframe:</strong> 30 days response.
+                </div>
+            </div>
+
+            <!-- Card 3: Right to Erasure -->
+            <div class="card">
+                <h3>🗑️ Right to Erasure</h3>
+                <p>Also known as the "right to be forgotten." You can request deletion of your data unless we have a legal obligation to retain it. This right may be limited in certain circumstances.</p>
+                <div class="card-note">
+                    <strong>Note:</strong> Some data may be retained by law.
+                </div>
+            </div>
+
+            <!-- Card 4: Right to Restrict Processing -->
+            <div class="card">
+                <h3>🚫 Right to Restrict Processing</h3>
+                <p>You can request that we limit how we use your data. We will store it but not process it further unless you withdraw the restriction or we have legal grounds to continue.</p>
+                <div class="card-note">
+                    <strong>Effect:</strong> Data retained but not used.
+                </div>
+            </div>
+
+            <!-- Card 5: Right to Data Portability -->
+            <div class="card">
+                <h3>📤 Right to Data Portability</h3>
+                <p>You can request your data in a structured, machine-readable format (like CSV). This allows you to transfer your information to another service provider easily.</p>
+                <div class="card-note">
+                    <strong>Format:</strong> Portable formats supported.
+                </div>
+            </div>
+
+            <!-- Card 6: Right to Object -->
+            <div class="card">
+                <h3>⚠️ Right to Object</h3>
+                <p>You can object to certain types of processing, including direct marketing and processing based on legitimate interests. We will cease processing unless we have compelling reasons to continue.</p>
+                <div class="card-note">
+                    <strong>Priority:</strong> Your preferences matter.
+                </div>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>Third-Party Services</h2>
-            <p>This website integrates the following third-party services:</p>
-            <ul>
-                <li><strong>Google Fonts:</strong> For typography - see <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
-                <li><strong>Twitch Embed SDK:</strong> For stream integration - see <a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank">Twitch Privacy Policy</a></li>
-                <li><strong>LinkTree:</strong> External link service - see LinkTree terms</li>
-            </ul>
-            <p>We are not responsible for third-party privacy practices. Review their policies independently.</p>
+        <!-- Third-Party Services Section -->
+        <div class="section-title">🔗 Third-Party Services</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Google Fonts -->
+            <div class="card">
+                <h3>🔤 Google Fonts</h3>
+                <p>Used for typography and design optimization. Your IP address and browser information may be shared with Google. Review their privacy policy to understand their data handling practices.</p>
+                <p><a href="https://policies.google.com/privacy" target="_blank">View Google Privacy Policy →</a></p>
+                <div class="card-note">
+                    <strong>Data Shared:</strong> IP, browser type, timestamp.
+                </div>
+            </div>
+
+            <!-- Card 2: Twitch Embed SDK -->
+            <div class="card">
+                <h3>📺 Twitch Embed SDK</h3>
+                <p>Enables embedded Twitch streams on our website. Twitch may collect data about your interactions with embedded content. We are not responsible for Twitch's data practices.</p>
+                <p><a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank">View Twitch Privacy Policy →</a></p>
+                <div class="card-note">
+                    <strong>Data Shared:</strong> Interaction data with embed.
+                </div>
+            </div>
+
+            <!-- Card 3: LinkTree -->
+            <div class="card">
+                <h3>🌳 LinkTree</h3>
+                <p>External link service for managing social media and web links. LinkTree may collect analytics about link clicks and referral data. Review their terms independently.</p>
+                <p><a href="https://linktr.ee" target="_blank">Visit LinkTree →</a></p>
+                <div class="card-note">
+                    <strong>Responsibility:</strong> Not liable for their practices.
+                </div>
+            </div>
         </div>
 
+        <!-- Data Retention Section -->
+        <div class="section-title">⏰ Data Retention</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Contact Form Data -->
+            <div class="card">
+                <h3>📧 Contact Form Data</h3>
+                <p>Information submitted through contact forms or email is retained for 2 years. This allows us to maintain a record of communications and respond to follow-up enquiries. You can request deletion at any time.</p>
+                <div class="card-note">
+                    <strong>Duration:</strong> 2 years maximum.
+                </div>
+            </div>
+
+            <!-- Card 2: Server Logs & Security -->
+            <div class="card">
+                <h3>🔐 Server Logs & Security</h3>
+                <p>Security logs containing IP addresses, browser information, and access timestamps are retained for security purposes. These are typically kept for 30-90 days and automatically purged. Extended retention may apply for suspicious activity investigation.</p>
+                <div class="card-note">
+                    <strong>Duration:</strong> 30-90 days standard.
+                </div>
+            </div>
+
+            <!-- Card 3: Browser-Based Preferences -->
+            <div class="card">
+                <h3>💾 Browser-Based Preferences</h3>
+                <p>Your timezone and preference data stored in your browser's local storage remains there indefinitely until you clear your browser data. This data is not stored on our servers and is entirely within your control.</p>
+                <div class="card-note">
+                    <strong>Control:</strong> You manage deletion via browser.
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="section-title">📞 Contact Information</div>
+
+        <div class="cards-grid">
+            <!-- Card 1: Privacy Questions -->
+            <div class="card">
+                <h3>✉️ Questions About Your Privacy?</h3>
+                <p>If you have concerns about how we handle your data, need to exercise your GDPR rights, or wish to withdraw consent, please contact us directly. We're committed to addressing your privacy concerns promptly and transparently.</p>
+                <p><strong>Email:</strong> <a href="mailto:flywithjoel@gmail.com">flywithjoel@gmail.com</a></p>
+                <p><strong>Expected Response Time:</strong> Within 7 business days</p>
+            </div>
+        </div>
+
+        <!-- Policy Updates Info Box -->
         <div class="highlight-box">
-            <strong>Questions About Your Privacy?</strong>
-            <p>If you have concerns about how we handle your data, please contact: <strong>flywithjoel@gmail.com</strong></p>
-        </div>
-
-        <div class="section">
-            <h2>Updates to This Policy</h2>
-            <p>We may update this Privacy Policy periodically. Significant changes will be announced on this website, and the "Last Updated" date will be modified accordingly. Continued use of the website indicates acceptance of any changes.</p>
+            <strong>📢 Updates to This Policy</strong>
+            <p>We may update this Privacy Policy periodically. Significant changes will be announced on this website, and the "Last Updated" date will be modified accordingly. Your continued use of the website indicates acceptance of any changes. We recommend reviewing this policy periodically to stay informed about how we handle your data.</p>
         </div>
     </div>
 
@@ -451,9 +596,9 @@
     <div class="footer">
         <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
         <p style="margin-top: 1rem; font-size: 0.9rem;">
-            <a href="privacy.html">Privacy Policy</a> • 
-            <a href="terms.html">Terms of Service</a> • 
-            <a href="cookies.html">Cookie Policy</a> • 
+            <a href="privacy.html">Privacy Policy</a> •
+            <a href="terms.html">Terms of Service</a> •
+            <a href="cookies.html">Cookie Policy</a> •
             <a href="security.html">Security & Hosting</a>
         </p>
     </div>
