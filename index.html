@@ -603,21 +603,28 @@
         async function loadHighlights() {
             try {
                 const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
-                const highlightsHTML = `
-                    <div class="highlight-card">
-                        <div class="highlight-thumbnail" style="position: relative; padding: 0; overflow: hidden;">
-                            <iframe src="https://clips.twitch.tv/embed?clip=MagnificentAverageLobsterOMGScoots-Ko6Vkp-DxaBMqKJO&parent=flyingwithjoel.co.uk" style="width: 100%; height: 100%; border: none; display: block; position: absolute; top: 0; left: 0;" allowfullscreen></iframe>
+                const clips = [
+                    { slug: 'MagnificentAverageLobsterOMGScoots-Ko6Vkp-DxaBMqKJO', title: 'Well that happened', views: 2 },
+                    { slug: 'HotOddGalagoPJSalt-VOO8JQkss9I0bVjJ', title: 'Smooth Landing into Singapore after 18 Hours 20 Minutes From New York', views: 9 }
+                ];
+                
+                let highlightsHTML = '';
+                
+                // Add embedded clips
+                for (let clip of clips) {
+                    highlightsHTML += `
+                        <div class="highlight-card">
+                            <div class="highlight-thumbnail" style="position: relative; padding: 0; overflow: hidden;">
+                                <iframe src="https://clips.twitch.tv/embed?clip=${clip.slug}&parent=flyingwithjoel.co.uk" style="width: 100%; height: 100%; border: none; display: block; position: absolute; top: 0; left: 0;" allowfullscreen></iframe>
+                            </div>
+                            <h4>${clip.title}</h4>
+                            <span class="view-count">👁️ ${clip.views.toLocaleString()} views</span>
                         </div>
-                        <h4>Watch Your Latest Clips</h4>
-                        <span class="view-count">🎬 Embedded Twitch Clip</span>
-                    </div>
-                    <div class="highlight-card">
-                        <div class="highlight-thumbnail" style="position: relative; padding: 0; overflow: hidden;">
-                            <iframe src="https://clips.twitch.tv/embed?clip=HotOddGalagoPJSalt-VOO8JQkss9I0bVjJ&parent=flyingwithjoel.co.uk" style="width: 100%; height: 100%; border: none; display: block; position: absolute; top: 0; left: 0;" allowfullscreen></iframe>
-                        </div>
-                        <h4>Best Moments from Streams</h4>
-                        <span class="view-count">🎬 Embedded Twitch Clip</span>
-                    </div>
+                    `;
+                }
+                
+                // Add Follow on Twitch card
+                highlightsHTML += `
                     <div class="highlight-card" style="cursor: pointer;" onclick="window.open('https://www.twitch.tv/${TWITCH_CHANNEL_NAME}', '_blank')">
                         <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #9147ff, #5D29FF); position: relative;">
                             <span style="font-size: 3rem;">📺</span>
@@ -626,6 +633,7 @@
                         <span class="view-count">👁️ Join the community</span>
                     </div>
                 `;
+                
                 document.getElementById('highlights-grid').innerHTML = highlightsHTML;
             } catch (error) {
                 console.error('Could not load highlights:', error);
