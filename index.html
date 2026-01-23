@@ -23,24 +23,26 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Twitch Embed SDK -->
-    <script src="https://embed.twitch.tv/embed.js"></script>
+    <!-- Twitch Embed SDK - Loaded after consent check -->
+
 </head>
 <body>
-    <!-- Cookie Consent Banner -->
+    <!-- Cookie Consent Banner - GDPR Compliant -->
     <div id="cookie-consent-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(26, 26, 26, 0.98); border-top: 2px solid #0066ff; padding: 1.5rem; z-index: 10000; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5); font-family: 'Poppins', sans-serif; display: none;">
-        <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; justify-content: space-between;">
-            <div style="flex: 1; min-width: 250px;">
-                <p style="margin: 0 0 0.5rem 0; color: #e0e0e0; font-size: 0.95rem;">
-                    <strong>Cookie Consent</strong> - We use cookies and localStorage to remember your timezone preference and improve your experience.
-                </p>
-                <p style="margin: 0; color: #a0a0a0; font-size: 0.85rem;">
-                    Please read our <a href="privacy.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Privacy Policy</a> to learn more.
-                </p>
-            </div>
-            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <button id="cookie-accept-btn" style="background: #0066ff; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 0.4rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: background 0.2s;">Accept All</button>
-                <button id="cookie-reject-btn" style="background: transparent; color: #a0a0a0; border: 1px solid #404040; padding: 0.7rem 1.5rem; border-radius: 0.4rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;">Reject</button>
+        <div style="max-width: 1200px; margin: 0 auto;">
+            <div style="display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap; justify-content: space-between;">
+                <div style="flex: 1; min-width: 250px;">
+                    <p style="margin: 0 0 0.5rem 0; color: #e0e0e0; font-size: 0.95rem;">
+                        <strong>Your Privacy Matters</strong> - We use essential cookies and localStorage to remember your timezone preference. Third-party services (Google Fonts, Twitch) may also collect limited data.
+                    </p>
+                    <p style="margin: 0; color: #a0a0a0; font-size: 0.85rem;">
+                        Learn more: <a href="privacy.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Privacy Policy</a> | <a href="cookies.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Cookie Policy</a> | <a href="terms.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Terms of Service</a>
+                    </p>
+                </div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button id="cookie-accept-btn" style="background: #0066ff; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 0.4rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: background 0.2s; white-space: nowrap;">Accept All</button>
+                    <button id="cookie-reject-btn" style="background: transparent; color: #a0a0a0; border: 1px solid #404040; padding: 0.7rem 1.5rem; border-radius: 0.4rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s; white-space: nowrap;">Reject Non-Essential</button>
+                </div>
             </div>
         </div>
     </div>
@@ -63,6 +65,9 @@
                 <li><a href="#contact">Contact Me</a></li>
                 <li><a href="suggestions.html">Suggestions</a></li>
                 <li><a href="privacy.html">Privacy Policy</a></li>
+                <li><a href="terms.html">Terms of Service</a></li>
+                <li><a href="cookies.html">Cookie Policy</a></li>
+                <li><a href="security.html">Security & Hosting</a></li>
                 <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="follow-btn">Follow Me</a></li>
             </ul>
         </div>
@@ -594,11 +599,35 @@
                 <p>For sponsorships, collaborations, and business opportunities:</p>
                 <a href="mailto:flywithjoeluk@gmail.com" class="contact-email">flywithjoeluk@gmail.com</a>
                 <p class="contact-note">I'll get back to you as soon as possible!</p>
+                <p style="font-size: 0.8rem; color: #888; margin-top: 1rem; border-top: 1px solid #404040; padding-top: 0.75rem;">
+                    <strong>Data Notice:</strong> Information you provide will be used only to respond to your enquiry. We retain contact information for 2 years unless requested to delete sooner. <a href="privacy.html" style="color: #0066ff;">View our Privacy Policy</a> to exercise your data rights.
+                </p>
             </div>
             <div class="contact-card">
                 <h3>🎥 Connect on Twitch</h3>
                 <p>Chat with me live during streams and join the community:</p>
                 <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="contact-link">Visit My Twitch Channel</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Affiliate & Legal Disclosure Section -->
+    <section class="disclosure-section" style="background: linear-gradient(135deg, rgba(0, 102, 255, 0.1), rgba(0, 102, 255, 0.05)); padding: 3rem 2rem; margin: 3rem 0; border-top: 1px solid rgba(0, 102, 255, 0.2); border-bottom: 1px solid rgba(0, 102, 255, 0.2);">
+        <div class="container" style="max-width: 1000px; margin: 0 auto;">
+            <h3 style="color: #0066ff; margin-bottom: 1rem; text-align: center;">Important Disclosures</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+                <div>
+                    <h4 style="color: #e0e0e0; margin-bottom: 0.5rem;">🤝 Affiliate Links</h4>
+                    <p style="color: #a0a0a0; font-size: 0.9rem; line-height: 1.5;">Some links on this site are affiliate links. When you purchase through them, we earn a commission at no extra cost to you. This helps support the channel.</p>
+                </div>
+                <div>
+                    <h4 style="color: #e0e0e0; margin-bottom: 0.5rem;">✈️ Flight Simulation Only</h4>
+                    <p style="color: #a0a0a0; font-size: 0.9rem; line-height: 1.5;">All content covers flight simulation entertainment only. This is NOT aviation training. For real pilot training, consult qualified aviation instructors.</p>
+                </div>
+                <div>
+                    <h4 style="color: #e0e0e0; margin-bottom: 0.5rem;">🔗 Third-Party Services</h4>
+                    <p style="color: #a0a0a0; font-size: 0.9rem; line-height: 1.5;">We use Google Fonts and Twitch embeds which may collect data. See our <a href="privacy.html" style="color: #0066ff; font-weight: 500;">Privacy Policy</a> for details.</p>
+                </div>
             </div>
         </div>
     </section>
@@ -610,6 +639,9 @@
             <div class="footer-links">
                 <a href="privacy.html">Privacy Policy</a>
                 <a href="terms.html">Terms of Service</a>
+                <a href="cookies.html">Cookie Policy</a>
+                <a href="security.html">Security & Hosting</a>
+                <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank">Twitch</a>
             </div>
         </div>
     </footer>
@@ -633,6 +665,8 @@
             acceptBtn.addEventListener('click', function() {
                 localStorage.setItem('gdpr-consent-accepted', 'true');
                 banner.style.display = 'none';
+                // Load Twitch SDK after consent
+                loadTwitchSDK();
                 // Reload timezone conversion with consent
                 setupTimezoneSelector();
             });
@@ -651,8 +685,24 @@
             return localStorage.getItem('gdpr-consent-accepted') === 'true';
         }
         
+        function loadTwitchSDK() {
+            // Only load Twitch SDK if not already loaded
+            if (!window.twitchEmbed) {
+                const script = document.createElement('script');
+                script.src = 'https://embed.twitch.tv/embed.js';
+                script.async = true;
+                document.head.appendChild(script);
+            }
+        }
+        
         // Initialize consent on page load
-        document.addEventListener('DOMContentLoaded', initializeCookieConsent);
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCookieConsent();
+            // Load Twitch SDK if user has already given consent
+            if (hasUserConsent()) {
+                loadTwitchSDK();
+            }
+        });
         
         // ===== Original JavaScript =====
         const hamburger = document.getElementById('hamburger');
