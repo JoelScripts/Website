@@ -1,16 +1,2 @@
-# Redirect all traffic to maintenance page
-# Remove this file or comment out these lines when maintenance is complete
-
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    
-    # Allow access to maintenance.html and assets
-    RewriteCond %{REQUEST_FILENAME} maintenance\.html$ [OR]
-    RewriteCond %{REQUEST_FILENAME} ^.*(css|js|assets)/.*$ [OR]
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
-    
-    # Redirect everything else to maintenance page
-    RewriteRule ^(.*)$ maintenance.html [L]
-</IfModule>
+# Maintenance mode disabled
+# Website is now live
