@@ -17,11 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Pages that don't require terms acceptance
     const whitelistedPages = ['index.html', 'terms.html', 'access_denied.html', 'privacy.html', 'cookies.html', 'security.html'];
     
-    // Get current page filename
-    const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+    // Get current page - handle root path
+    const pathname = window.location.pathname;
+    const currentPage = pathname.split('/').pop() || 'index.html';
     
-    // Check if current page is whitelisted
-    const isWhitelisted = whitelistedPages.some(page => currentPage.includes(page));
+    // Check if current page is whitelisted (handle both root and specific pages)
+    const isWhitelisted = whitelistedPages.some(page => pathname.includes(page)) || pathname.endsWith('/') || pathname === '';
     
     // Check if user has accepted terms
     const termsAccepted = localStorage.getItem('termsAccepted');
