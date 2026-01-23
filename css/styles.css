@@ -1909,3 +1909,136 @@ body {
         font-size: 0.85rem;
     }
 }
+
+/* Terms Consent Modal */
+.terms-consent-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+    padding: 1rem;
+    backdrop-filter: blur(5px);
+}
+
+.terms-consent-modal.show {
+    display: flex;
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.terms-consent-content {
+    background: var(--card-bg);
+    border: 2px solid var(--primary);
+    border-radius: 1rem;
+    padding: 2.5rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(255, 140, 66, 0.3);
+    animation: modalSlideInContent 0.4s ease-out;
+}
+
+@keyframes modalSlideInContent {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.terms-consent-content h2 {
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.terms-consent-content p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    text-align: center;
+}
+
+.terms-consent-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.terms-consent-btn {
+    padding: 0.8rem 1.8rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    white-space: nowrap;
+}
+
+.terms-consent-btn.accept {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    color: white;
+}
+
+.terms-consent-btn.accept:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 140, 66, 0.4);
+}
+
+.terms-consent-btn.decline {
+    background: transparent;
+    color: #ff6666;
+    border: 2px solid #ff4444;
+}
+
+.terms-consent-btn.decline:hover {
+    background: rgba(255, 68, 68, 0.1);
+    border-color: #ff6666;
+}
+
+@media (max-width: 768px) {
+    .terms-consent-content {
+        padding: 2rem 1.5rem;
+        margin: 1rem;
+    }
+
+    .terms-consent-content h2 {
+        font-size: 1.3rem;
+    }
+
+    .terms-consent-content p {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .terms-consent-buttons {
+        flex-direction: column;
+    }
+
+    .terms-consent-btn {
+        width: 100%;
+    }
+}

@@ -35,8 +35,7 @@
     <section class="hero" style="padding: 2.5rem 2rem; text-align: center;">
         <div class="hero-content" style="max-width: 800px; margin: 0 auto;">
             <h1 style="font-size: 2.2rem; margin-bottom: 0.75rem;">Terms of Service</h1>
-            <p style="font-size: 1rem; color: var(--text-muted); margin-bottom: 1.5rem;">Please read these terms carefully before using our website.</p>
-            <a href="index.html" style="display: inline-block; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; padding: 0.6rem 1.5rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.3s ease; cursor: pointer;">← Return to Main Site</a>
+            <p style="font-size: 1rem; color: var(--text-muted); margin-bottom: 1.5rem;">Please read these terms carefully. By using this website, you accept these terms.</p>
         </div>
     </section>
 
@@ -218,15 +217,7 @@
         <p><strong>Disclaimer:</strong> These terms are not legal advice. We recommend consulting with a qualified legal professional. For questions, contact <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a></p>
     </div>
 
-    <!-- Terms Action Buttons -->
-    <div style="max-width: 800px; margin: 2rem auto; padding: 0 2rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
-        <button onclick="acceptTerms()" style="background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; padding: 0.9rem 2rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.3s ease;">
-            ✓ Accept Terms
-        </button>
-        <button onclick="declineTerms()" style="background: transparent; color: #ff6666; border: 2px solid #ff4444; padding: 0.7rem 2rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-            ✗ Decline Terms
-        </button>
-    </div>
+
 
     <!-- Footer -->
     <footer class="footer">
@@ -250,19 +241,71 @@
         </div>
     </div>
 
+    <!-- Terms Consent Modal -->
+    <div id="terms-consent-modal" class="terms-consent-modal">
+        <div class="terms-consent-content">
+            <h2>Accept Terms of Service</h2>
+            <p>By continuing to use this website, you agree to accept our Terms of Service as outlined above.</p>
+            <div class="terms-consent-buttons">
+                <button id="terms-accept-btn" class="terms-consent-btn accept">✓ Accept Terms</button>
+                <button id="terms-decline-btn" class="terms-consent-btn decline">✗ Decline Terms</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/main.js"></script>
     <script>
-        function acceptTerms() {
-            localStorage.setItem('termsAccepted', 'true');
-            localStorage.removeItem('termsDeclined');
-            alert('Thank you for accepting the Terms of Service. You can now use the website.');
-            window.location.href = 'index.html';
-        }
-
-        function declineTerms() {
-            localStorage.setItem('termsDeclined', 'true');
-            localStorage.removeItem('termsAccepted');
-            window.location.href = 'access_denied.html';
+        // Terms Consent Modal - Show only after scrolling to bottom
+        let hasScrolledToBottom = false;
+        let modalShown = false;
+        
+        window.addEventListener('scroll', function() {
+            if (!modalShown && !hasScrolledToBottom) {
+                const scrollPosition = window.scrollY + window.innerHeight;
+                const pageHeight = document.documentElement.scrollHeight;
+                const scrollThreshold = pageHeight - 300; // 300px from bottom
+                
+                console.log('Current scroll position:', scrollPosition, 'Page height:', pageHeight, 'Threshold:', scrollThreshold);
+                
+                if (scrollPosition >= scrollThreshold) {
+                    console.log('Bottom reached! Showing modal');
+                    hasScrolledToBottom = true;
+                    const termsModal = document.getElementById('terms-consent-modal');
+                    if (termsModal) {
+                        termsModal.classList.add('show');
+                        modalShown = true;
+                        setupTermsButtons();
+                    }
+                }
+            }
+        });
+        
+        function setupTermsButtons() {
+            const termsModal = document.getElementById('terms-consent-modal');
+            const termsAcceptBtn = document.getElementById('terms-accept-btn');
+            const termsDeclineBtn = document.getElementById('terms-decline-btn');
+            
+            // Handle Accept Button
+            if (termsAcceptBtn) {
+                termsAcceptBtn.addEventListener('click', function() {
+                    localStorage.setItem('termsAccepted', 'true');
+                    localStorage.removeItem('termsDeclined');
+                    if (termsModal) termsModal.classList.remove('show');
+                    alert('Thank you for accepting the Terms of Service. You can now use the website.');
+                    window.location.href = 'index.html';
+                });
+            }
+            
+            // Handle Decline Button
+            if (termsDeclineBtn) {
+                termsDeclineBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    localStorage.setItem('termsDeclined', 'true');
+                    localStorage.removeItem('termsAccepted');
+                    window.location.href = 'access_denied.html';
+                });
+            }
         }
 
         // Check on page load if user has already declined terms

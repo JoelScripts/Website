@@ -39,11 +39,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Handle Decline Button
     if (declineBtn) {
-        declineBtn.addEventListener('click', () => {
+        declineBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             localStorage.setItem('cookieConsent', 'declined');
             localStorage.setItem('termsDeclined', 'true');
             localStorage.removeItem('termsAccepted');
-            window.location.href = 'access_denied.html';
+            setTimeout(function() {
+                window.location.href = 'access_denied.html';
+            }, 100);
         });
     }
 });
