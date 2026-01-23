@@ -27,6 +27,24 @@
     <script src="https://embed.twitch.tv/embed.js"></script>
 </head>
 <body>
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-consent-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(26, 26, 26, 0.98); border-top: 2px solid #0066ff; padding: 1.5rem; z-index: 10000; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5); font-family: 'Poppins', sans-serif; display: none;">
+        <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem; flex-wrap: wrap; justify-content: space-between;">
+            <div style="flex: 1; min-width: 250px;">
+                <p style="margin: 0 0 0.5rem 0; color: #e0e0e0; font-size: 0.95rem;">
+                    <strong>Cookie Consent</strong> - We use cookies and localStorage to remember your timezone preference and improve your experience.
+                </p>
+                <p style="margin: 0; color: #a0a0a0; font-size: 0.85rem;">
+                    Please read our <a href="privacy.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Privacy Policy</a> to learn more.
+                </p>
+            </div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button id="cookie-accept-btn" style="background: #0066ff; color: white; border: none; padding: 0.7rem 1.5rem; border-radius: 0.4rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: background 0.2s;">Accept All</button>
+                <button id="cookie-reject-btn" style="background: transparent; color: #a0a0a0; border: 1px solid #404040; padding: 0.7rem 1.5rem; border-radius: 0.4rem; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;">Reject</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Navigation Header -->
     <nav class="navbar">
         <div class="nav-container">
@@ -44,6 +62,7 @@
                 <li><a href="#affiliates">Affiliates</a></li>
                 <li><a href="#contact">Contact Me</a></li>
                 <li><a href="suggestions.html">Suggestions</a></li>
+                <li><a href="privacy.html">Privacy Policy</a></li>
                 <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="follow-btn">Follow Me</a></li>
             </ul>
         </div>
@@ -597,7 +616,45 @@
 
     <script src="js/main.js"></script>
     <script>
-        // Hamburger Menu Toggle
+        // ===== GDPR Consent Management =====
+        function initializeCookieConsent() {
+            const banner = document.getElementById('cookie-consent-banner');
+            const acceptBtn = document.getElementById('cookie-accept-btn');
+            const rejectBtn = document.getElementById('cookie-reject-btn');
+            
+            // Check if user has already made a choice
+            const consentChoice = localStorage.getItem('gdpr-consent-accepted');
+            
+            if (!consentChoice) {
+                // Show banner if no consent given
+                banner.style.display = 'flex';
+            }
+            
+            acceptBtn.addEventListener('click', function() {
+                localStorage.setItem('gdpr-consent-accepted', 'true');
+                banner.style.display = 'none';
+                // Reload timezone conversion with consent
+                setupTimezoneSelector();
+            });
+            
+            rejectBtn.addEventListener('click', function() {
+                localStorage.setItem('gdpr-consent-accepted', 'false');
+                banner.style.display = 'none';
+                // Clear any timezone preference
+                if (localStorage.getItem('preferredTimezone')) {
+                    localStorage.removeItem('preferredTimezone');
+                }
+            });
+        }
+        
+        function hasUserConsent() {
+            return localStorage.getItem('gdpr-consent-accepted') === 'true';
+        }
+        
+        // Initialize consent on page load
+        document.addEventListener('DOMContentLoaded', initializeCookieConsent);
+        
+        // ===== Original JavaScript =====
         const hamburger = document.getElementById('hamburger');
         const navLinks = document.getElementById('nav-links');
 
@@ -688,13 +745,21 @@
                 return;
             }
             
-            // Load saved timezone preference or use auto-detect
-            const savedTz = localStorage.getItem('preferredTimezone') || 'auto';
+            // Only use localStorage if user has given consent
+            let savedTz = 'auto';
+            if (hasUserConsent()) {
+                savedTz = localStorage.getItem('preferredTimezone') || 'auto';
+            }
             tzSelect.value = savedTz;
             
             tzSelect.addEventListener('change', function() {
                 console.log('Timezone changed to:', this.value);
-                localStorage.setItem('preferredTimezone', this.value);
+                if (hasUserConsent()) {
+                    localStorage.setItem('preferredTimezone', this.value);
+                } else {
+                    alert('Please accept cookies to save your timezone preference.');
+                    return;
+                }
                 const tz = this.value === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : this.value;
                 convertZuluToSelectedTimezone(tz);
             });
@@ -817,7 +882,10 @@
         window.addEventListener('load', updateLiveStatus);
         window.addEventListener('load', function() {
             // Apply timezone conversion after DOM is ready
-            const savedTz = localStorage.getItem('preferredTimezone') || 'auto';
+            let savedTz = 'auto';
+            if (hasUserConsent()) {
+                savedTz = localStorage.getItem('preferredTimezone') || 'auto';
+            }
             if (savedTz === 'auto') {
                 const autoTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 convertZuluToSelectedTimezone(autoTz);
@@ -909,6 +977,14 @@
             addLiveCardClickHandler();
             // Also update click handlers every minute when live status updates
             setInterval(addLiveCardClickHandler, 60000);
+            
+            // Load timezone preference if consent was given
+            if (hasUserConsent()) {
+                const savedTz = localStorage.getItem('preferredTimezone') || 'auto';
+                if (savedTz !== 'auto') {
+                    convertZuluToSelectedTimezone(savedTz);
+                }
+            }
         });
     </script>
 </body>
