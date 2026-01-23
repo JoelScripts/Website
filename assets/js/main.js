@@ -15,7 +15,7 @@ document.querySelectorAll('.tab-btn').forEach(button => {
 // Terms of Service Enforcement - Redirect new users to terms page
 document.addEventListener('DOMContentLoaded', () => {
     // Pages that don't require terms acceptance
-    const whitelistedPages = ['terms.html', 'access_denied.html', 'privacy.html'];
+    const whitelistedPages = ['index.html', 'terms.html', 'access_denied.html', 'privacy.html', 'cookies.html', 'security.html'];
     
     // Get current page filename
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
