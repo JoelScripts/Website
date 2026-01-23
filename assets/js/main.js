@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // Cookie Consent Banner
 document.addEventListener('DOMContentLoaded', () => {
     const cookieBanner = document.getElementById('cookie-consent-banner');
-    const acceptBtn = document.getElementById('cookie-accept');
-    const declineBtn = document.getElementById('cookie-decline');
+    const acceptBtn = document.getElementById('cookie-accept-btn');
+    const declineBtn = document.getElementById('cookie-reject-btn');
     
     if (!cookieBanner) return;
 
@@ -45,14 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (!cookieConsent) {
         // Show banner if no consent decision has been made
-        cookieBanner.classList.add('show');
+        cookieBanner.style.display = 'block';
     }
 
     // Handle Accept Button
     if (acceptBtn) {
         acceptBtn.addEventListener('click', () => {
             localStorage.setItem('cookieConsent', 'accepted');
-            cookieBanner.classList.remove('show');
+            cookieBanner.style.display = 'none';
             // Enable any tracking or non-essential features here if needed
         });
     }
@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('termsDeclined', 'true');
             localStorage.removeItem('termsAccepted');
             setTimeout(function() {
-                window.location.href = 'access_denied.html';
+                window.location.href = 'pages/access_denied.html';
             }, 100);
         });
     }
