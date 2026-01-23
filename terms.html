@@ -218,6 +218,16 @@
         <p><strong>Disclaimer:</strong> These terms are not legal advice. We recommend consulting with a qualified legal professional. For questions, contact <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a></p>
     </div>
 
+    <!-- Terms Action Buttons -->
+    <div style="max-width: 800px; margin: 2rem auto; padding: 0 2rem; display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+        <button onclick="acceptTerms()" style="background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; padding: 0.9rem 2rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.3s ease;">
+            ✓ Accept Terms
+        </button>
+        <button onclick="declineTerms()" style="background: transparent; color: #ff6666; border: 2px solid #ff4444; padding: 0.7rem 2rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+            ✗ Decline Terms
+        </button>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
@@ -241,5 +251,27 @@
     </div>
 
     <script src="js/main.js"></script>
+    <script>
+        function acceptTerms() {
+            localStorage.setItem('termsAccepted', 'true');
+            localStorage.removeItem('termsDeclined');
+            alert('Thank you for accepting the Terms of Service. You can now use the website.');
+            window.location.href = 'index.html';
+        }
+
+        function declineTerms() {
+            localStorage.setItem('termsDeclined', 'true');
+            localStorage.removeItem('termsAccepted');
+            window.location.href = 'access_denied.html';
+        }
+
+        // Check on page load if user has already declined terms
+        window.addEventListener('load', function() {
+            const termsDeclined = localStorage.getItem('termsDeclined');
+            if (termsDeclined === 'true') {
+                window.location.href = 'access_denied.html';
+            }
+        });
+    </script>
 </body>
 </html>

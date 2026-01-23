@@ -41,7 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (declineBtn) {
         declineBtn.addEventListener('click', () => {
             localStorage.setItem('cookieConsent', 'declined');
-            cookieBanner.classList.remove('show');
+            localStorage.setItem('termsDeclined', 'true');
+            localStorage.removeItem('termsAccepted');
+            window.location.href = 'access_denied.html';
         });
     }
 });
