@@ -1,6 +1,3 @@
-<!-- CLEAN PRIVACY PAGE LAYOUT TEMPLATE -->
-<!-- Replace your current privacy.html with this improved version for better readability -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,106 +14,203 @@
 
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            background: #0a0a0a;
             color: #e0e0e0;
             line-height: 1.8;
         }
 
-        /* Navigation Bar */
-        .navbar {
-            background: #0a0a0a;
-            border-bottom: 2px solid #0066ff;
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 100;
+        /* Navigation */
+        .secondary-header {
+            background-color: #0a0a0a;
+            border-bottom: 1px solid #ff6600;
+            padding: 0.6rem 2rem;
+            font-size: 0.8rem;
         }
 
-        .navbar-content {
+        .secondary-header-content {
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
+            justify-content: flex-end;
+            gap: 2rem;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 2rem;
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0066ff;
-            text-decoration: none;
-        }
-
-        .nav-links {
-            list-style: none;
-            display: flex;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            color: #e0e0e0;
+        .secondary-header a {
+            color: #aaa;
             text-decoration: none;
             transition: color 0.2s;
         }
 
-        .nav-links a:hover {
-            color: #0066ff;
+        .secondary-header a:hover,
+        .secondary-header a.active {
+            color: #ff6600;
         }
 
         /* Main Container */
         .container {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 3rem auto;
             padding: 0 2rem;
         }
 
-        /* Header Section */
-        .policy-header {
+        /* Header Card */
+        .header-card {
+            background: rgba(255, 102, 0, 0.08);
+            border: 1px solid rgba(255, 102, 0, 0.3);
+            border-radius: 0.8rem;
+            padding: 2.5rem;
             margin-bottom: 3rem;
-            padding-bottom: 2rem;
-            border-bottom: 2px solid rgba(0, 102, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
         }
 
-        .policy-header h1 {
-            font-size: 2.5rem;
-            color: #0066ff;
-            margin-bottom: 0.5rem;
+        .header-card h1 {
+            font-size: 2rem;
+            color: #ff6600;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
         }
 
-        .last-updated {
-            color: #888;
+        .header-card .last-updated {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .header-card p {
+            color: #d0d0d0;
             font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 1.8rem;
+            color: #ff6600;
+            margin: 2.5rem 0 2rem 0;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255, 102, 0, 0.2);
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 102, 0, 0.2);
+            border-radius: 0.6rem;
+            padding: 1.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 102, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
+        }
+
+        .card h3 {
+            font-size: 1.2rem;
+            color: #ff6600;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card ul {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .card li {
+            color: #b0b0b0;
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .card li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #ff6600;
+        }
+
+        .card-note {
+            font-size: 0.85rem;
+            color: #999;
+            border-top: 1px solid rgba(255, 102, 0, 0.1);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .card-note strong {
+            color: #aaa;
+            display: inline;
         }
 
         /* Content Sections */
         .section {
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 102, 0, 0.2);
+            border-radius: 0.6rem;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 102, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(255, 102, 0, 0.1);
         }
 
         .section h2 {
-            font-size: 1.5rem;
-            color: #0066ff;
+            font-size: 1.3rem;
+            color: #ff6600;
             margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 2px solid rgba(0, 102, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .section h2::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 1.3rem;
+            background: #ff6600;
+            border-radius: 2px;
         }
 
         .section h3 {
-            font-size: 1.15rem;
-            color: #b0b0b0;
+            font-size: 1rem;
+            color: #d0d0d0;
             margin-top: 1.5rem;
             margin-bottom: 0.75rem;
         }
 
         .section p {
-            color: #d0d0d0;
+            color: #b0b0b0;
             margin-bottom: 1rem;
             line-height: 1.8;
         }
 
         .section ul {
             margin: 1rem 0 1rem 2rem;
-            color: #d0d0d0;
+            color: #b0b0b0;
         }
 
         .section li {
@@ -126,20 +220,21 @@
 
         /* Highlight Boxes */
         .highlight-box {
-            background: rgba(0, 102, 255, 0.08);
-            border-left: 4px solid #0066ff;
+            background: rgba(255, 102, 0, 0.08);
+            border: 1.5px solid #ff6600;
             padding: 1.5rem;
             margin: 1.5rem 0;
-            border-radius: 0.4rem;
+            border-radius: 0.6rem;
+            box-shadow: 0 2px 8px rgba(255, 102, 0, 0.05);
         }
 
         .highlight-box strong {
-            color: #0066ff;
+            color: #ff6600;
         }
 
         .highlight-box p {
-            margin: 0;
-            color: #d0d0d0;
+            margin: 0.5rem 0 0 0;
+            color: #b0b0b0;
         }
 
         /* Rights Grid */
@@ -151,14 +246,14 @@
         }
 
         .right-item {
-            background: rgba(0, 102, 255, 0.05);
+            background: rgba(255, 102, 0, 0.08);
             padding: 1.25rem;
-            border-radius: 0.4rem;
-            border: 1px solid rgba(0, 102, 255, 0.1);
+            border-radius: 0.6rem;
+            border: 1px solid rgba(255, 102, 0, 0.2);
         }
 
         .right-item strong {
-            color: #0066ff;
+            color: #ff6600;
             display: block;
             margin-bottom: 0.5rem;
         }
@@ -170,39 +265,46 @@
 
         /* Links */
         a {
-            color: #0066ff;
+            color: #ff6600;
             text-decoration: none;
             transition: color 0.2s;
         }
 
         a:hover {
-            color: #0088ff;
+            color: #ff8833;
             text-decoration: underline;
         }
 
         /* Footer */
         .footer {
             background: #0a0a0a;
-            border-top: 1px solid #1a1a1a;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding: 2rem;
             margin-top: 4rem;
             color: #888;
             text-align: center;
         }
 
+        .footer p {
+            margin: 0.5rem 0;
+        }
+
+        .footer a {
+            color: #ff6600;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .policy-header h1 {
-                font-size: 1.8rem;
+            .header-card h1 {
+                font-size: 1.5rem;
             }
 
-            .section h2 {
-                font-size: 1.25rem;
+            .section-title {
+                font-size: 1.4rem;
             }
 
-            .nav-links {
-                gap: 1rem;
-                font-size: 0.9rem;
+            .cards-grid {
+                grid-template-columns: 1fr;
             }
 
             .container {
@@ -212,207 +314,136 @@
             .rights-grid {
                 grid-template-columns: 1fr;
             }
+
+            .navbar-content {
+                gap: 1rem;
+            }
+
+            .nav-links {
+                gap: 1rem;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-content">
-            <a href="index.html" class="logo">flywithjoel</a>
-            <ul class="nav-links">
-                <li><a href="index.html#schedule">Schedule</a></li>
-                <li><a href="index.html#setup">Setup</a></li>
-                <li><a href="index.html#contact">Contact</a></li>
+    <!-- Main Navigation -->
+    <nav class="navbar" style="background: #0a0a0a; border-bottom: 2px solid #ff6600; padding: 1rem 2rem; position: sticky; top: 0; z-index: 100;">
+        <div class="navbar-content" style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem;">
+            <a href="index.html" class="logo" style="font-size: 1.5rem; font-weight: 700; color: #ff6600; text-decoration: none;">flywithjoel</a>
+            <ul class="nav-links" style="list-style: none; display: flex; gap: 2rem; flex-wrap: wrap; margin: 0; padding: 0;">
+                <li><a href="index.html#schedule" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Schedule</a></li>
+                <li><a href="index.html#highlights" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Highlights</a></li>
+                <li><a href="index.html#setup" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Setup</a></li>
+                <li><a href="index.html#faq" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">FAQ</a></li>
+                <li><a href="index.html#contact" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Contact</a></li>
+                <li><a href="suggestions.html" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#ff6600'" onmouseout="this.style.color='#e0e0e0'">Suggestions</a></li>
+                <li style="margin-left: auto;"><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" style="background: #ff6600; color: white; padding: 0.5rem 1.2rem; border-radius: 0.4rem; text-decoration: none; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#ff8833'" onmouseout="this.style.background='#ff6600'">Follow</a></li>
             </ul>
         </div>
     </nav>
 
     <!-- Main Content -->
     <div class="container">
-        <!-- Header -->
-        <div class="policy-header">
-            <h1>Privacy Policy</h1>
-            <p class="last-updated">Last Updated: January 23, 2026</p>
+        <!-- Header Card -->
+        <div class="header-card">
+            <h1>🔒 Privacy & Data Notice</h1>
+            <p class="last-updated">Last Updated: January 2026</p>
+            <p>We are committed to protecting your privacy. This website is designed to minimize personal data collection and maintain full compliance with GDPR, CCPA, COPPA, and UK ICO regulations.</p>
         </div>
 
-        <!-- 1. Introduction -->
-        <div class="section">
-            <h2>1. Introduction</h2>
-            <p>Flying With Joel ("we," "us," "our," or "Company") operates the website https://flyingwithjoel.co.uk/ (the "Website"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our Website.</p>
-            <p>We're committed to protecting your privacy and being transparent about how we handle your data.</p>
-        </div>
+        <!-- Data Collection Section -->
+        <div class="section-title">📊 Data Collection</div>
 
-        <!-- 2. Information We Collect -->
-        <div class="section">
-            <h2>2. Information We Collect</h2>
-            
-            <h3>Information You Provide Directly</h3>
-            <ul>
-                <li><strong>Contact Form Submissions:</strong> Name, email address, and message content</li>
-                <li><strong>Stream Suggestions:</strong> Information submitted through our suggestions page</li>
-            </ul>
-
-            <h3>Information Collected Automatically</h3>
-            <ul>
-                <li><strong>Timezone Preferences:</strong> Stored locally on your device using localStorage (only with consent)</li>
-                <li><strong>Cookie Consent:</strong> Your privacy choices stored on your device</li>
-            </ul>
-
-            <h3>Third-Party Services</h3>
-            <p>These services may collect data when you use them:</p>
-            <ul>
-                <li><strong>Google Fonts:</strong> Limited font delivery data</li>
-                <li><strong>Twitch:</strong> May collect viewing analytics (see <a href="https://www.twitch.tv/p/en/legal/privacy-notice/" target="_blank">Twitch Privacy Policy</a>)</li>
-                <li><strong>LinkTree:</strong> May collect traffic data (see <a href="https://linktr.ee/privacy" target="_blank">LinkTree Privacy Policy</a>)</li>
-            </ul>
-        </div>
-
-        <!-- 3. Legal Basis -->
-        <div class="section">
-            <h2>3. Legal Basis for Processing (GDPR)</h2>
-            <p>Under GDPR, we process your data based on:</p>
-            <div class="rights-grid">
-                <div class="right-item">
-                    <strong>✓ Your Consent</strong>
-                    <p>For timezone preferences and optional cookies</p>
-                </div>
-                <div class="right-item">
-                    <strong>✓ Contract Performance</strong>
-                    <p>When necessary to provide website functionality</p>
-                </div>
-                <div class="right-item">
-                    <strong>✓ Legitimate Interests</strong>
-                    <p>To improve website functionality and user experience</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- 4. How We Use Data -->
-        <div class="section">
-            <h2>4. How We Use Your Information</h2>
-            <ul>
-                <li>Respond to your enquiries and support requests</li>
-                <li>Remember your timezone preference for stream scheduling</li>
-                <li>Improve website functionality and user experience</li>
-                <li>Comply with legal obligations</li>
-            </ul>
-        </div>
-
-        <!-- 5. Data Storage & Security -->
-        <div class="section">
-            <h2>5. Data Storage & Security</h2>
-            
-            <h3>Local Storage (On Your Device)</h3>
-            <p>Timezone preferences and consent choices are stored locally on your device using browser localStorage. This data:</p>
-            <ul>
-                <li>Never leaves your device</li>
-                <li>Is only accessible by this website</li>
-                <li>Can be deleted anytime by clearing browser data</li>
-            </ul>
-
-            <h3>Contact Submissions (On Our Servers)</h3>
-            <p>Email messages are transmitted securely via HTTPS and stored on our hosting provider's secure servers with appropriate security measures.</p>
-        </div>
-
-        <!-- 6. Your GDPR Rights -->
-        <div class="section">
-            <h2>6. Your Rights Under GDPR</h2>
-            <p>You have the following rights regarding your personal data:</p>
-            
-            <div class="rights-grid">
-                <div class="right-item">
-                    <strong>Right to Access</strong>
-                    <p>Request a copy of all data we hold about you</p>
-                </div>
-                <div class="right-item">
-                    <strong>Right to Correction</strong>
-                    <p>Request corrections to inaccurate data</p>
-                </div>
-                <div class="right-item">
-                    <strong>Right to Erasure</strong>
-                    <p>Request deletion of your personal data</p>
-                </div>
-                <div class="right-item">
-                    <strong>Right to Portability</strong>
-                    <p>Request your data in a portable format</p>
-                </div>
-                <div class="right-item">
-                    <strong>Withdraw Consent</strong>
-                    <p>Change your cookie preferences anytime</p>
-                </div>
-                <div class="right-item">
-                    <strong>Right to Object</strong>
-                    <p>Object to certain types of processing</p>
+        <div class="cards-grid">
+            <!-- Card 1: Information You Provide -->
+            <div class="card">
+                <h3>📄 Information You Provide</h3>
+                <ul>
+                    <li>Contact form submissions via email</li>
+                    <li>Business enquiry messages</li>
+                    <li>Suggestions for the website</li>
+                    <li>Communications to flywithjoel@gmail.com</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Retention:</strong> Kept for 2 years or until deleted.
                 </div>
             </div>
 
-            <p style="margin-top: 1.5rem;">To exercise any of these rights, contact us at <strong>contact@flyingwithjoel.co.uk</strong></p>
-        </div>
-
-        <!-- 7. Cookies & Tracking -->
-        <div class="section">
-            <h2>7. Cookies & Tracking Technologies</h2>
-            <p>We use cookies and localStorage to:</p>
-            <ul>
-                <li>Store your cookie consent preferences</li>
-                <li>Remember your selected timezone</li>
-            </ul>
-            
-            <div class="highlight-box">
-                <strong>No Tracking Analytics:</strong>
-                <p>We do NOT use Google Analytics, Facebook Pixel, or any other analytics/tracking services. We respect your privacy by default.</p>
+            <!-- Card 2: Automatic Collection -->
+            <div class="card">
+                <h3>💾 Automatic Collection</h3>
+                <ul>
+                    <li>Server security logs (IP, browser type)</li>
+                    <li>Timezone preference (local storage only)</li>
+                    <li>Google Fonts data sharing</li>
+                    <li>Twitch integration data</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Note:</strong> No personal tracking or analytics.
+                </div>
             </div>
 
-            <p>For more details, see our <a href="cookies.html">Cookie Policy</a>.</p>
+            <!-- Card 3: Cookies & Storage -->
+            <div class="card">
+                <h3>🍪 Cookies & Storage</h3>
+                <ul>
+                    <li>Minimal cookie usage</li>
+                    <li>Timezone stored in browser only</li>
+                    <li>No third-party tracking</li>
+                    <li>User-managed preferences</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Control:</strong> Manage via browser settings anytime.
+                </div>
+            </div>
         </div>
+    </div>
 
-        <!-- 8. Data Retention -->
+        <!-- Additional Sections -->
         <div class="section">
-            <h2>8. Data Retention</h2>
+            <h2>Legal Basis for Processing</h2>
+            <p>We process your data under the following legal bases:</p>
             <ul>
-                <li><strong>Local Storage Data:</strong> Retained until you clear your browser data or withdraw consent</li>
-                <li><strong>Contact Form Data:</strong> Retained for 2 years or as required by law</li>
-                <li><strong>Consent Records:</strong> Retained for 3 years for legal compliance</li>
+                <li><strong>Consent:</strong> For non-essential cookies and third-party integrations</li>
+                <li><strong>Legitimate Interests:</strong> To keep our website secure and functioning</li>
+                <li><strong>Performance of Contract:</strong> To respond to your enquiries</li>
+                <li><strong>Legal Obligation:</strong> To comply with applicable laws</li>
             </ul>
         </div>
 
-        <!-- 9. Data Protection Officer -->
         <div class="section">
-            <h2>9. Your Data Protection Rights</h2>
-            <p>If you're not satisfied with our response to your data rights requests, you have the right to lodge a complaint with your local data protection authority (e.g., ICO in the UK).</p>
-        </div>
-
-        <!-- 10. Contact Information -->
-        <div class="section">
-            <h2>10. Contact Information</h2>
-            <p>For questions about this Privacy Policy or to exercise your GDPR rights:</p>
+            <h2>Your GDPR Rights</h2>
             <ul>
-                <li><strong>Email:</strong> contact@flyingwithjoel.co.uk</li>
-                <li><strong>Website:</strong> flyingwithjoel.co.uk</li>
+                <li><strong>Right to Access:</strong> Request a copy of your data</li>
+                <li><strong>Right to Rectification:</strong> Correct inaccurate data</li>
+                <li><strong>Right to Erasure:</strong> Request deletion of your data</li>
+                <li><strong>Right to Restrict Processing:</strong> Limit how we use your data</li>
+                <li><strong>Right to Data Portability:</strong> Receive data in a portable format</li>
+                <li><strong>Right to Object:</strong> Object to certain processing</li>
             </ul>
+            <p style="margin-top: 1rem;">To exercise these rights, contact: <strong>flywithjoel@gmail.com</strong></p>
         </div>
 
-        <!-- 11. Related Documents -->
         <div class="section">
-            <h2>11. Related Documents</h2>
+            <h2>Third-Party Services</h2>
+            <p>This website integrates the following third-party services:</p>
             <ul>
-                <li><a href="terms.html">Terms of Service</a> - Full terms and conditions</li>
-                <li><a href="cookies.html">Cookie Policy</a> - Detailed cookie information</li>
-                <li><a href="security.html">Security & Hosting</a> - Data protection details</li>
+                <li><strong>Google Fonts:</strong> For typography - see <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
+                <li><strong>Twitch Embed SDK:</strong> For stream integration - see <a href="https://www.twitch.tv/p/legal/privacy-notice/" target="_blank">Twitch Privacy Policy</a></li>
+                <li><strong>LinkTree:</strong> External link service - see LinkTree terms</li>
             </ul>
+            <p>We are not responsible for third-party privacy practices. Review their policies independently.</p>
         </div>
 
-        <!-- 12. Changes Notice -->
-        <div class="section">
-            <h2>12. Changes to This Policy</h2>
-            <p>We may update this Privacy Policy from time to time. We will notify you of significant changes by posting the new policy on our Website and updating the "Last Updated" date. Your continued use of the Website indicates acceptance of the updated policy.</p>
-        </div>
-
-        <!-- Final Note -->
         <div class="highlight-box">
-            <strong>Questions?</strong>
-            <p>If you have any questions about this Privacy Policy, please don't hesitate to reach out. We're here to help and be transparent about how we handle your data.</p>
+            <strong>Questions About Your Privacy?</strong>
+            <p>If you have concerns about how we handle your data, please contact: <strong>flywithjoel@gmail.com</strong></p>
+        </div>
+
+        <div class="section">
+            <h2>Updates to This Policy</h2>
+            <p>We may update this Privacy Policy periodically. Significant changes will be announced on this website, and the "Last Updated" date will be modified accordingly. Continued use of the website indicates acceptance of any changes.</p>
         </div>
     </div>
 
@@ -420,10 +451,10 @@
     <div class="footer">
         <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
         <p style="margin-top: 1rem; font-size: 0.9rem;">
-            <a href="privacy.html" style="color: #0066ff;">Privacy Policy</a> • 
-            <a href="terms.html" style="color: #0066ff;">Terms of Service</a> • 
-            <a href="cookies.html" style="color: #0066ff;">Cookie Policy</a> • 
-            <a href="security.html" style="color: #0066ff;">Security & Hosting</a>
+            <a href="privacy.html">Privacy Policy</a> • 
+            <a href="terms.html">Terms of Service</a> • 
+            <a href="cookies.html">Cookie Policy</a> • 
+            <a href="security.html">Security & Hosting</a>
         </p>
     </div>
 </body>
