@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Under Maintenance - Flying With Joel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF8C42;
+            --secondary: #FF5A36;
+            --dark-bg: #0a0a0a;
+            --card-bg: #1a1a1a;
+            --text-light: #e0e0e0;
+            --text-muted: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #1a1a2e 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .maintenance-container {
+            max-width: 600px;
+            text-align: center;
+            background: rgba(26, 26, 26, 0.8);
+            border: 2px solid rgba(255, 140, 66, 0.3);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(255, 140, 66, 0.1);
+        }
+
+        .maintenance-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .status {
+            display: inline-block;
+            background: rgba(255, 140, 66, 0.2);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .message {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .details {
+            background: rgba(102, 187, 106, 0.08);
+            border-left: 4px solid #66BB6A;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: left;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .details p {
+            margin: 0.5rem 0;
+        }
+
+        .details strong {
+            color: #66BB6A;
+        }
+
+        .contact-section {
+            background: rgba(66, 165, 245, 0.08);
+            border: 1px solid rgba(66, 165, 245, 0.3);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .contact-section h3 {
+            color: #42A5F5;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        .contact-link {
+            display: inline-block;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--primary);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .contact-link:hover {
+            background: rgba(255, 140, 66, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .footer-text {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links {
+            margin-top: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 1rem;
+            font-size: 0.85rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+
+        @media (max-width: 600px) {
+            .maintenance-container {
+                padding: 2rem 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .maintenance-icon {
+                font-size: 3rem;
+            }
+
+            .message {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="maintenance-icon">🔧</div>
+        
+        <h1>Under Maintenance</h1>
+        <span class="status">TEMPORARILY OFFLINE</span>
+
+        <div class="message">
+            <p>Flying With Joel is currently undergoing scheduled maintenance and improvements.</p>
+            <p>We'll be back online shortly with enhanced features and better compliance.</p>
+        </div>
+
+        <div class="details">
+            <p><strong>What's happening?</strong></p>
+            <p>We're performing essential updates to ensure the best experience and legal compliance for all our visitors.</p>
+            <p style="margin-top: 1rem;"><strong>Expected return:</strong> By the end of January 2026</p>
+        </div>
+
+        <div class="contact-section">
+            <h3>📧 Need to reach us?</h3>
+            <p style="margin-bottom: 1rem; font-size: 0.95rem;">You can still contact us during maintenance:</p>
+            <a href="mailto:flywithjoeluk@gmail.com" class="contact-link">Email: flywithjoeluk@gmail.com</a>
+            <br><br>
+            <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="contact-link">Twitch: @Flyingwithjoel</a>
+        </div>
+
+        <div class="footer-text">
+            <p>Thank you for your patience while we improve the site.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
