@@ -1,0 +1,96 @@
+===============================================
+CLEAN HEADER IMPLEMENTATION GUIDE
+===============================================
+
+The header has been cleaned up across all pages.
+
+NEW HEADER STRUCTURE:
+1. Secondary Header (Legal links) - Subtle bar at top
+   - Shows "Legal" label
+   - Links to: Privacy, Terms, Cookies, Security
+   - Current page highlighted in blue
+
+2. Main Navigation - Clean and organized
+   - Logo: flywithjoel
+   - Main links: Schedule, Highlights, Setup, FAQ, Contact, Suggestions
+   - Follow button (orange, right-aligned)
+   - No policy links cluttering main nav
+
+PAGES TO UPDATE WITH NEW HEADER:
+=================================
+
+If you haven't already, replace the navigation section on these pages:
+- d:\Website\privacy.html
+- d:\Website\terms.html
+- d:\Website\cookies.html
+- d:\Website\security.html
+
+HEADER CODE TO ADD (AT TOP OF <body>):
+======================================
+
+<!-- Secondary Header - Legal & Info Links -->
+<div class="secondary-header" style="background-color: #0a0a0a; border-bottom: 1px solid #0066ff; padding: 0.6rem 2rem; font-size: 0.8rem;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; justify-content: flex-end; gap: 2rem; flex-wrap: wrap; align-items: center;">
+        <span style="color: #666;">Legal</span>
+        <a href="privacy.html" style="color: #aaa; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#aaa'">Privacy</a>
+        <a href="terms.html" style="color: #aaa; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#aaa'">Terms</a>
+        <a href="cookies.html" style="color: #aaa; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#aaa'">Cookies</a>
+        <a href="security.html" style="color: #aaa; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#aaa'">Security</a>
+    </div>
+</div>
+
+<!-- Main Navigation -->
+<nav class="navbar" style="background: #0a0a0a; border-bottom: 2px solid #0066ff; padding: 1rem 2rem;">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem;">
+        <a href="index.html" style="font-size: 1.5rem; font-weight: 700; color: #0066ff; text-decoration: none;">flywithjoel</a>
+        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+            <a href="index.html#schedule" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Schedule</a>
+            <a href="index.html#highlights" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Highlights</a>
+            <a href="index.html#setup" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Setup</a>
+            <a href="index.html#faq" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">FAQ</a>
+            <a href="index.html#contact" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Contact</a>
+            <a href="suggestions.html" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Suggestions</a>
+            <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" style="background: #ff6600; color: white; padding: 0.5rem 1rem; border-radius: 0.3rem; text-decoration: none; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#ff7700'" onmouseout="this.style.background='#ff6600'">Follow</a>
+        </div>
+    </div>
+</nav>
+
+TIPS FOR EACH PAGE:
+==================
+
+1. PRIVACY PAGE (privacy.html)
+   - Change "Privacy" link color to #0066ff on secondary header
+   - Add marker to show it's the current page
+
+2. TERMS PAGE (terms.html)
+   - Change "Terms" link color to #0066ff on secondary header
+
+3. COOKIES PAGE (cookies.html)
+   - Change "Cookies" link color to #0066ff on secondary header
+
+4. SECURITY PAGE (security.html)
+   - Change "Security" link color to #0066ff on secondary header
+
+WHAT YOU GET:
+==============
+✓ Clean, organized header
+✓ No clutter
+✓ Professional appearance
+✓ Easy navigation
+✓ Mobile responsive
+✓ Consistent across all pages
+✓ Current page highlighted
+
+STATUS:
+========
+✓ index.html - UPDATED
+✓ privacy-improved.html - UPDATED
+✓ header-template.html - CREATED (reference)
+
+REMAINING:
+- Update privacy.html (if not using improved version)
+- Update terms.html
+- Update cookies.html
+- Update security.html
+
+===============================================
