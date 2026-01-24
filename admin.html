@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Schedule</title>
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <style>
+    .admin-wrap { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+    .admin-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; padding: 1.5rem; }
+    .admin-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    .admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .admin-row > div { display: flex; flex-direction: column; gap: 0.4rem; }
+    .admin-card label { color: #e0e0e0; font-weight: 600; }
+    .admin-card input, .admin-card textarea, .admin-card select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .admin-card textarea { min-height: 360px; resize: vertical; }
+    .schedule-grid { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
+    .schedule-item {
+      display: grid;
+      grid-template-columns: 90px 120px 110px 1fr 140px;
+      gap: 0.7rem;
+      align-items: end;
+      padding: 0.9rem;
+      border-radius: 0.8rem;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+    }
+    .schedule-item .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .schedule-item .field small { color: var(--text-muted); }
+    .schedule-item .toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      user-select: none;
+    }
+    .schedule-item input[type="checkbox"] { width: 18px; height: 18px; padding: 0; }
+    .schedule-header-row {
+      display: grid;
+      grid-template-columns: 90px 120px 110px 1fr 140px;
+      gap: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0 0.2rem;
+    }
+    .advanced {
+      margin-top: 1rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 1rem;
+    }
+    .advanced details { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; padding: 0.9rem; }
+    .advanced summary { cursor: pointer; color: #e0e0e0; font-weight: 700; }
+    .admin-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
+    .admin-actions button {
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      padding: 0.7rem 1.1rem;
+      border-radius: 0.6rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .admin-actions button.secondary { background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); }
+    .admin-msg { color: var(--text-muted); }
+    .admin-msg.ok { color: #66BB6A; }
+    .admin-msg.err { color: #ff6666; }
+    @media (max-width: 720px) {
+      .admin-row { grid-template-columns: 1fr; }
+      .schedule-header-row { display: none; }
+      .schedule-item { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">flywithjoel</div>
+      <ul class="nav-links" style="display:flex; gap: 1rem;">
+        <li><a href="/">Home</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="admin-wrap">
+    <h1 style="margin-top: 1rem;">Schedule Admin</h1>
+    <p class="admin-msg">This page updates the live schedule via a schedule API (recommended: <code>https://api.flyingwithjoel.co.uk/api/schedule.php</code>).</p>
+
+    <div class="admin-card">
+      <div class="admin-grid">
+        <div class="admin-row">
+          <div>
+            <label for="admin-user">Username</label>
+            <input id="admin-user" type="text" autocomplete="username" />
+          </div>
+          <div>
+            <label for="admin-pass">Password</label>
+            <input id="admin-pass" type="password" autocomplete="current-password" />
+          </div>
+        </div>
+
+        <div>
+          <label>7 Day Schedule</label>
+          <p class="admin-msg" style="margin-top: 0.2rem;">Edit each day: month/day, time (Zulu), and whether there is a stream.</p>
+
+          <div class="schedule-header-row" aria-hidden="true">
+            <div>Day</div>
+            <div>Date</div>
+            <div>Time</div>
+            <div>Title</div>
+            <div>Stream?</div>
+          </div>
+          <div id="schedule-grid" class="schedule-grid"></div>
+
+          <div class="advanced">
+            <details>
+              <summary>Advanced (raw JSON)</summary>
+              <p class="admin-msg">Optional. This is what gets saved to the API.</p>
+              <textarea id="schedule-json" spellcheck="false"></textarea>
+            </details>
+          </div>
+        </div>
+
+        <div class="admin-actions">
+          <button id="btn-load" class="secondary" type="button">Load current</button>
+          <button id="btn-format" class="secondary" type="button">Sync JSON</button>
+          <button id="btn-save" type="button">Save schedule</button>
+          <span id="status" class="admin-msg"></span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const statusEl = document.getElementById('status');
+    const userEl = document.getElementById('admin-user');
+    const passEl = document.getElementById('admin-pass');
+    const jsonEl = document.getElementById('schedule-json');
+    const scheduleGridEl = document.getElementById('schedule-grid');
+
+    const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const DEFAULT_DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
+
+    const SCHEDULE_API_CANDIDATES = [
+      '/api/schedule',
+      'https://api.flyingwithjoel.co.uk/api/schedule.php',
+    ];
+
+    async function fetchFirstOkJson(urls, init) {
+      for (const u of urls) {
+        try {
+          const resp = await fetch(u, init);
+          if (!resp.ok) continue;
+          return { url: u, data: await resp.json() };
+        } catch {
+          // try next
+        }
+      }
+      return null;
+    }
+
+    function monthOptionsHtml(selectedIndex) {
+      return MONTHS.map((m, idx) => `<option value="${idx + 1}" ${idx === selectedIndex ? 'selected' : ''}>${m}</option>`).join('');
+    }
+
+    function buildEmptySchedule() {
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const day = today.getDate();
+
+      const items = [];
+      for (let i = 0; i < 7; i += 1) {
+        items.push({
+          dateKey: `${month}-${day}`,
+          dayName: DEFAULT_DAYS[i] || '-',
+          dateText: `${MONTHS[month - 1]} ${day}`,
+          status: 'none',
+          gameLogo: '-',
+          timeText: 'No Stream Planned',
+          zuluTime: null,
+          streamTitle: '-',
+          vodUrl: null,
+        });
+      }
+      return items;
+    }
+
+    function parseDateKey(dateKey) {
+      const m = typeof dateKey === 'string' ? dateKey.match(/^(\d{1,2})-(\d{1,2})$/) : null;
+      if (!m) return { month: 1, day: 1 };
+      return { month: Math.max(1, Math.min(12, parseInt(m[1], 10))), day: Math.max(1, Math.min(31, parseInt(m[2], 10))) };
+    }
+
+    function renderEditor(items) {
+      scheduleGridEl.innerHTML = '';
+
+      items.slice(0, 7).forEach((item, idx) => {
+        const parsed = parseDateKey(item.dateKey);
+        const monthIdx = parsed.month - 1;
+
+        const row = document.createElement('div');
+        row.className = 'schedule-item';
+        row.dataset.index = String(idx);
+
+        row.innerHTML = `
+          <div class="field">
+            <label>Day</label>
+            <input type="text" class="dayName" value="${(item.dayName || DEFAULT_DAYS[idx] || '').replace(/"/g,'&quot;')}" maxlength="5" />
+          </div>
+
+          <div class="field">
+            <label>Date</label>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+              <select class="month">${monthOptionsHtml(monthIdx)}</select>
+              <input type="number" class="day" min="1" max="31" value="${parsed.day}" />
+            </div>
+            <small class="datePreview"></small>
+          </div>
+
+          <div class="field">
+            <label>Time (Zulu)</label>
+            <input type="text" class="time" placeholder="18:00 Zulu" value="${(item.zuluTime || '').replace(/"/g,'&quot;')}" />
+          </div>
+
+          <div class="field">
+            <label>Title</label>
+            <input type="text" class="title" placeholder="Microsoft Flight Simulator" value="${(item.streamTitle || '').replace(/"/g,'&quot;')}" />
+          </div>
+
+          <div class="field">
+            <label>Stream?</label>
+            <div class="toggle">
+              <input type="checkbox" class="hasStream" ${item.status && item.status !== 'none' ? 'checked' : ''} />
+              <span>Has stream</span>
+            </div>
+            <small class="streamHint"></small>
+          </div>
+        `;
+
+        scheduleGridEl.appendChild(row);
+
+        // Initialize previews
+        updateRowDerived(row);
+
+        // Wire changes
+        row.querySelectorAll('input, select').forEach((el) => {
+          el.addEventListener('input', () => {
+            updateRowDerived(row);
+            syncJsonFromEditor(false);
+          });
+          el.addEventListener('change', () => {
+            updateRowDerived(row);
+            syncJsonFromEditor(false);
+          });
+        });
+      });
+
+      // Ensure JSON reflects UI
+      syncJsonFromEditor(true);
+    }
+
+    function updateRowDerived(row) {
+      const month = parseInt(row.querySelector('.month').value, 10);
+      const day = parseInt(row.querySelector('.day').value, 10);
+      const previewEl = row.querySelector('.datePreview');
+
+      const mIdx = Math.max(1, Math.min(12, month)) - 1;
+      const d = Math.max(1, Math.min(31, Number.isFinite(day) ? day : 1));
+
+      previewEl.textContent = `${MONTHS[mIdx]} ${d}`;
+
+      const hasStream = row.querySelector('.hasStream').checked;
+      const hintEl = row.querySelector('.streamHint');
+      hintEl.textContent = hasStream ? 'Status: scheduled' : 'No stream planned';
+
+      // UX: disable time/title when no stream
+      row.querySelector('.time').disabled = !hasStream;
+      row.querySelector('.title').disabled = !hasStream;
+      if (!hasStream) {
+        row.querySelector('.time').value = '';
+        row.querySelector('.title').value = '';
+      }
+    }
+
+    function scheduleFromEditor() {
+      const rows = Array.from(scheduleGridEl.querySelectorAll('.schedule-item'));
+      return rows.map((row, idx) => {
+        const dayName = (row.querySelector('.dayName').value || DEFAULT_DAYS[idx] || '-').trim();
+        const month = Math.max(1, Math.min(12, parseInt(row.querySelector('.month').value, 10)));
+        const day = Math.max(1, Math.min(31, parseInt(row.querySelector('.day').value, 10)));
+        const dateKey = `${month}-${day}`;
+        const dateText = `${MONTHS[month - 1]} ${day}`;
+
+        const hasStream = row.querySelector('.hasStream').checked;
+        const zuluTimeRaw = (row.querySelector('.time').value || '').trim();
+        const titleRaw = (row.querySelector('.title').value || '').trim();
+
+        if (!hasStream) {
+          return {
+            dateKey,
+            dayName,
+            dateText,
+            status: 'none',
+            gameLogo: '-',
+            timeText: 'No Stream Planned',
+            zuluTime: null,
+            streamTitle: '-',
+            vodUrl: null,
+          };
+        }
+
+        const zuluTime = zuluTimeRaw && zuluTimeRaw.toLowerCase().includes('zulu') ? zuluTimeRaw : (zuluTimeRaw ? `${zuluTimeRaw} Zulu` : '');
+        const timeText = zuluTime || 'TBC';
+        const streamTitle = titleRaw || 'Stream';
+
+        return {
+          dateKey,
+          dayName,
+          dateText,
+          status: 'scheduled',
+          gameLogo: '✈️',
+          timeText,
+          zuluTime: zuluTime || null,
+          streamTitle,
+          vodUrl: null,
+        };
+      });
+    }
+
+    function syncJsonFromEditor(showStatus) {
+      const schedule = scheduleFromEditor();
+      jsonEl.value = JSON.stringify(schedule, null, 2);
+      if (showStatus) setStatus('Editor synced to JSON.', 'ok');
+    }
+
+    function setStatus(text, kind) {
+      statusEl.textContent = text;
+      statusEl.className = 'admin-msg' + (kind ? ` ${kind}` : '');
+    }
+
+    function getAuthHeader() {
+      const user = userEl.value || '';
+      const pass = passEl.value || '';
+      if (!user || !pass) return null;
+      return 'Basic ' + btoa(`${user}:${pass}`);
+    }
+
+    async function loadCurrent() {
+      setStatus('Loading…');
+      try {
+        const result = await fetchFirstOkJson(SCHEDULE_API_CANDIDATES, { cache: 'no-store' });
+        if (!result) throw new Error('No schedule API responded.');
+        const data = result.data;
+        const items = Array.isArray(data) ? data : buildEmptySchedule();
+        renderEditor(items);
+        setStatus(`Loaded from ${result.url}`, 'ok');
+      } catch (e) {
+        console.error(e);
+        renderEditor(buildEmptySchedule());
+        setStatus('Failed to load schedule (showing local editor).', 'err');
+      }
+    }
+
+    function formatJson() {
+      syncJsonFromEditor(true);
+    }
+
+    async function saveSchedule() {
+      const auth = getAuthHeader();
+      if (!auth) {
+        setStatus('Enter username + password first.', 'err');
+        return;
+      }
+
+      const parsed = scheduleFromEditor();
+      jsonEl.value = JSON.stringify(parsed, null, 2);
+
+      setStatus('Saving…');
+      try {
+        const targets = SCHEDULE_API_CANDIDATES;
+        let savedUrl = null;
+        let lastStatus = null;
+
+        for (const u of targets) {
+          try {
+            const resp = await fetch(u, {
+              method: 'PUT',
+              headers: {
+                'content-type': 'application/json',
+                'authorization': auth,
+              },
+              body: JSON.stringify(parsed),
+            });
+
+            lastStatus = resp.status;
+            if (resp.status === 401) {
+              setStatus('Unauthorized (wrong username/password).', 'err');
+              return;
+            }
+
+            if (!resp.ok) continue;
+            savedUrl = u;
+            break;
+          } catch {
+            // try next
+          }
+        }
+
+        if (!savedUrl) {
+          throw new Error(`Save failed (last status: ${lastStatus ?? 'n/a'})`);
+        }
+
+        setStatus(`Saved to ${savedUrl}. Homepage will update once it can fetch the API.`, 'ok');
+      } catch (e) {
+        console.error(e);
+        setStatus('Save failed.', 'err');
+      }
+    }
+
+    document.getElementById('btn-load').addEventListener('click', loadCurrent);
+    document.getElementById('btn-format').addEventListener('click', formatJson);
+    document.getElementById('btn-save').addEventListener('click', saveSchedule);
+
+    // Best-effort: preload current schedule
+    loadCurrent();
+  </script>
+</body>
+</html>
