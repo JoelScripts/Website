@@ -831,9 +831,84 @@
         setStatus(`Loaded from ${result.url}`, 'ok');
       } catch (e) {
         console.error(e);
+        // Fallback: parse whatever schedule is currently on the homepage.
+        try {
+          const fromHome = await loadScheduleFromHomepage();
+          renderEditor(fromHome);
+          setStatus('Loaded from homepage (fallback).', 'ok');
+          return;
+        } catch (e2) {
+          console.error(e2);
+        }
+
         renderEditor(buildEmptySchedule());
-        setStatus('Failed to load schedule (showing local editor).', 'err');
+        setStatus('Failed to load schedule (API + homepage fallback failed).', 'err');
       }
+    }
+
+    async function loadScheduleFromHomepage() {
+      // Same-origin only; this is a best-effort fallback when /api/schedule isn’t routed.
+      const resp = await fetch('/', { cache: 'no-store' });
+      if (!resp.ok) throw new Error(`Homepage fetch failed (${resp.status}).`);
+      const html = await resp.text();
+
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const cards = Array.from(doc.querySelectorAll('#weekly-schedule .day-card'));
+      if (!cards.length) throw new Error('No schedule cards found on homepage.');
+
+      const items = cards.slice(0, 7).map((card, idx) => {
+        const dateKey = card.getAttribute('data-date') || '1-1';
+
+        const dayName = (card.querySelector('.day-name')?.textContent || DEFAULT_DAYS[idx] || '-').trim();
+        const dateText = (card.querySelector('.day-date')?.textContent || card.querySelector('div[style*="font-size: 0.8rem"]')?.textContent || '').trim();
+
+        const gameLogo = (card.querySelector('.game-logo')?.textContent || '-').trim();
+        const timeEl = card.querySelector('.stream-time');
+        const streamTitle = (card.querySelector('.stream-title')?.textContent || '-').trim();
+
+        const zuluTime = (timeEl?.getAttribute('data-zulu-time') || '').trim() || null;
+        const timeText = (timeEl?.textContent || 'No Stream Planned').trim();
+
+        let status = 'none';
+        if (card.classList.contains('completed')) status = 'completed';
+        else if (card.classList.contains('cancelled')) status = 'cancelled';
+        else if (card.classList.contains('delayed')) status = 'delayed';
+        else if (card.classList.contains('has-stream')) status = 'scheduled';
+
+        let vodUrl = null;
+        if (status === 'completed') {
+          const a = card.querySelector('a[href]');
+          if (a) vodUrl = a.getAttribute('href');
+        }
+
+        if (status === 'none') {
+          return {
+            dateKey,
+            dayName,
+            dateText,
+            status: 'none',
+            gameLogo: '-',
+            timeText: 'No Stream Planned',
+            zuluTime: null,
+            streamTitle: '-',
+            vodUrl: null,
+          };
+        }
+
+        return {
+          dateKey,
+          dayName,
+          dateText,
+          status,
+          gameLogo: gameLogo || '✈️',
+          timeText,
+          zuluTime,
+          streamTitle,
+          vodUrl: vodUrl || null,
+        };
+      });
+
+      return items;
     }
 
     function formatJson() {
@@ -860,6 +935,7 @@
         let savedUrl = null;
         let lastStatus = null;
         let lastBody = null;
+        let lastDetails = null;
 
         for (const u of targets) {
           try {
@@ -879,7 +955,19 @@
             }
 
             if (!resp.ok) {
-              try { lastBody = await resp.text(); } catch { lastBody = null; }
+              try {
+                const ct = (resp.headers.get('content-type') || '').toLowerCase();
+                if (ct.includes('application/json')) {
+                  const j = await resp.json();
+                  lastBody = JSON.stringify(j);
+                  lastDetails = j && (j.details || j.error || null);
+                } else {
+                  lastBody = await resp.text();
+                }
+              } catch {
+                lastBody = null;
+                lastDetails = null;
+              }
               continue;
             }
             savedUrl = u;
@@ -890,8 +978,9 @@
         }
 
         if (!savedUrl) {
-          const extra = lastBody ? ` — ${lastBody.slice(0, 180)}` : '';
-          throw new Error(`Save failed (last status: ${lastStatus ?? 'n/a'})${extra}`);
+          const extra = lastBody ? ` — ${String(lastBody).slice(0, 220)}` : '';
+          const hint = lastDetails ? ` (details: ${String(lastDetails).slice(0, 220)})` : '';
+          throw new Error(`Save failed to ${targets[0] || '/api/schedule'} (last status: ${lastStatus ?? 'n/a'})${extra}${hint}`);
         }
 
         setStatus(`Saved to ${savedUrl}. Homepage will update once it can fetch the API.`, 'ok');
