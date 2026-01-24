@@ -55,14 +55,19 @@
 
         <ul class="nav-links" style="display:flex; gap: 1rem;">
           <li><a href="../index.html">Home</a></li>
-          <li><a href="../admin.html">Admin</a></li>
+          <li><a href="suggestions.html">Suggestions</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
         </ul>
 
         <div class="nav-mobile" aria-label="Mobile navigation">
           <select id="mobile-nav" aria-label="Navigate">
             <option value="" selected>Navigate…</option>
             <option value="../index.html">Home</option>
-            <option value="../admin.html">Admin</option>
+            <option value="suggestions.html">Suggestions</option>
+            <option value="privacy.html">Privacy</option>
+            <option value="terms.html">Terms</option>
+            <option value="security.html">Security</option>
           </select>
         </div>
       </div>
@@ -143,6 +148,32 @@
 
     <p id="schedule-note" class="schedule-subtitle" style="margin-top: 0.5rem; color: var(--text-muted);"></p>
   </section>
+
+  <footer class="footer" style="margin-top: 3rem;">
+    <div class="footer-content">
+      <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy Policy</a>
+        <a href="terms.html">Terms of Service</a>
+        <a href="cookies.html">Cookie Policy</a>
+        <a href="#" id="cookie-settings-link">Cookie Settings</a>
+        <a href="security.html">Security & Hosting</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Cookie Consent Banner -->
+  <div id="cookie-consent-banner" class="cookie-consent-banner">
+    <div class="cookie-consent-content">
+      <p>We use local storage (localStorage) to remember your choices (such as your consent preference for optional third-party embeds/resources). <a href="privacy.html">Learn more about our privacy practices</a>.</p>
+    </div>
+    <div class="cookie-consent-buttons">
+      <button id="cookie-accept-btn" class="cookie-consent-btn accept">Accept</button>
+      <button id="cookie-reject-btn" class="cookie-consent-btn decline">Decline</button>
+    </div>
+  </div>
+
+  <script src="../assets/js/main.js"></script>
 
   <script>
     const SCHEDULE_API_CANDIDATES = [

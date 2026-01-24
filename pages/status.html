@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Status - Flying With Joel</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <style>
+    .wrap { max-width: 980px; margin: 3rem auto; padding: 0 1.25rem; }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255, 102, 0, 0.2); border-radius: 0.8rem; padding: 1.5rem; }
+    .row { display:flex; align-items:center; justify-content:space-between; gap: 1rem; padding: 0.85rem 0; border-top: 1px solid rgba(255,255,255,0.08); }
+    .row:first-child { border-top: 0; }
+    .name { font-weight: 800; }
+    .muted { color: var(--text-muted); }
+    .pill { font-size: 0.75rem; font-weight: 900; letter-spacing: 0.6px; padding: 0.25rem 0.55rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); text-transform: uppercase; white-space: nowrap; }
+    .ok { border-color: rgba(76,175,80,0.6); background: rgba(76,175,80,0.12); color: #A6F2B0; }
+    .warn { border-color: rgba(255,183,77,0.6); background: rgba(255,183,77,0.12); color: #FFE0B2; }
+    .bad { border-color: rgba(255,68,68,0.6); background: rgba(255,68,68,0.12); color: #FFB3B3; }
+    code { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.14); padding: 0.15rem 0.35rem; border-radius: 0.35rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">flywithjoel</div>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a href="suggestions.html">Suggestions</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="security.html">Security</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="card">
+      <h1 style="margin:0 0 0.5rem 0; color: var(--primary);">API Status</h1>
+      <p class="muted" style="margin:0 0 1rem 0; line-height:1.6;">This page helps confirm your Cloudflare routes are working (so <code>/api/*</code> doesn’t fall back to GitHub Pages). It does not send any private data.</p>
+
+      <div id="rows"></div>
+
+      <div style="margin-top: 1.25rem;" class="muted">
+        Tip: If an endpoint shows <span class="pill bad">NOT ROUTED</span>, fix Cloudflare routes for that path.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+    hamburger?.addEventListener('click', () => { hamburger.classList.toggle('active'); navLinks.classList.toggle('active'); });
+
+    const checks = [
+      { name: 'Schedule JSON', url: '/api/schedule', expect: 'json' },
+      { name: 'Schedule Live', url: '/api/schedule/live', expect: 'json' },
+      { name: 'Suggestions (route only)', url: '/api/suggestions', expect: 'worker' }
+    ];
+
+    function el(tag, attrs = {}, text = '') {
+      const n = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+      if (text) n.textContent = text;
+      return n;
+    }
+
+    function addRow(container, title, url) {
+      const row = el('div', { class: 'row' });
+      const left = el('div');
+      left.appendChild(el('div', { class: 'name' }, title));
+      left.appendChild(el('div', { class: 'muted' }, url));
+      const right = el('div');
+      const pill = el('span', { class: 'pill warn' }, 'CHECKING');
+      right.appendChild(pill);
+      row.appendChild(left);
+      row.appendChild(right);
+      container.appendChild(row);
+      return { pill };
+    }
+
+    function looksLikeGithubPages(htmlText) {
+      const t = (htmlText || '').toLowerCase();
+      return t.includes('there isn\'t a github pages site here') || t.includes('github pages') || t.includes('status: 404') || t.includes('<title>404');
+    }
+
+    async function run() {
+      const rows = document.getElementById('rows');
+      if (!rows) return;
+
+      for (const c of checks) {
+        const { pill } = addRow(rows, c.name, c.url);
+        try {
+          const resp = await fetch(c.url, { method: 'GET', cache: 'no-store' });
+          const ct = (resp.headers.get('content-type') || '').toLowerCase();
+
+          // Try to detect GitHub Pages 404 HTML (common misroute)
+          if (ct.includes('text/html')) {
+            const text = await resp.text();
+            if (resp.status === 404 || looksLikeGithubPages(text)) {
+              pill.className = 'pill bad';
+              pill.textContent = 'NOT ROUTED';
+              continue;
+            }
+          }
+
+          if (c.expect === 'json') {
+            if (ct.includes('application/json')) {
+              pill.className = 'pill ok';
+              pill.textContent = 'OK';
+            } else {
+              pill.className = 'pill warn';
+              pill.textContent = `UNEXPECTED (${resp.status})`;
+            }
+            continue;
+          }
+
+          // Suggestions is expected to be Worker-handled; it may return JSON error for GET.
+          if (resp.status === 404 && ct.includes('text/html')) {
+            pill.className = 'pill bad';
+            pill.textContent = 'NOT ROUTED';
+            continue;
+          }
+
+          pill.className = 'pill ok';
+          pill.textContent = 'ROUTED';
+        } catch {
+          pill.className = 'pill bad';
+          pill.textContent = 'FAILED';
+        }
+      }
+    }
+
+    run();
+  </script>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>

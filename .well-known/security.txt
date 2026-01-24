@@ -1,0 +1,5 @@
+Contact: mailto:flywithjoeluk@gmail.com
+Preferred-Languages: en
+Policy: https://flyingwithjoel.co.uk/pages/security.html
+
+# Please report security issues privately.

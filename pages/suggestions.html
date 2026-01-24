@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suggestions - Flying With Joel</title>
     <meta name="fwj-suggestions-endpoint" content="/api/suggestions">
+    <!-- Optional Turnstile: add <meta name="fwj-turnstile-sitekey" content="YOUR_TURNSTILE_SITE_KEY"> to enable bot protection -->
     <link rel="stylesheet" href="../assets/css/styles.css">
     <style>
         .suggestions-container {
@@ -296,6 +297,14 @@
                     </label>
                 </div>
 
+                <!-- Optional Turnstile (shown only if fwj-turnstile-sitekey meta is set) -->
+                <div id="turnstileRow" class="form-group full" style="display: none; margin-top: 0.75rem;">
+                    <div id="turnstileContainer"></div>
+                    <div style="margin-top: 0.5rem; color: var(--text-muted); font-size: 0.85rem; line-height: 1.4;">
+                        This verification helps protect the Suggestions form from automated spam.
+                    </div>
+                </div>
+
                 <button type="submit" class="submit-btn">Submit Flight Suggestion</button>
             </form>
         </div>
@@ -324,6 +333,72 @@
         const form = document.getElementById('suggestionForm');
         const successMessage = document.getElementById('successMessage');
         const errorMessage = document.getElementById('errorMessage');
+        const turnstileRow = document.getElementById('turnstileRow');
+        const turnstileContainer = document.getElementById('turnstileContainer');
+
+        let turnstileWidgetId = null;
+        let turnstileToken = '';
+
+        function getTurnstileSiteKey() {
+            return (document.querySelector('meta[name="fwj-turnstile-sitekey"]')?.getAttribute('content') || '').trim();
+        }
+
+        function loadTurnstileScript() {
+            return new Promise((resolve, reject) => {
+                if (window.turnstile) {
+                    resolve();
+                    return;
+                }
+
+                const existing = document.querySelector('script[data-fwj-turnstile="1"]');
+                if (existing) {
+                    const start = Date.now();
+                    const tick = () => {
+                        if (window.turnstile) return resolve();
+                        if (Date.now() - start > 8000) return reject(new Error('Turnstile failed to load.'));
+                        setTimeout(tick, 100);
+                    };
+                    tick();
+                    return;
+                }
+
+                const script = document.createElement('script');
+                script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+                script.async = true;
+                script.defer = true;
+                script.setAttribute('data-fwj-turnstile', '1');
+                script.onload = () => resolve();
+                script.onerror = () => reject(new Error('Turnstile script failed to load.'));
+                document.head.appendChild(script);
+            });
+        }
+
+        async function initTurnstileIfConfigured() {
+            const siteKey = getTurnstileSiteKey();
+            if (!siteKey || !turnstileRow || !turnstileContainer) return;
+
+            turnstileRow.style.display = 'block';
+            try {
+                await loadTurnstileScript();
+                if (!window.turnstile) throw new Error('Turnstile is unavailable.');
+
+                turnstileWidgetId = window.turnstile.render(turnstileContainer, {
+                    sitekey: siteKey,
+                    callback: (token) => {
+                        turnstileToken = String(token || '');
+                    },
+                    'expired-callback': () => {
+                        turnstileToken = '';
+                    },
+                    'error-callback': () => {
+                        turnstileToken = '';
+                    }
+                });
+            } catch (err) {
+                console.warn('Turnstile init failed:', err);
+                // If Turnstile is configured but cannot load, keep row visible so users understand why submission may be blocked.
+            }
+        }
 
         function showFormError(message) {
             successMessage.style.display = 'none';
@@ -358,6 +433,13 @@
             const consentCheckbox = document.getElementById('suggestionsConsent');
             if (consentCheckbox && !consentCheckbox.checked) {
                 return '✗ Please confirm the privacy consent checkbox before submitting.';
+            }
+
+            const siteKey = getTurnstileSiteKey();
+            if (siteKey) {
+                if (!turnstileToken) {
+                    return '✗ Please complete the verification check before submitting.';
+                }
             }
 
             const flightNumber = normalizeText(document.getElementById('flightNumber').value).toUpperCase();
@@ -439,6 +521,11 @@
                 timestamp: new Date().toISOString()
             };
 
+            const siteKey = getTurnstileSiteKey();
+            if (siteKey) {
+                formData.turnstileToken = turnstileToken;
+            }
+
             try {
                 const endpoint = document.querySelector('meta[name="fwj-suggestions-endpoint"]')?.getAttribute('content') || '/api/suggestions';
 
@@ -458,6 +545,15 @@
                     successMessage.style.display = 'block';
                     errorMessage.style.display = 'none';
                     form.reset();
+
+                    if (turnstileWidgetId !== null && window.turnstile) {
+                        try {
+                            window.turnstile.reset(turnstileWidgetId);
+                        } catch {
+                            // ignore
+                        }
+                        turnstileToken = '';
+                    }
 
                     // Hide success message after 5 seconds
                     setTimeout(() => {
@@ -489,6 +585,9 @@
                 }, 5000);
             }
         });
+
+        // Initialize optional anti-bot verification (no-op unless configured)
+        initTurnstileIfConfigured();
     </script>
 
     <!-- Disclaimer Notice -->

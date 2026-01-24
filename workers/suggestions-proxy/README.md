@@ -65,4 +65,14 @@ Finally, configure the route in Cloudflare for your domain:
 ## Turnstile (optional)
 If you set `TURNSTILE_SECRET_KEY`, the Worker expects the client to send a `turnstileToken` field.
 
-You can add the Turnstile widget on the Suggestions page later; the Worker already supports verification.
+The Suggestions page supports this automatically when you provide a Turnstile site key.
+
+### Enable Turnstile on the website
+1. Create a Turnstile site in Cloudflare and copy the **site key**.
+2. In [pages/suggestions.html](pages/suggestions.html), add this meta tag in the `<head>`:
+	- `<meta name="fwj-turnstile-sitekey" content="YOUR_TURNSTILE_SITE_KEY">`
+3. Deploy the site changes.
+
+When configured:
+- The widget will appear above the submit button.
+- The page will send `turnstileToken` with the JSON payload.

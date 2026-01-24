@@ -45,6 +45,14 @@ function hideCookieBanner(bannerEl) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Security: prevent reverse-tabnabbing on external links opened in a new tab.
+    document.querySelectorAll('a[target="_blank"]').forEach((a) => {
+        const rel = (a.getAttribute('rel') || '').toLowerCase();
+        if (!rel.includes('noopener')) {
+            a.setAttribute('rel', 'noopener noreferrer');
+        }
+    });
+
     const banner = document.getElementById('cookie-consent-banner');
     if (!banner) return;
 

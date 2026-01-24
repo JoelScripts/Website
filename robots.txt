@@ -4,4 +4,13 @@ Disallow: /tools/
 Disallow: /workers/
 Disallow: /data_requests/
 
+# Reduce accidental indexing of internal/utility pages
+Disallow: /admin.html
+Disallow: /admin-preview.html
+Disallow: /pages/secret.html
+Disallow: /pages/maintenance.html
+Disallow: /pages/access_denied.html
+Disallow: /pages/index-live.html
+Disallow: /pages/status.html
+
 # Note: robots.txt is advisory. It reduces indexing but does not prevent access.

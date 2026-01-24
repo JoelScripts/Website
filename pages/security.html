@@ -325,7 +325,7 @@
         <div class="header-card">
             <h1>🔐 Security & Hosting Information</h1>
             <p class="last-updated">Last Updated: January 2026</p>
-            <p>This page summarizes how this site is hosted (GitHub Pages), what third-party services are involved (e.g., email and Discord for submissions), and the practical steps we take to keep data exposure low.</p>
+            <p>This page summarizes how this site is hosted (GitHub Pages), what third-party services are involved (e.g., Cloudflare edge services for API endpoints, email and Discord for submissions), and the practical steps we take to keep data exposure low.</p>
         </div>
 
         <!-- Section 1: Hosting Provider Information -->
@@ -335,7 +335,7 @@
             <!-- Card 1: Primary Host -->
             <div class="card">
                 <h3>🌐 Primary Hosting Provider</h3>
-                <p>Our website is hosted on GitHub Pages (a static hosting service by GitHub). We do not run our own application servers or a first-party user database for this website.</p>
+                <p>Our website is hosted on GitHub Pages (a static hosting service by GitHub). We do not run our own traditional application servers or a first-party user database for this website. Some features (like schedule updates and suggestions submissions) use small serverless API endpoints.</p>
                 <ul>
                     <li>Static hosting via GitHub Pages</li>
                     <li>No first-party user database</li>
@@ -344,6 +344,21 @@
                 </ul>
                 <div class="card-note">
                     <strong>Provider:</strong> GitHub Pages.
+                </div>
+            </div>
+
+            <!-- Card 1b: Edge API Endpoints (Workers/KV) -->
+            <div class="card">
+                <h3>☁️ Edge API Endpoints (Cloudflare Workers)</h3>
+                <p>While the website itself is static, we use small serverless API endpoints (for example, for the Schedule editor and the Suggestions form). These endpoints are served via Cloudflare Workers and may use Cloudflare KV for short-lived storage and abuse prevention.</p>
+                <ul>
+                    <li>Schedule API: <code>/api/schedule</code> (public read, admin update)</li>
+                    <li>Schedule auth check: <code>/api/schedule/auth</code></li>
+                    <li>Twitch live status check: <code>/api/schedule/live</code></li>
+                    <li>Suggestions submission: <code>/api/suggestions</code> (proxy to Discord)</li>
+                </ul>
+                <div class="card-note">
+                    <strong>Notes:</strong> Provider-managed logging may occur. KV is used for non-sensitive site operations (e.g., schedule JSON, token caching, and optional short-term rate limiting).
                 </div>
             </div>
 
@@ -414,7 +429,7 @@
             <!-- Card 2: Encryption at Rest -->
             <div class="card">
                 <h3>💾 Encryption at Rest</h3>
-                <p>We do not operate a first-party database for this site. If you send information to us (e.g., via email or via Discord suggestions), it may be stored by those third-party providers and protected by their security controls.</p>
+                <p>We do not operate a first-party user database for this site. Limited site-operation data may be stored by infrastructure providers (for example, schedule data and short-lived security/rate-limit data), and any information you send to us (e.g., via email or via Discord suggestions) may be stored by those third-party providers and protected by their security controls.</p>
                 <ul>
                     <li>Data storage handled by third-party providers</li>
                     <li>Provider security controls may include encryption</li>
@@ -443,7 +458,7 @@
             <!-- Card 4: Intrusion Detection & Prevention -->
             <div class="card">
                 <h3>⚠️ Intrusion Detection & Prevention</h3>
-                <p>Network-level protections (e.g., DDoS mitigation) are primarily provided by our hosting platform. We also reduce risk by keeping the site static and minimizing data collection.</p>
+                <p>Network-level protections (e.g., DDoS mitigation) are primarily provided by our hosting platform and edge service providers. We also reduce risk by keeping the site mostly static and minimizing data collection.</p>
                 <ul>
                     <li>Provider-managed DDoS mitigation</li>
                     <li>Static site (reduced attack surface)</li>
@@ -491,9 +506,10 @@
             <!-- Card 1: Data Storage Locations -->
             <div class="card">
                 <h3>📍 Data Storage Locations</h3>
-                <p>We do not run our own servers. Website content is hosted on GitHub Pages and served via a global CDN. If you submit information (e.g., via email contact or Discord suggestions), that data is stored and processed by those third-party providers.</p>
+                <p>We do not run our own traditional servers. Website content is hosted on GitHub Pages and served via a global CDN. Some site features use serverless endpoints (for example, schedule data and suggestions submission). If you submit information (e.g., via email contact or Discord suggestions), that data is stored and processed by those third-party providers.</p>
                 <ul>
                     <li>Website content: GitHub Pages (global CDN)</li>
+                    <li>Schedule data (non-personal): Cloudflare KV (edge storage)</li>
                     <li>Contact messages: email provider</li>
                     <li>Flight suggestions: Discord</li>
                     <li>Preferences: stored locally in your browser</li>
@@ -506,7 +522,7 @@
             <!-- Card 2: Cross-Border Data Transfer -->
             <div class="card">
                 <h3>✈️ Cross-Border Data Transfer</h3>
-                <p>Because we use third-party providers (GitHub Pages, Discord, and your email provider), your data may be processed in countries outside your own (including outside the UK/EEA). Where applicable, providers may rely on safeguards such as Standard Contractual Clauses (SCCs) and/or the EU-U.S. Data Privacy Framework.</p>
+                <p>Because we use third-party providers (GitHub Pages, Cloudflare, Discord, and your email provider), your data may be processed in countries outside your own (including outside the UK/EEA). Where applicable, providers may rely on safeguards such as Standard Contractual Clauses (SCCs) and/or the EU-U.S. Data Privacy Framework.</p>
                 <ul>
                     <li>International processing may occur</li>
                     <li>Safeguards may include SCCs and/or adequacy mechanisms</li>
