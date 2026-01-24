@@ -154,27 +154,42 @@
     .admin-msg.err { color: #ff6666; }
     .muted { color: var(--text-muted); font-size: 0.9rem; }
     .hidden { display: none !important; }
-    @media (max-width: 720px) {
+    @media (max-width: 980px) {
+      /* Wide phones/tablets: clean 2-col layout + full-width Status */
       .admin-row { grid-template-columns: 1fr; }
       .schedule-header-row { display: none; }
-      .schedule-item { grid-template-columns: 1fr; }
+
       .admin-wrap { padding: 1.2rem; }
       .admin-card { padding: 1.1rem; }
+
+      .schedule-item {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+        padding: 1rem;
+      }
+
+      .schedule-item .field-day { grid-column: 1; }
+      .schedule-item .field-date { grid-column: 2; }
+      .schedule-item .field-time { grid-column: 1; }
+      .schedule-item .field-title { grid-column: 2; }
+
+      .schedule-item .field-status { grid-column: 1 / -1; }
+      .schedule-item .field-delayed { grid-column: 1 / -1; }
+
+      /* Delayed/completed can have extra inputs; give them room */
+      .schedule-item.is-delayed .field-title { grid-column: 1 / -1; }
     }
 
-    @media (max-width: 980px) {
-      /* Tablet: split into two rows to avoid cramping */
-      .schedule-item .field-day { grid-column: 1 / span 3; }
-      .schedule-item .field-date { grid-column: 4 / span 4; }
-      .schedule-item .field-status { grid-column: 8 / span 5; }
-
-      .schedule-item .field-time { grid-column: 1 / span 5; }
-      .schedule-item .field-title { grid-column: 6 / span 7; }
-
-      .schedule-item.is-delayed .field-delayed { grid-column: 1 / span 12; }
-      .schedule-item.is-delayed .field-title { grid-column: 1 / span 12; }
-
-      .schedule-header-row { display: none; }
+    @media (max-width: 520px) {
+      /* Small phones: single column */
+      .schedule-item { grid-template-columns: 1fr; }
+      .schedule-item .field-day,
+      .schedule-item .field-date,
+      .schedule-item .field-time,
+      .schedule-item .field-title,
+      .schedule-item .field-status,
+      .schedule-item .field-delayed { grid-column: 1 / -1; }
+      .schedule-day .summary-title { max-width: 26ch; }
     }
   </style>
 </head>
@@ -521,7 +536,8 @@
     }
 
     function setDetailsOpenByViewport() {
-      const shouldOpen = window.matchMedia && window.matchMedia('(min-width: 721px)').matches;
+      // Only auto-expand on desktop. Wide phones should stay collapsed.
+      const shouldOpen = window.matchMedia && window.matchMedia('(min-width: 981px)').matches;
       document.querySelectorAll('.schedule-day').forEach((d) => {
         d.open = shouldOpen;
       });
