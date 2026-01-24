@@ -11,6 +11,9 @@
  */
 
 const SCHEDULE_KEY = 'schedule_v1';
+const TWITCH_TOKEN_KEY = 'twitch_token_v1';
+
+const DEFAULT_TWITCH_LOGIN = 'flyingwithjoel';
 
 const ALLOWED_ORIGINS = new Set([
   'https://flyingwithjoel.co.uk',
@@ -45,6 +48,81 @@ function jsonResponse(data, init = {}) {
   headers.set('content-type', 'application/json; charset=utf-8');
   headers.set('cache-control', 'no-store');
   return new Response(JSON.stringify(data), { ...init, headers });
+}
+
+async function getCachedTwitchToken(env) {
+  if (!env.SCHEDULE_KV) return null;
+  const raw = await env.SCHEDULE_KV.get(TWITCH_TOKEN_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    if (typeof parsed.access_token !== 'string') return null;
+    if (typeof parsed.expires_at !== 'number') return null;
+    if (Date.now() >= parsed.expires_at) return null;
+    return parsed.access_token;
+  } catch {
+    return null;
+  }
+}
+
+async function cacheTwitchToken(env, token, expiresAt) {
+  if (!env.SCHEDULE_KV) return;
+  await env.SCHEDULE_KV.put(
+    TWITCH_TOKEN_KEY,
+    JSON.stringify({ access_token: token, expires_at: expiresAt })
+  );
+}
+
+async function getTwitchAccessToken(env) {
+  const cached = await getCachedTwitchToken(env);
+  if (cached) return cached;
+
+  const clientId = env.TWITCH_CLIENT_ID;
+  const clientSecret = env.TWITCH_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+
+  const tokenUrl = new URL('https://id.twitch.tv/oauth2/token');
+  tokenUrl.searchParams.set('client_id', clientId);
+  tokenUrl.searchParams.set('client_secret', clientSecret);
+  tokenUrl.searchParams.set('grant_type', 'client_credentials');
+
+  const resp = await fetch(tokenUrl.toString(), { method: 'POST' });
+  if (!resp.ok) return null;
+
+  const json = await resp.json();
+  const accessToken = json && typeof json.access_token === 'string' ? json.access_token : null;
+  const expiresIn = json && typeof json.expires_in === 'number' ? json.expires_in : null;
+  if (!accessToken || !expiresIn) return null;
+
+  // Refresh a minute early.
+  const expiresAt = Date.now() + Math.max(60, expiresIn - 60) * 1000;
+  await cacheTwitchToken(env, accessToken, expiresAt);
+  return accessToken;
+}
+
+async function isTwitchChannelLive(env) {
+  const clientId = env.TWITCH_CLIENT_ID;
+  if (!clientId) return null;
+
+  const token = await getTwitchAccessToken(env);
+  if (!token) return null;
+
+  const login = (env.TWITCH_CHANNEL_LOGIN || DEFAULT_TWITCH_LOGIN).toString().trim().toLowerCase();
+  const url = new URL('https://api.twitch.tv/helix/streams');
+  url.searchParams.set('user_login', login);
+
+  const resp = await fetch(url.toString(), {
+    headers: {
+      'Client-ID': clientId,
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!resp.ok) return null;
+  const json = await resp.json();
+  const data = json && Array.isArray(json.data) ? json.data : [];
+  return data.length > 0;
 }
 
 function unauthorizedResponse() {
@@ -197,6 +275,37 @@ export default {
       }
 
       return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
+    }
+
+    // Live status endpoint for the public schedule UI.
+    // Note: kept under /api/schedule* so it matches the same Cloudflare route.
+    if (path === '/api/schedule/live') {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
+      }
+
+      if (!env.SCHEDULE_KV) {
+        return jsonResponse(
+          { error: 'Missing KV binding SCHEDULE_KV.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      const live = await isTwitchChannelLive(env);
+      if (live === null) {
+        return jsonResponse(
+          { ok: false, error: 'Twitch live status unavailable (missing secrets or upstream error).' },
+          { status: 200, headers: corsHeadersFor(request) }
+        );
+      }
+
+      return jsonResponse({ ok: true, live }, { headers: corsHeadersFor(request) });
     }
 
     if (!env.SCHEDULE_KV) {

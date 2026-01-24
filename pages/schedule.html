@@ -310,11 +310,53 @@
       pill.className = 'status-pill';
     }
 
-    function updateLiveStatus() {
+    let lastLiveCheckAt = 0;
+    let lastLiveValue = null;
+    async function getIsActuallyLive() {
+      const now = Date.now();
+      // Cache for ~30s to avoid hammering.
+      if (now - lastLiveCheckAt < 30000 && lastLiveValue !== null) return lastLiveValue;
+
+      try {
+        const resp = await fetch('/api/schedule/live', { cache: 'no-store' });
+        if (!resp.ok) return null;
+        const json = await resp.json();
+        if (!json || json.ok !== true || typeof json.live !== 'boolean') return null;
+        lastLiveCheckAt = now;
+        lastLiveValue = json.live;
+        return json.live;
+      } catch {
+        return null;
+      }
+    }
+
+    function parseZuluMinutes(zuluTimeStr) {
+      if (!zuluTimeStr) return null;
+      const timeMatch = zuluTimeStr.match(/(\d{1,2}):(\d{2})(?:\s(AM|PM))?\s+Zulu/i);
+      if (!timeMatch) return null;
+
+      let streamHours = parseInt(timeMatch[1], 10);
+      const streamMinutes = parseInt(timeMatch[2], 10);
+      const period = timeMatch[3];
+      if (period) {
+        if (period.toUpperCase() === 'PM' && streamHours !== 12) streamHours += 12;
+        else if (period.toUpperCase() === 'AM' && streamHours === 12) streamHours = 0;
+      }
+      return streamHours * 60 + streamMinutes;
+    }
+
+    async function updateLiveStatus() {
       const now = new Date();
       const currentUTCHours = now.getUTCHours();
       const currentUTCMinutes = now.getUTCMinutes();
       const currentUTCTime = currentUTCHours * 60 + currentUTCMinutes;
+
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const date = today.getDate();
+      const dateString = `${month}-${date}`;
+
+      const isActuallyLive = await getIsActuallyLive();
 
       const dayCards = document.querySelectorAll('.day-card');
       dayCards.forEach(card => {
@@ -328,43 +370,36 @@
           return;
         }
 
-        const timeMatch = zuluTimeStr.match(/(\d{1,2}):(\d{2})(?:\s(AM|PM))?\s+Zulu/i);
-        if (!timeMatch) {
+        const streamUTCTime = parseZuluMinutes(zuluTimeStr);
+        if (streamUTCTime === null) {
           card.classList.remove('live');
           applyPillForCard(card);
           return;
         }
 
-        let streamHours = parseInt(timeMatch[1], 10);
-        const streamMinutes = parseInt(timeMatch[2], 10);
-        const period = timeMatch[3];
-
-        if (period) {
-          if (period.toUpperCase() === 'PM' && streamHours !== 12) streamHours += 12;
-          else if (period.toUpperCase() === 'AM' && streamHours === 12) streamHours = 0;
-        }
-
-        const streamUTCTime = streamHours * 60 + streamMinutes;
-        const streamDuration = 600;
-        const timeUntilStream = streamUTCTime - currentUTCTime;
-        const isLive = timeUntilStream >= -streamDuration && timeUntilStream < 0;
-
         const cardDate = card.getAttribute('data-date');
-        const today = new Date();
-        const month = today.getMonth() + 1;
-        const date = today.getDate();
-        const dateString = `${month}-${date}`;
         const isToday = cardDate === dateString;
+        const hasStarted = currentUTCTime >= streamUTCTime;
 
         const isBlockedByStatus = card.classList.contains('cancelled') || card.classList.contains('completed');
 
-        if (isLive && isToday && !isBlockedByStatus) {
+        // Only show LIVE when Twitch is actually live.
+        if (isActuallyLive === true && isToday && !isBlockedByStatus) {
           card.classList.add('live');
           card.style.cursor = 'pointer';
           applyPillForCard(card, 'LIVE');
         } else {
           card.classList.remove('live');
           card.style.cursor = 'default';
+
+          // If the stream has started and Twitch is offline, treat it as completed.
+          // This makes LIVE -> COMPLETED when you end stream, without needing manual edits.
+          if (isToday && !isBlockedByStatus && hasStarted && isActuallyLive === false) {
+            card.classList.add('completed');
+            card.classList.remove('cancelled');
+            card.classList.remove('delayed');
+          }
+
           applyPillForCard(card);
         }
       });
@@ -399,12 +434,12 @@
         }
 
         highlightToday();
-        updateLiveStatus();
+        await updateLiveStatus();
         addLiveCardClickHandler();
       } catch {
         if (note) note.textContent = 'Could not load schedule (using fallback).';
         highlightToday();
-        updateLiveStatus();
+        await updateLiveStatus();
         addLiveCardClickHandler();
       } finally {
         if (container) container.classList.remove('is-hydrating');
@@ -413,8 +448,8 @@
 
     window.addEventListener('load', run);
     window.addEventListener('load', highlightToday);
-    window.addEventListener('load', updateLiveStatus);
-    setInterval(updateLiveStatus, 60000);
+    window.addEventListener('load', () => updateLiveStatus().catch(() => {}));
+    setInterval(() => updateLiveStatus().catch(() => {}), 60000);
     window.addEventListener('load', function() {
       addLiveCardClickHandler();
       setInterval(addLiveCardClickHandler, 60000);

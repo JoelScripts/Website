@@ -6,6 +6,7 @@ This Worker provides a simple backend for your GitHub Pages site so `admin.html`
 
 - `GET /api/schedule` → returns the saved schedule JSON array (or `[]` if empty)
 - `PUT /api/schedule` → saves the schedule JSON array (requires HTTP Basic Auth)
+- `GET /api/schedule/live` → returns `{ ok: true, live: boolean }` based on the channel’s actual Twitch live status (requires Twitch API secrets)
 
 Your frontend already calls `/api/schedule` as its first choice.
 
@@ -36,17 +37,26 @@ Your frontend already calls `/api/schedule` as its first choice.
      - `ADMIN_USERNAME` (your chosen username)
      - `ADMIN_PASSWORD` (your chosen password)
 
-6. **Add the route**
+6. **(Optional, for LIVE badge) Add Twitch API secrets**
+    - Create a Twitch Developer application and grab the Client ID/Secret
+    - Worker → **Settings** → **Variables** → add **secrets**:
+       - `TWITCH_CLIENT_ID`
+       - `TWITCH_CLIENT_SECRET`
+    - Optional variable (secret or plain text):
+       - `TWITCH_CHANNEL_LOGIN` (defaults to `flyingwithjoel`)
+
+7. **Add the route**
    - Worker → **Triggers** → **Routes** → Add route
    - Route: `flyingwithjoel.co.uk/api/schedule*`
    - Zone: `flyingwithjoel.co.uk`
 
-7. **Make sure traffic goes through Cloudflare**
+8. **Make sure traffic goes through Cloudflare**
    - Cloudflare DNS: your `@` and `www` records should be **Proxied** (orange cloud)
 
 ## Testing
 
 - Visit `https://flyingwithjoel.co.uk/api/schedule` → should show `[]` initially.
+- (If Twitch secrets set) Visit `https://flyingwithjoel.co.uk/api/schedule/live` → should show `{ ok: true, live: false }` when offline.
 - Visit `https://flyingwithjoel.co.uk/admin.html`
   - Enter username/password matching the secrets
   - Click **Save schedule**
