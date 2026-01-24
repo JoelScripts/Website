@@ -25,7 +25,7 @@
     .schedule-grid { display: grid; grid-template-columns: 1fr; gap: 0.8rem; }
     .schedule-item {
       display: grid;
-      grid-template-columns: 90px 120px 110px 1fr 140px;
+      grid-template-columns: 90px 150px 140px 1fr 150px;
       gap: 0.7rem;
       align-items: end;
       padding: 0.9rem;
@@ -49,7 +49,7 @@
     .schedule-item input[type="checkbox"] { width: 18px; height: 18px; padding: 0; }
     .schedule-header-row {
       display: grid;
-      grid-template-columns: 90px 120px 110px 1fr 140px;
+      grid-template-columns: 90px 150px 140px 1fr 150px;
       gap: 0.7rem;
       color: var(--text-muted);
       font-weight: 700;
@@ -64,6 +64,7 @@
     .advanced details { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; padding: 0.9rem; }
     .advanced summary { cursor: pointer; color: #e0e0e0; font-weight: 700; }
     .admin-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; }
+    .admin-actions .spacer { flex: 1; }
     .admin-actions button {
       background: var(--primary);
       border: none;
@@ -74,9 +75,12 @@
       font-weight: 700;
     }
     .admin-actions button.secondary { background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18); }
+    .admin-actions button.danger { background: rgba(255, 90, 90, 0.20); border: 1px solid rgba(255, 90, 90, 0.35); }
     .admin-msg { color: var(--text-muted); }
     .admin-msg.ok { color: #66BB6A; }
     .admin-msg.err { color: #ff6666; }
+    .muted { color: var(--text-muted); font-size: 0.9rem; }
+    .hidden { display: none !important; }
     @media (max-width: 720px) {
       .admin-row { grid-template-columns: 1fr; }
       .schedule-header-row { display: none; }
@@ -96,10 +100,14 @@
 
   <main class="admin-wrap">
     <h1 style="margin-top: 1rem;">Schedule Admin</h1>
-    <p class="admin-msg">This page updates the live schedule via a schedule API (recommended: <code>https://api.flyingwithjoel.co.uk/api/schedule.php</code>).</p>
 
-    <div class="admin-card">
+    <p class="muted">Sign in to edit the schedule. This page saves to <code>/api/schedule</code> (Cloudflare Worker + KV).</p>
+
+    <div id="login-card" class="admin-card">
       <div class="admin-grid">
+        <h2 style="margin: 0;">Admin Login</h2>
+        <p class="admin-msg" style="margin-top: -0.2rem;">Enter your Worker username/password to unlock editing.</p>
+
         <div class="admin-row">
           <div>
             <label for="admin-user">Username</label>
@@ -111,10 +119,24 @@
           </div>
         </div>
 
-        <div>
-          <label>7 Day Schedule</label>
-          <p class="admin-msg" style="margin-top: 0.2rem;">Edit each day: month/day, time (Zulu), and whether there is a stream.</p>
+        <div class="admin-actions">
+          <button id="btn-unlock" type="button">Unlock</button>
+          <span id="status" class="admin-msg"></span>
+        </div>
+      </div>
+    </div>
 
+    <div id="editor-card" class="admin-card hidden" style="margin-top: 1rem;">
+      <div class="admin-grid">
+        <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+          <div>
+            <h2 style="margin: 0;">7 Day Schedule</h2>
+            <p class="admin-msg" style="margin-top: 0.2rem;">Edit each day: month/day, time (Zulu), and whether there is a stream.</p>
+          </div>
+          <div class="muted">You’re signed in.</div>
+        </div>
+
+        <div>
           <div class="schedule-header-row" aria-hidden="true">
             <div>Day</div>
             <div>Date</div>
@@ -137,7 +159,8 @@
           <button id="btn-load" class="secondary" type="button">Load current</button>
           <button id="btn-format" class="secondary" type="button">Sync JSON</button>
           <button id="btn-save" type="button">Save schedule</button>
-          <span id="status" class="admin-msg"></span>
+          <span class="spacer"></span>
+          <button id="btn-lock" class="danger" type="button">Lock</button>
         </div>
       </div>
     </div>
@@ -149,6 +172,8 @@
     const passEl = document.getElementById('admin-pass');
     const jsonEl = document.getElementById('schedule-json');
     const scheduleGridEl = document.getElementById('schedule-grid');
+    const loginCardEl = document.getElementById('login-card');
+    const editorCardEl = document.getElementById('editor-card');
 
     const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DEFAULT_DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
@@ -157,6 +182,8 @@
       '/api/schedule',
       'https://api.flyingwithjoel.co.uk/api/schedule.php',
     ];
+
+    let authHeader = null;
 
     async function fetchFirstOkJson(urls, init) {
       for (const u of urls) {
@@ -357,6 +384,53 @@
       return 'Basic ' + btoa(`${user}:${pass}`);
     }
 
+    async function verifyCredentials(auth) {
+      // Only supported on the Cloudflare Worker backend.
+      const resp = await fetch('/api/schedule/auth', {
+        method: 'GET',
+        headers: { 'authorization': auth },
+        cache: 'no-store',
+      });
+      if (resp.status === 401) return { ok: false, reason: 'Unauthorized (wrong username/password).' };
+      if (!resp.ok) return { ok: false, reason: `Auth check failed (${resp.status}).` };
+      return { ok: true };
+    }
+
+    function unlockUi() {
+      loginCardEl.classList.add('hidden');
+      editorCardEl.classList.remove('hidden');
+    }
+
+    function lockUi() {
+      authHeader = null;
+      editorCardEl.classList.add('hidden');
+      loginCardEl.classList.remove('hidden');
+      setStatus('', null);
+    }
+
+    async function unlock() {
+      const auth = getAuthHeader();
+      if (!auth) {
+        setStatus('Enter username + password first.', 'err');
+        return;
+      }
+      setStatus('Checking credentials…');
+      try {
+        const result = await verifyCredentials(auth);
+        if (!result.ok) {
+          setStatus(result.reason || 'Login failed.', 'err');
+          return;
+        }
+        authHeader = auth;
+        unlockUi();
+        setStatus('Unlocked.', 'ok');
+        await loadCurrent();
+      } catch (e) {
+        console.error(e);
+        setStatus('Login failed (could not reach auth endpoint).', 'err');
+      }
+    }
+
     async function loadCurrent() {
       setStatus('Loading…');
       try {
@@ -378,9 +452,9 @@
     }
 
     async function saveSchedule() {
-      const auth = getAuthHeader();
+      const auth = authHeader;
       if (!auth) {
-        setStatus('Enter username + password first.', 'err');
+        setStatus('Locked. Click Unlock first.', 'err');
         return;
       }
 
@@ -392,6 +466,7 @@
         const targets = SCHEDULE_API_CANDIDATES;
         let savedUrl = null;
         let lastStatus = null;
+        let lastBody = null;
 
         for (const u of targets) {
           try {
@@ -410,7 +485,10 @@
               return;
             }
 
-            if (!resp.ok) continue;
+            if (!resp.ok) {
+              try { lastBody = await resp.text(); } catch { lastBody = null; }
+              continue;
+            }
             savedUrl = u;
             break;
           } catch {
@@ -419,22 +497,25 @@
         }
 
         if (!savedUrl) {
-          throw new Error(`Save failed (last status: ${lastStatus ?? 'n/a'})`);
+          const extra = lastBody ? ` — ${lastBody.slice(0, 180)}` : '';
+          throw new Error(`Save failed (last status: ${lastStatus ?? 'n/a'})${extra}`);
         }
 
         setStatus(`Saved to ${savedUrl}. Homepage will update once it can fetch the API.`, 'ok');
       } catch (e) {
         console.error(e);
-        setStatus('Save failed.', 'err');
+        setStatus(String(e && e.message ? e.message : 'Save failed.'), 'err');
       }
     }
 
+    document.getElementById('btn-unlock').addEventListener('click', unlock);
     document.getElementById('btn-load').addEventListener('click', loadCurrent);
     document.getElementById('btn-format').addEventListener('click', formatJson);
     document.getElementById('btn-save').addEventListener('click', saveSchedule);
+    document.getElementById('btn-lock').addEventListener('click', lockUi);
 
-    // Best-effort: preload current schedule
-    loadCurrent();
+    // Default locked view
+    lockUi();
   </script>
 </body>
 </html>

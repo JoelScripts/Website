@@ -84,6 +84,13 @@ function parseBasicAuth(request) {
   }
 }
 
+function isAuthorized(request, env) {
+  const creds = parseBasicAuth(request);
+  const userOk = creds && safeEqual(creds.username, env.ADMIN_USERNAME || '');
+  const passOk = creds && safeEqual(creds.password, env.ADMIN_PASSWORD || '');
+  return Boolean(userOk && passOk);
+}
+
 function isValidScheduleArray(value) {
   if (!Array.isArray(value)) return false;
   if (value.length < 1 || value.length > 14) return false; // allow a bit of flexibility
@@ -115,6 +122,8 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    const path = url.pathname;
+
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         status: 204,
@@ -125,8 +134,8 @@ export default {
       });
     }
 
-    // Only handle the schedule endpoint (route usually limits this already)
-    if (!url.pathname.startsWith('/api/schedule')) {
+    // Only handle the schedule endpoints (route usually limits this already)
+    if (!path.startsWith('/api/schedule')) {
       return new Response('Not Found', {
         status: 404,
         headers: {
@@ -134,6 +143,36 @@ export default {
           'cache-control': 'no-store',
         },
       });
+    }
+
+    // Auth verification endpoint for the admin UI.
+    if (path === '/api/schedule/auth') {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
+      }
+
+      if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+        return jsonResponse(
+          { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (!isAuthorized(request, env)) {
+        const resp = unauthorizedResponse();
+        const headers = new Headers(resp.headers);
+        const cors = corsHeadersFor(request);
+        for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+        return new Response(resp.body, { status: resp.status, headers });
+      }
+
+      return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
     }
 
     if (!env.SCHEDULE_KV) {
@@ -157,10 +196,14 @@ export default {
     }
 
     if (request.method === 'PUT') {
-      const creds = parseBasicAuth(request);
-      const userOk = creds && safeEqual(creds.username, env.ADMIN_USERNAME || '');
-      const passOk = creds && safeEqual(creds.password, env.ADMIN_PASSWORD || '');
-      if (!userOk || !passOk) {
+      if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+        return jsonResponse(
+          { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (!isAuthorized(request, env)) {
         const resp = unauthorizedResponse();
         const headers = new Headers(resp.headers);
         const cors = corsHeadersFor(request);
