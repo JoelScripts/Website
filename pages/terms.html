@@ -39,12 +39,6 @@
         </div>
     </section>
 
-    <!-- Scroll Instructions -->
-    <div style="text-align: center; padding: 1.5rem 2rem; background: linear-gradient(90deg, rgba(255, 152, 0, 0.12) 0%, rgba(255, 152, 0, 0.08) 100%); border: 1px solid rgba(255, 152, 0, 0.3); margin: 0; color: var(--text-light); font-size: 0.95rem;">
-        <strong style="display: block; margin-bottom: 0.5rem; color: var(--primary);">⬇️ Please scroll to the bottom of this page to accept the terms and access the website</strong>
-        <span style="color: var(--text-muted); font-size: 0.85rem;">After reviewing the terms, you'll find the acceptance buttons at the bottom of the page.</span>
-    </div>
-
     <!-- Last Updated Notice -->
     <div style="text-align: center; padding: 1rem 2rem; background: rgba(66, 165, 245, 0.08); color: var(--text-muted); font-size: 0.85rem; border-bottom: 1px solid var(--border);">
         Last Updated: January 2026 | Effective Date: January 2026
@@ -55,7 +49,7 @@
         <div class="privacy-container-full">
             <div class="privacy-card-full">
                 <h2>1. Acceptance of Terms</h2>
-                <p>By accessing and using this website (flywithjoel.com and all subdomains), you accept and agree to be bound by the terms and provision of this agreement.</p>
+                <p>By accessing and using this website (flyingwithjoel.co.uk and related pages), you accept and agree to be bound by these Terms.</p>
                 <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">If you do not agree to abide by the above, please do not use this service.</p>
             </div>
 
@@ -98,7 +92,7 @@
                         <li>Any reliance on content or recommendations</li>
                     </ul>
                 </div>
-                <p style="margin: 1rem 0 0 0; font-size: 0.9rem; color: #b0b0b0;"><strong>Our total liability</strong> for any claims arising from this website shall not exceed the total amount you have paid us (which is $0 for using this website).</p>
+                <p style="margin: 1rem 0 0 0; font-size: 0.9rem; color: #b0b0b0;"><strong>Our total liability</strong> for any claims arising from this website shall not exceed the total amount you have paid us (which is typically £0 for using this website).</p>
                 <p style="margin: 1rem 0 0 0; font-size: 0.85rem; color: #999; font-style: italic;">Some jurisdictions do not allow the limitation or exclusion of liability, so these limitations may not apply to you.</p>
             </div>
 
@@ -119,8 +113,8 @@
 
             <div class="privacy-card-full">
                 <h2>9. User Submissions</h2>
-                <p>When you submit suggestions through this website, you grant Flying With Joel a non-exclusive, royalty-free, perpetual, irrevocable, and fully sublicensable right to use, reproduce, modify, adapt, publish, translate, create derivative works from, distribute, and display such submissions throughout the world in any media.</p>
-                <p style="margin-top: 1rem;">You retain all ownership rights in your submissions. You represent and warrant that you own or have the necessary permissions to submit the content and that it does not infringe any third-party rights.</p>
+                <p>If you submit content through this website (for example, a flight suggestion), you grant Flying With Joel a non-exclusive, royalty-free license to use that submission for the purpose of reviewing it, planning streams, moderation, and communicating with you about it.</p>
+                <p style="margin-top: 1rem;">If we choose to feature a submitted suggestion on stream, in VODs, or on social media, you grant us permission to display the relevant parts of that suggestion for that purpose. You retain ownership of your submission. If you want a submission removed from systems we control, you can request deletion via the contact details in our Privacy Policy (note: past livestream recordings or third-party caches may not be fully erasable).</p>
             </div>
 
             <div class="privacy-card-full">
@@ -174,15 +168,8 @@
             </div>
 
             <div class="privacy-card-full">
-                <h2>16. Age of Majority & COPPA Compliance</h2>
-                <p><strong style="color: var(--text-light);">Age Requirements:</strong></p>
-                <ul>
-                    <li>Users must be 16 years of age or older</li>
-                    <li>Users under 16 must have parental/guardian consent</li>
-                    <li>COPPA compliance: Special protections apply to users under 13</li>
-                    <li>Parents can request contact information and data deletion</li>
-                </ul>
-                <p style="margin-top: 1rem; font-size: 0.85rem; color: var(--text-muted);">By using this site, you confirm you meet age requirements or have parental consent.</p>
+                <h2>16. Age Notice</h2>
+                <p><strong style="color: var(--text-light);">Age Notice:</strong> This website is not directed to children under 13. If you are under 16, please ask a parent/guardian before submitting personal information.</p>
             </div>
 
             <div class="privacy-card-full">
@@ -268,88 +255,13 @@
     <!-- Cookie Consent Banner -->
     <div id="cookie-consent-banner" class="cookie-consent-banner">
         <div class="cookie-consent-content">
-            <p>We use essential cookies to store your timezone preference and improve your experience. <a href="privacy.html">Learn more about our privacy practices</a>.</p>
+            <p>We use essential local storage (localStorage) to remember your preferences (such as timezone). <a href="privacy.html">Learn more about our privacy practices</a>.</p>
         </div>
         <div class="cookie-consent-buttons">
             <button id="cookie-accept-btn" class="cookie-consent-btn accept">Accept</button>
             <button id="cookie-reject-btn" class="cookie-consent-btn decline">Decline</button>
         </div>
     </div>
-
-    <!-- Terms Consent Modal -->
-    <div id="terms-consent-modal" class="terms-consent-modal">
-        <div class="terms-consent-content">
-            <h2>Accept Terms of Service</h2>
-            <p>By continuing to use this website, you agree to accept our Terms of Service as outlined above.</p>
-            <div class="terms-consent-buttons">
-                <button id="terms-accept-btn" class="terms-consent-btn accept">✓ Accept Terms</button>
-                <button id="terms-decline-btn" class="terms-consent-btn decline">✗ Decline Terms</button>
-            </div>
-        </div>
-    </div>
-
     <script src="../assets/js/main.js"></script>
-    <script>
-        // Terms Consent Modal - Show only after scrolling to bottom
-        let hasScrolledToBottom = false;
-        let modalShown = false;
-        
-        window.addEventListener('scroll', function() {
-            if (!modalShown && !hasScrolledToBottom) {
-                const scrollPosition = window.scrollY + window.innerHeight;
-                const pageHeight = document.documentElement.scrollHeight;
-                const scrollThreshold = pageHeight - 300; // 300px from bottom
-                
-                console.log('Current scroll position:', scrollPosition, 'Page height:', pageHeight, 'Threshold:', scrollThreshold);
-                
-                if (scrollPosition >= scrollThreshold) {
-                    console.log('Bottom reached! Showing modal');
-                    hasScrolledToBottom = true;
-                    const termsModal = document.getElementById('terms-consent-modal');
-                    if (termsModal) {
-                        termsModal.classList.add('show');
-                        modalShown = true;
-                        setupTermsButtons();
-                    }
-                }
-            }
-        });
-        
-        function setupTermsButtons() {
-            const termsModal = document.getElementById('terms-consent-modal');
-            const termsAcceptBtn = document.getElementById('terms-accept-btn');
-            const termsDeclineBtn = document.getElementById('terms-decline-btn');
-            
-            // Handle Accept Button
-            if (termsAcceptBtn) {
-                termsAcceptBtn.addEventListener('click', function() {
-                    localStorage.setItem('termsAccepted', 'true');
-                    localStorage.removeItem('termsDeclined');
-                    if (termsModal) termsModal.classList.remove('show');
-                    alert('Thank you for accepting the Terms of Service. You can now use the website.');
-                    window.location.href = 'index.html';
-                });
-            }
-            
-            // Handle Decline Button
-            if (termsDeclineBtn) {
-                termsDeclineBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    localStorage.setItem('termsDeclined', 'true');
-                    localStorage.removeItem('termsAccepted');
-                    window.location.href = 'access_denied.html';
-                });
-            }
-        }
-
-        // Check on page load if user has already declined terms
-        window.addEventListener('load', function() {
-            const termsDeclined = localStorage.getItem('termsDeclined');
-            if (termsDeclined === 'true') {
-                window.location.href = 'access_denied.html';
-            }
-        });
-    </script>
 </body>
 </html>

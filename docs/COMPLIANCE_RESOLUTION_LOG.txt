@@ -2,6 +2,15 @@
 REMAINING CONSIDERATIONS - ALL RESOLVED
 ===============================================
 
+UPDATE (January 2026)
+=====================
+
+- Consent-gated non-essential third-party content (e.g., embeds/fonts) so third-party requests are not made until the user opts in.
+- Suggestions feature uses a Discord webhook; added clear disclosure + explicit consent checkbox on both the embedded and standalone Suggestions forms.
+- Added client-side spam/format validation (honeypot + cooldown + strict field checks) before allowing Suggestions submissions.
+- Updated Privacy Policy with an explicit International Transfers section.
+- Updated Security page wording to remove over-specific/absolute claims (e.g., uptime/certifications/no transfers) and align with GitHub Pages + Discord + email realities.
+
 ISSUE #1: CONTACT FORM DATA HANDLING ✅ FIXED
 ================================================
 

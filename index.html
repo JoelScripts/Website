@@ -21,7 +21,7 @@
     <meta name="twitter:description" content="Join me for epic flight simulation streams! Explore MSFS 2024 and X-Plane 12 with professional setups and scenic flights.">
     <meta name="twitter:image" content="https://flyingwithjoel.co.uk/assets/hero-plane.jpg">
     
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts is loaded only after consent (see assets/js/main.js) -->
     <link rel="stylesheet" href="assets/css/styles.css">
     <!-- Twitch Embed SDK - Loaded after consent check -->
 
@@ -33,7 +33,7 @@
             <div style="display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap; justify-content: space-between;">
                 <div style="flex: 1; min-width: 250px;">
                     <p style="margin: 0 0 0.5rem 0; color: #e0e0e0; font-size: 0.95rem;">
-                        <strong>Your Privacy Matters</strong> - We use essential cookies and localStorage to remember your timezone preference. Third-party services (Google Fonts, Twitch) may also collect limited data.
+                        <strong>Your Privacy Matters</strong> - We use essential cookies and localStorage to remember your timezone preference. Third-party services (Google Fonts, Twitch, YouTube) may also collect limited data.
                     </p>
                     <p style="margin: 0; color: #a0a0a0; font-size: 0.85rem;">
                         Learn more: <a href="pages/privacy.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Privacy Policy</a> | <a href="pages/cookies.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Cookie Policy</a> | <a href="pages/terms.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Terms of Service</a>
@@ -62,7 +62,6 @@
                 <li><a href="#setup">My Setup</a></li>
                 <li><a href="#faq">FAQ</a></li>
                 <li><a href="#affiliates">Affiliates</a></li>
-                <li><a href="#contact">Contact Me</a></li>
                 <li><a href="pages/suggestions.html">Suggestions</a></li>
                 <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="follow-btn">Follow Me</a></li>
             </ul>
@@ -102,38 +101,7 @@
             <div>
                 <h2>7 Day Schedule</h2>
                 <p class="schedule-subtitle">Check out when I'm taking off next. VOD availability varies by stream.</p>
-                <div style="margin-top: 1rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
-                    <label for="timezone-select" style="color: #a0a0a0; font-size: 0.9rem; font-weight: 500;">Your Timezone:</label>
-                    <select id="timezone-select" style="background-color: #1a1a1a; color: #e0e0e0; border: 1px solid #2a2a2a; padding: 0.5rem 0.8rem; border-radius: 0.4rem; font-size: 0.9rem; cursor: pointer;">
-                        <option value="auto">Auto-detect (Recommended)</option>
-                        <optgroup label="Americas">
-                            <option value="America/New_York">Eastern Time (ET)</option>
-                            <option value="America/Chicago">Central Time (CT)</option>
-                            <option value="America/Denver">Mountain Time (MT)</option>
-                            <option value="America/Los_Angeles">Pacific Time (PT)</option>
-                        </optgroup>
-                        <optgroup label="Europe">
-                            <option value="Europe/London">London (GMT)</option>
-                            <option value="Europe/Paris">Central European (CET)</option>
-                            <option value="Europe/Moscow">Moscow (MSK)</option>
-                        </optgroup>
-                        <optgroup label="Asia">
-                            <option value="Asia/Dubai">Dubai (GST)</option>
-                            <option value="Asia/Kolkata">India (IST)</option>
-                            <option value="Asia/Bangkok">Bangkok (ICT)</option>
-                            <option value="Asia/Shanghai">Shanghai (CST)</option>
-                            <option value="Asia/Tokyo">Tokyo (JST)</option>
-                            <option value="Asia/Seoul">Seoul (KST)</option>
-                        </optgroup>
-                        <optgroup label="Pacific">
-                            <option value="Australia/Sydney">Sydney (AEDT)</option>
-                            <option value="Pacific/Auckland">Auckland (NZDT)</option>
-                        </optgroup>
-                        <optgroup label="Other">
-                            <option value="UTC">UTC / Zulu</option>
-                        </optgroup>
-                    </select>
-                </div>
+
             </div>
         </div>
         <div class="weekly-schedule" id="weekly-schedule">
@@ -491,8 +459,17 @@
                                 </div>
                             </div>
                         </div>
-                        <div style="margin-top: 1.5rem; position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 0.4rem;">
-                            <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 0.4rem;" src="https://www.youtube.com/embed/eZS-YndjDWo" title="MSFS 2024 Graphics Guide" allowfullscreen></iframe>
+                        <div data-embed="youtube" data-src="https://www.youtube-nocookie.com/embed/eZS-YndjDWo" style="margin-top: 1.5rem; position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 0.4rem;">
+                            <div class="embed-placeholder" style="position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 0.75rem; padding: 1rem; text-align: center; background: rgba(10, 10, 10, 0.92); border: 1px solid rgba(255, 255, 255, 0.08);">
+                                <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
+                                    YouTube video embeds are disabled until you accept non-essential cookies.
+                                </p>
+                                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                                    <button type="button" class="embed-consent-btn" style="background: var(--primary); color: #0a0a0a; border: none; padding: 0.6rem 1rem; border-radius: 0.4rem; font-weight: 700; cursor: pointer;">Enable embeds</button>
+                                    <a href="https://www.youtube.com/watch?v=eZS-YndjDWo" target="_blank" rel="noopener" style="color: var(--primary); text-decoration: none; font-weight: 600;">Watch on YouTube</a>
+                                </div>
+                            </div>
+                            <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; border-radius: 0.4rem;" src="" title="MSFS 2024 Graphics Guide" allowfullscreen></iframe>
                         </div>
                     </div>
 
@@ -602,28 +579,6 @@
         </div>
     </section>
 
-    <!-- Contact Section -->
-    <section id="contact" class="contact-section">
-        <h2>Contact Me</h2>
-        <p class="section-subtitle">Get in touch for business enquiries</p>
-        <div class="contact-container">
-            <div class="contact-card">
-                <h3>📧 Business Enquiries</h3>
-                <p>For sponsorships, collaborations, and business opportunities:</p>
-                <a href="mailto:flywithjoeluk@gmail.com" class="contact-email">flywithjoeluk@gmail.com</a>
-                <p class="contact-note">I'll get back to you as soon as possible!</p>
-                <p style="font-size: 0.8rem; color: #888; margin-top: 1rem; border-top: 1px solid #404040; padding-top: 0.75rem;">
-                    <strong>Data Notice:</strong> Information you provide will be used only to respond to your enquiry. We retain contact information for 2 years unless requested to delete sooner. <a href="pages/privacy.html" style="color: #0066ff;">View our Privacy Policy</a> to exercise your data rights.
-                </p>
-            </div>
-            <div class="contact-card">
-                <h3>🎥 Connect on Twitch</h3>
-                <p>Chat with me live during streams and join the community:</p>
-                <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="contact-link">Visit My Twitch Channel</a>
-            </div>
-        </div>
-    </section>
-
     <!-- Affiliate & Legal Disclosure Section -->
     <section class="disclosure-section" style="background: transparent; padding: 3rem 2rem; margin: 3rem 0; border-top: none; border-bottom: none;">
         <div class="container" style="max-width: 1000px; margin: 0 auto;">
@@ -672,6 +627,7 @@
                 <a href="pages/privacy.html">Privacy Policy</a>
                 <a href="pages/terms.html">Terms of Service</a>
                 <a href="pages/cookies.html">Cookie Policy</a>
+                <a href="#" id="cookie-settings-link">Cookie Settings</a>
                 <a href="pages/security.html">Security & Hosting</a>
                 <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank">Twitch</a>
             </div>
@@ -680,40 +636,10 @@
 
     <script src="assets/js/main.js"></script>
     <script>
-        // ===== GDPR Consent Management =====
-        function initializeCookieConsent() {
-            const banner = document.getElementById('cookie-consent-banner');
-            const acceptBtn = document.getElementById('cookie-accept-btn');
-            const rejectBtn = document.getElementById('cookie-reject-btn');
-            
-            // Check if user has already made a choice
-            const consentChoice = localStorage.getItem('gdpr-consent-accepted');
-            
-            if (!consentChoice) {
-                // Show banner if no consent given
-                banner.style.display = 'flex';
-            }
-            
-            acceptBtn.addEventListener('click', function() {
-                localStorage.setItem('gdpr-consent-accepted', 'true');
-                banner.style.display = 'none';
-                // Load Twitch SDK after consent
-                loadTwitchSDK();
-                // Reload timezone conversion with consent
-                setupTimezoneSelector();
-            });
-            
-            rejectBtn.addEventListener('click', function() {
-                localStorage.setItem('gdpr-consent-accepted', 'false');
-                banner.style.display = 'none';
-                // Clear any timezone preference
-                if (localStorage.getItem('preferredTimezone')) {
-                    localStorage.removeItem('preferredTimezone');
-                }
-            });
-        }
-        
+        // ===== GDPR Consent Helpers =====
         function hasUserConsent() {
+            // Prefer the shared helper from assets/js/main.js if available.
+            if (typeof hasGdprConsent === 'function') return hasGdprConsent();
             return localStorage.getItem('gdpr-consent-accepted') === 'true';
         }
         
@@ -726,14 +652,58 @@
                 document.head.appendChild(script);
             }
         }
+
+        function initializeEmbeds() {
+            // YouTube embeds
+            const youtubeWrappers = document.querySelectorAll('[data-embed="youtube"]');
+            youtubeWrappers.forEach(wrapper => {
+                const iframe = wrapper.querySelector('iframe');
+                const placeholder = wrapper.querySelector('.embed-placeholder');
+                const enableBtn = wrapper.querySelector('.embed-consent-btn');
+                const embedSrc = wrapper.getAttribute('data-src');
+
+                if (enableBtn) {
+                    enableBtn.addEventListener('click', () => {
+                        const banner = document.getElementById('cookie-consent-banner');
+                        if (banner) {
+                            if (typeof showCookieBanner === 'function') showCookieBanner(banner);
+                            else banner.style.display = 'flex';
+                        }
+                    });
+                }
+
+                if (hasUserConsent()) {
+                    if (iframe && embedSrc && iframe.src !== embedSrc) {
+                        iframe.src = embedSrc;
+                    }
+                    if (placeholder) placeholder.style.display = 'none';
+                } else {
+                    if (iframe) iframe.src = '';
+                    if (placeholder) placeholder.style.display = 'flex';
+                }
+            });
+        }
         
         // Initialize consent on page load
         document.addEventListener('DOMContentLoaded', function() {
-            initializeCookieConsent();
-            // Load Twitch SDK if user has already given consent
             if (hasUserConsent()) {
                 loadTwitchSDK();
             }
+
+            initializeEmbeds();
+
+            // React to consent changes (banner logic + storage is handled in assets/js/main.js)
+            window.addEventListener('fwj:consent:granted', () => {
+                loadTwitchSDK();
+                initializeEmbeds();
+                if (typeof setupTimezoneSelector === 'function') setupTimezoneSelector();
+                if (typeof loadHighlights === 'function') loadHighlights();
+            });
+
+            window.addEventListener('fwj:consent:rejected', () => {
+                initializeEmbeds();
+                if (localStorage.getItem('preferredTimezone')) localStorage.removeItem('preferredTimezone');
+            });
         });
         
         // ===== Original JavaScript =====
@@ -757,6 +727,19 @@
         // Load highlights with embedded Twitch clips
         async function loadHighlights() {
             try {
+                if (!hasUserConsent()) {
+                    document.getElementById('highlights-grid').innerHTML = `
+                        <div class="highlight-card" style="grid-column: 1 / -1; text-align: center;">
+                            <div class="highlight-thumbnail" style="display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); position: relative;">
+                                <span style="font-size: 3rem;">🔒</span>
+                            </div>
+                            <h4>Embeds Disabled</h4>
+                            <span class="view-count" style="display: block; color: var(--text-muted);">Accept non-essential cookies to load Twitch clips.</span>
+                        </div>
+                    `;
+                    return;
+                }
+
                 const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
                 const clips = [
                     { slug: 'MagnificentAverageLobsterOMGScoots-Ko6Vkp-DxaBMqKJO', title: 'Well that happened', views: 2 },
@@ -798,6 +781,12 @@
         // Load highlights on page load
         window.addEventListener('load', loadHighlights);
 
+        // Re-load gated embeds after consent is granted (emitted by assets/js/main.js)
+        window.addEventListener('fwj:consent:granted', () => {
+            initializeEmbeds();
+            loadHighlights();
+        });
+
         // Add "(Today)" to current day's schedule card
         function highlightToday() {
             const today = new Date();
@@ -821,160 +810,22 @@
 
         // Timezone selector setup - runs after DOM is loaded
         function setupTimezoneSelector() {
-            const tzSelect = document.getElementById('timezone-select');
-            if (!tzSelect) {
-                console.log('Timezone select not found');
-                return;
-            }
-            
-            // Only use localStorage if user has given consent
-            let savedTz = 'auto';
-            if (hasUserConsent()) {
-                savedTz = localStorage.getItem('preferredTimezone') || 'auto';
-            }
-            tzSelect.value = savedTz;
-            
-            tzSelect.addEventListener('change', function() {
-                console.log('Timezone changed to:', this.value);
-                if (hasUserConsent()) {
-                    localStorage.setItem('preferredTimezone', this.value);
-                } else {
-                    alert('Please accept cookies to save your timezone preference.');
-                    return;
-                }
-                const tz = this.value === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : this.value;
-                convertZuluToSelectedTimezone(tz);
-            });
-            
-            // Apply initial timezone conversion
-            if (savedTz === 'auto') {
-                const autoTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                console.log('Auto-detected timezone:', autoTz);
-                convertZuluToSelectedTimezone(autoTz);
-            } else {
-                console.log('Using saved timezone:', savedTz);
-                convertZuluToSelectedTimezone(savedTz);
-            }
+            // REMOVED - No timezone selector needed for minimal GDPR compliance
         }
 
         // Setup timezone selector on page load
-        window.addEventListener('load', setupTimezoneSelector);
+        // REMOVED - No timezone selector needed for minimal GDPR compliance
 
         function convertZuluToSelectedTimezone(timezone) {
-            console.log('Converting times for timezone:', timezone);
-            const selectedTz = timezone || document.getElementById('timezone-select').value;
-            const actualTz = selectedTz === 'auto' ? Intl.DateTimeFormat().resolvedOptions().timeZone : selectedTz;
-            console.log('Actual timezone to use:', actualTz);
-            
-            const dayCards = document.querySelectorAll('.day-card');
-            console.log('Found', dayCards.length, 'day cards');
-            
-            dayCards.forEach((card, index) => {
-                const streamTimeEl = card.querySelector('.stream-time');
-                if (!streamTimeEl) {
-                    console.log('No stream-time element in card', index);
-                    return;
-                }
-                
-                // Get original Zulu time from data attribute or parse from text
-                const originalText = streamTimeEl.getAttribute('data-zulu-time');
-                let zuluTimeStr = originalText;
-                
-                console.log('Card', index, '- Original data-zulu-time:', originalText);
-                
-                if (!zuluTimeStr) {
-                    // Try to extract from current text (fallback for legacy cards)
-                    const text = streamTimeEl.textContent.trim();
-                    if (text.includes(':')) {
-                        zuluTimeStr = text.split(' ').slice(0, 2).join(' ') + ' Zulu';
-                    } else {
-                        return;
-                    }
-                }
-                
-                try {
-                    const localTime = convertTimeToTimezone(zuluTimeStr, actualTz);
-                    console.log('Card', index, '- Converting:', zuluTimeStr, '-> Result:', localTime);
-                    streamTimeEl.textContent = localTime;
-                    console.log('Card', index, '- After update textContent:', streamTimeEl.textContent);
-                } catch (e) {
-                    console.error('Could not convert time:', zuluTimeStr, e);
-                }
-            });
-            
-            // Update live status after conversion
-            updateLiveStatus();
+            // REMOVED - Times displayed in Zulu time only
         }
 
         function convertTimeToTimezone(zuluTimeStr, timezone) {
-            // Parse time like "18:00 Zulu", "15:30 Zulu", "11:00 AM Zulu"
-            const timeMatch = zuluTimeStr.match(/(\d{1,2}):(\d{2})(?:\s(AM|PM))?\s+Zulu/i);
-            
-            if (!timeMatch) {
-                console.log('Could not parse time:', zuluTimeStr);
-                return zuluTimeStr;
-            }
-            
-            let hours = parseInt(timeMatch[1]);
-            const minutes = timeMatch[2];
-            const period = timeMatch[3];
-            
-            // Handle 12-hour format with AM/PM
-            if (period) {
-                if (period.toUpperCase() === 'PM' && hours !== 12) {
-                    hours += 12;
-                } else if (period.toUpperCase() === 'AM' && hours === 12) {
-                    hours = 0;
-                }
-            }
-            
-            // Create a UTC date with the given time
-            const utcDate = new Date();
-            utcDate.setUTCHours(hours, parseInt(minutes), 0);
-            
-            try {
-                // Format to the selected timezone
-                const formatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: timezone,
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                });
-                
-                const timeParts = formatter.format(utcDate);
-                const [tzHours, tzMinutes] = timeParts.split(':');
-                
-                // Get timezone abbreviation
-                const tzFormatter = new Intl.DateTimeFormat('en-US', {
-                    timeZone: timezone,
-                    timeZoneName: 'short'
-                });
-                const tzParts = tzFormatter.formatToParts(utcDate);
-                const tzPart = tzParts.find(p => p.type === 'timeZoneName');
-                const tz = tzPart ? tzPart.value : '';
-                
-                return `${tzHours}:${tzMinutes} ${tz}`;
-            } catch (e) {
-                console.error('Error converting timezone:', e, 'Timezone:', timezone);
-                return zuluTimeStr;
-            }
+            // REMOVED - Times displayed in Zulu time only
         }
 
         // Run on page load
         window.addEventListener('load', updateLiveStatus);
-        window.addEventListener('load', function() {
-            // Apply timezone conversion after DOM is ready
-            let savedTz = 'auto';
-            if (hasUserConsent()) {
-                savedTz = localStorage.getItem('preferredTimezone') || 'auto';
-            }
-            if (savedTz === 'auto') {
-                const autoTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                convertZuluToSelectedTimezone(autoTz);
-            } else {
-                convertZuluToSelectedTimezone(savedTz);
-            }
-        });
         
         // Update live status and check every minute
         setInterval(updateLiveStatus, 60000);
@@ -1059,14 +910,6 @@
             addLiveCardClickHandler();
             // Also update click handlers every minute when live status updates
             setInterval(addLiveCardClickHandler, 60000);
-            
-            // Load timezone preference if consent was given
-            if (hasUserConsent()) {
-                const savedTz = localStorage.getItem('preferredTimezone') || 'auto';
-                if (savedTz !== 'auto') {
-                    convertZuluToSelectedTimezone(savedTz);
-                }
-            }
         });
     </script>
 </body>

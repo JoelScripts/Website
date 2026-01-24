@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cookie Policy - Flying With Joel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts intentionally not loaded by default for privacy -->
     <style>
         * {
             margin: 0;
@@ -325,7 +325,7 @@
         <div class="header-card">
             <h1>🍪 Cookie Policy</h1>
             <p class="last-updated">Last Updated: January 2026</p>
-            <p>This Cookie Policy explains what cookies are, how we use them, and your choices regarding cookie usage on our website. We are committed to transparency and compliance with GDPR, CCPA, and other privacy regulations.</p>
+            <p>This Cookie Policy explains what cookies and similar technologies are, how we use them, and your choices. We aim to be transparent and to comply with applicable privacy laws (for example, UK GDPR/GDPR and ePrivacy/PECR-style rules).</p>
         </div>
 
         <!-- Section 1: What Are Cookies? -->
@@ -367,12 +367,12 @@
             <!-- Card 1: Functionality Cookies -->
             <div class="card">
                 <h3>⚡ Functionality Cookies</h3>
-                <p>These cookies are essential for our website to function properly. They enable basic features like page navigation, accessing secure areas, and remembering user preferences such as timezone settings and language choices.</p>
+                <p>We use essential, minimal storage to make the site work and remember your preferences. On this site, that is primarily done via <strong>localStorage</strong> in your browser rather than server-side accounts.</p>
                 <ul>
-                    <li>Remembering timezone preferences</li>
-                    <li>Session authentication</li>
-                    <li>Website navigation state</li>
-                    <li>User preference persistence</li>
+                    <li>Remembering timezone preferences (stored in localStorage)</li>
+                    <li>Remembering your consent choice for optional third-party embeds (stored in localStorage)</li>
+                    <li>Basic UI state (e.g., tabs/menus) where applicable</li>
+                    <li>Anti-spam cooldowns for form submissions (stored in localStorage)</li>
                 </ul>
                 <div class="card-note">
                     <strong>Status:</strong> Automatically enabled, cannot be disabled.
@@ -381,31 +381,30 @@
 
             <!-- Card 2: Security Cookies -->
             <div class="card">
-                <h3>🛡️ Security Cookies</h3>
-                <p>Security-related cookies help protect your account and data from unauthorized access. They verify your identity, prevent fraudulent activity, and maintain session security during your visit to our website.</p>
+                <h3>🛡️ Security & Abuse Prevention</h3>
+                <p>This is a static website and we do not run first-party login accounts or session cookies. However, our hosting/providers may process basic technical information (such as IP address and user agent) to deliver the website securely and to prevent abuse.</p>
                 <ul>
-                    <li>CSRF (Cross-Site Request Forgery) protection</li>
-                    <li>Session token validation</li>
-                    <li>Account security verification</li>
-                    <li>Access control management</li>
+                    <li>HTTPS delivery and standard platform protections</li>
+                    <li>Rate limiting / abuse prevention on submission endpoints (where used)</li>
+                    <li>No first-party account/session cookies</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Purpose:</strong> Your account protection.
+                    <strong>Purpose:</strong> Keep the site and submissions reliable.
                 </div>
             </div>
 
             <!-- Card 3: Analytics Cookies -->
             <div class="card">
                 <h3>📊 Analytics Cookies</h3>
-                <p>We DO NOT use analytics cookies for tracking. We have intentionally disabled Google Analytics and third-party tracking to respect your privacy. Our server logs are used only for security purposes.</p>
+                <p>We do not use analytics cookies such as Google Analytics. We do not intentionally track your browsing behavior for advertising. Hosting providers may still generate standard access/security logs to operate the service.</p>
                 <ul>
                     <li>No Google Analytics integration</li>
                     <li>No personal behavior tracking</li>
                     <li>No cross-site tracking</li>
-                    <li>Server logs for security only</li>
+                    <li>Providers may keep basic logs for security/performance</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Promise:</strong> Your behavior is not tracked.
+                    <strong>Note:</strong> Third-party embeds (if enabled) have their own tracking/cookie behavior.
                 </div>
             </div>
 
@@ -432,7 +431,7 @@
             <!-- Card 1: Essential Cookies -->
             <div class="card">
                 <h3>✔️ Essential Cookies (Required)</h3>
-                <p>Essential cookies are necessary for website operation and security. You cannot disable them without breaking core website functionality. These are exempt from consent requirements under GDPR Article 82 (or equivalent regulations).</p>
+                <p>Some storage is strictly necessary for the site to work (for example, remembering your selected timezone or consent preference in localStorage). Under ePrivacy/PECR-style rules, strictly necessary storage does not require prior opt-in consent, but we still explain it here for transparency.</p>
                 <div class="card-note">
                     <strong>Action:</strong> No consent needed, always enabled.
                 </div>
@@ -441,16 +440,16 @@
             <!-- Card 2: Optional Cookies -->
             <div class="card">
                 <h3>🔆 Optional Cookies (Consent Required)</h3>
-                <p>Currently, we do not implement optional cookies beyond essential and security cookies. If we introduce any optional functionality in the future, we will provide clear consent mechanisms and allow you to manage your preferences at any time.</p>
+                <p>We treat third-party embeds and externally loaded resources as optional. Examples include Google Fonts, Twitch embeds, YouTube video embeds, and similar third-party content. These are disabled until you opt in via the consent banner; once enabled, those third parties may set cookies or process your data according to their policies.</p>
                 <div class="card-note">
-                    <strong>Status:</strong> Not currently used on our site.
+                    <strong>Status:</strong> Disabled by default; enabled only after opt-in.
                 </div>
             </div>
 
             <!-- Card 3: Withdrawing Consent -->
             <div class="card">
                 <h3>⏹️ Withdrawing Consent</h3>
-                <p>You can withdraw your consent for any optional cookies at any time through your browser settings. Withdrawing consent does not affect the lawfulness of processing that occurred before the withdrawal.</p>
+                <p>You can withdraw your consent for optional third-party embeds at any time using the site's <strong>Cookie Settings</strong> link (where available) or by clearing this site's local storage in your browser settings. Withdrawing consent does not affect the lawfulness of processing that occurred before the withdrawal.</p>
                 <div class="card-note">
                     <strong>Method:</strong> Browser settings or contact us.
                 </div>
@@ -488,11 +487,11 @@
             <!-- Card 2: Do Not Track -->
             <div class="card">
                 <h3>🚫 Do Not Track (DNT)</h3>
-                <p>Most browsers support a "Do Not Track" (DNT) feature that signals your preference not to be tracked. Our website respects DNT signals. If you enable DNT in your browser, you are telling all websites you visit that you do not want to be tracked.</p>
+                <p>Most browsers support a "Do Not Track" (DNT) feature that signals your preference not to be tracked. This site does not run first-party analytics or advertising trackers, so DNT has limited practical effect here. For third-party embeds (Twitch/YouTube/etc.), DNT handling depends on those providers.</p>
                 <ul>
                     <li>Available in most modern browsers</li>
                     <li>A privacy signal to websites</li>
-                    <li>We honor DNT requests</li>
+                    <li>Third-party handling varies</li>
                     <li>Voluntary compliance by websites</li>
                 </ul>
                 <div class="card-note">
@@ -620,15 +619,25 @@
                 </div>
             </div>
 
-            <!-- Card 3: No Analytics Cookies -->
+            <!-- Card 3: YouTube Embeds -->
+            <div class="card">
+                <h3>▶️ YouTube Embeds</h3>
+                <p>Some pages may embed YouTube videos. If you enable these embeds, YouTube/Google may set cookies or collect data about your interactions with the embedded video (e.g., IP address, device/browser details, and playback interactions).</p>
+                <p><a href="https://policies.google.com/privacy" target="_blank">View Google/YouTube Privacy Policy →</a></p>
+                <div class="card-note">
+                    <strong>Tip:</strong> You can also watch videos directly on YouTube without enabling embeds on this site.
+                </div>
+            </div>
+
+            <!-- Card 4: No Analytics Cookies -->
             <div class="card">
                 <h3>❌ No Analytics or Tracking</h3>
-                <p>We have deliberately NOT integrated Google Analytics, Facebook Pixel, or other tracking services. We do not use cookies or similar technologies to track your behavior, build user profiles, or share data with advertisers.</p>
+                <p>We have deliberately NOT integrated Google Analytics, Facebook Pixel, or other advertising trackers. We do not use first-party cookies or similar technologies to build user profiles or share data with advertisers. If you opt in to third-party embeds (Twitch/YouTube/etc.), those providers may use their own cookies/trackers within the embedded content.</p>
                 <ul>
                     <li>No Google Analytics</li>
                     <li>No Facebook Pixel</li>
                     <li>No behavior tracking</li>
-                    <li>No data sharing with third parties</li>
+                    <li>No data sharing with advertisers</li>
                 </ul>
                 <div class="card-note">
                     <strong>Commitment:</strong> Your privacy is respected.
@@ -638,15 +647,14 @@
             <!-- Card 4: Cookie Consent Tools -->
             <div class="card">
                 <h3>✅ Cookie Consent Management</h3>
-                <p>Currently, our website does not require a cookie consent banner because we only use essential and security cookies. If we introduce optional functionality requiring consent in the future, we will implement transparent consent mechanisms.</p>
+                <p>We provide a consent banner to control non-essential third-party content (such as embedded Twitch clips or YouTube videos). Your choice is stored locally in your browser (localStorage) and is not sent to our servers. You can change your choice at any time by using the "Cookie Settings" link on the site or by clearing site storage in your browser.</p>
                 <ul>
-                    <li>Essential cookies: No consent needed</li>
-                    <li>Security cookies: No consent needed</li>
-                    <li>Optional: Future consent tool</li>
+                    <li>Strictly necessary storage: no opt-in needed</li>
+                    <li>Third-party embeds: Consent required</li>
                     <li>Transparency: Always prioritized</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Standard:</strong> GDPR and CCPA compliant.
+                    <strong>Standard:</strong> Designed to support GDPR/ePrivacy-style consent expectations.
                 </div>
             </div>
         </div>
@@ -658,7 +666,7 @@
             <!-- Card 1: GDPR Compliance -->
             <div class="card">
                 <h3>🇪🇺 GDPR Compliance</h3>
-                <p>Our cookie practices comply with the General Data Protection Regulation (GDPR). Essential cookies are permitted without prior consent under GDPR Article 82. We provide transparent information about all cookies used and honor user preferences.</p>
+                <p>We aim to follow GDPR/UK GDPR principles and ePrivacy/PECR-style rules by keeping data collection minimal and requiring opt-in consent before enabling non-essential third-party embeds.</p>
                 <ul>
                     <li>Minimal data collection</li>
                     <li>Transparent cookie usage</li>
@@ -666,14 +674,14 @@
                     <li>Right to erasure honored</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Status:</strong> Fully GDPR compliant.
+                    <strong>Status:</strong> Designed with GDPR principles in mind.
                 </div>
             </div>
 
             <!-- Card 2: CCPA Compliance -->
             <div class="card">
                 <h3>🇺🇸 CCPA Compliance</h3>
-                <p>For California residents, we comply with the California Consumer Privacy Act (CCPA). You have the right to know what data we collect, delete it, and opt-out of certain uses. We do not "sell" personal information as defined by CCPA.</p>
+                <p>If you are a California resident, you may have rights under the California Consumer Privacy Act (CCPA/CPRA). This site does not sell personal information and does not run advertising trackers; if you have a privacy request, contact us via the details in our Privacy Policy.</p>
                 <ul>
                     <li>Right to know data collection</li>
                     <li>Right to delete data</li>
@@ -681,14 +689,14 @@
                     <li>No data sales</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Status:</strong> Fully CCPA compliant.
+                    <strong>Status:</strong> We aim to respect applicable rights requests.
                 </div>
             </div>
 
             <!-- Card 3: Other Regulations -->
             <div class="card">
                 <h3>📜 Other Privacy Laws</h3>
-                <p>Our website respects privacy laws globally, including COPPA (children's privacy), UK ICO regulations, and other jurisdictional requirements. Our minimal data collection approach ensures we meet standards across different legal frameworks.</p>
+                <p>Privacy laws vary by jurisdiction. We aim to follow a privacy-minimizing approach and respond to reasonable privacy requests. For the details of what we collect and how to contact us, see the Privacy Policy.</p>
                 <ul>
                     <li>COPPA compliance (no tracking under 13)</li>
                     <li>UK ICO regulations</li>

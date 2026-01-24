@@ -12,64 +12,85 @@ document.querySelectorAll('.tab-btn').forEach(button => {
     });
 });
 
-// Terms of Service Enforcement - Redirect new users to terms page
+// ===== Privacy / Consent (GDPR-style) =====
+// Notes:
+// - We store consent locally (localStorage) and do not send it to a server.
+// - Rejecting non-essential items must NOT block access to the site.
+const GDPR_CONSENT_KEY = 'gdpr-consent-accepted';
+
+function hasGdprConsent() {
+    return localStorage.getItem(GDPR_CONSENT_KEY) === 'true';
+}
+
+function loadGoogleFonts() {
+    if (document.getElementById('google-fonts-poppins')) return;
+    const link = document.createElement('link');
+    link.id = 'google-fonts-poppins';
+    link.rel = 'stylesheet';
+    link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap';
+    document.head.appendChild(link);
+}
+
+function showCookieBanner(bannerEl) {
+    if (!bannerEl) return;
+    bannerEl.classList.add('show');
+    // Fallback for banners that are not using the .show CSS
+    bannerEl.style.display = 'flex';
+}
+
+function hideCookieBanner(bannerEl) {
+    if (!bannerEl) return;
+    bannerEl.classList.remove('show');
+    bannerEl.style.display = 'none';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Pages that don't require terms acceptance
-    const whitelistedPages = ['index.html', 'terms.html', 'access_denied.html', 'privacy.html', 'cookies.html', 'security.html'];
-    
-    // Get current page - handle root path
-    const pathname = window.location.pathname;
-    const currentPage = pathname.split('/').pop() || 'index.html';
-    
-    // Check if current page is whitelisted (handle both root and specific pages)
-    const isWhitelisted = whitelistedPages.some(page => pathname.includes(page)) || pathname.endsWith('/') || pathname === '';
-    
-    // Check if user has accepted terms
-    const termsAccepted = localStorage.getItem('termsAccepted');
-    
-    // If not accepted and not on whitelisted page, redirect to terms
-    if (!termsAccepted && !isWhitelisted) {
-        window.location.href = 'terms.html';
-    }
-});
+    const banner = document.getElementById('cookie-consent-banner');
+    if (!banner) return;
 
-// Cookie Consent Banner
-document.addEventListener('DOMContentLoaded', () => {
-    const cookieBanner = document.getElementById('cookie-consent-banner');
-    const acceptBtn = document.getElementById('cookie-accept-btn');
-    const declineBtn = document.getElementById('cookie-reject-btn');
-    
-    if (!cookieBanner) return;
+    // Support multiple ID variants used across pages.
+    const acceptBtn = document.getElementById('cookie-accept-btn') || document.getElementById('cookie-accept');
+    const rejectBtn = document.getElementById('cookie-reject-btn') || document.getElementById('cookie-decline');
 
-    // Check if user has already made a choice
-    const cookieConsent = localStorage.getItem('cookieConsent');
-    
-    if (!cookieConsent) {
-        // Show banner if no consent decision has been made
-        cookieBanner.style.display = 'block';
+    const consentChoice = localStorage.getItem(GDPR_CONSENT_KEY);
+    if (consentChoice === null) {
+        showCookieBanner(banner);
+    } else {
+        hideCookieBanner(banner);
     }
 
-    // Handle Accept Button
     if (acceptBtn) {
         acceptBtn.addEventListener('click', () => {
-            localStorage.setItem('cookieConsent', 'accepted');
-            cookieBanner.style.display = 'none';
-            // Enable any tracking or non-essential features here if needed
+            localStorage.setItem(GDPR_CONSENT_KEY, 'true');
+            hideCookieBanner(banner);
+            loadGoogleFonts();
+            window.dispatchEvent(new CustomEvent('fwj:consent:granted'));
         });
     }
 
-    // Handle Decline Button
-    if (declineBtn) {
-        declineBtn.addEventListener('click', function(e) {
+    if (rejectBtn) {
+        rejectBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            localStorage.setItem('cookieConsent', 'declined');
-            localStorage.setItem('termsDeclined', 'true');
-            localStorage.removeItem('termsAccepted');
-            setTimeout(function() {
-                window.location.href = 'pages/access_denied.html';
-            }, 100);
+            localStorage.setItem(GDPR_CONSENT_KEY, 'false');
+            hideCookieBanner(banner);
+            window.dispatchEvent(new CustomEvent('fwj:consent:rejected'));
         });
+    }
+
+    // Optional link used on some pages to reopen consent.
+    const cookieSettingsLink = document.getElementById('cookie-settings-link');
+    if (cookieSettingsLink) {
+        cookieSettingsLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem(GDPR_CONSENT_KEY);
+            showCookieBanner(banner);
+        });
+    }
+
+    // If consent was already granted, we can load non-essential cosmetics (fonts).
+    if (hasGdprConsent()) {
+        loadGoogleFonts();
     }
 });
 

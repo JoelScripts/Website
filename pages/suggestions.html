@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Suggestions - Flying With Joel</title>
+    <meta name="fwj-suggestions-endpoint" content="/api/suggestions">
     <link rel="stylesheet" href="../assets/css/styles.css">
     <style>
         .suggestions-container {
@@ -203,7 +204,19 @@
                 ✗ Oops! Something went wrong. Please try again.
             </div>
 
+            <!-- GDPR Privacy Notice -->
+            <div style="background: rgba(0, 102, 255, 0.08); border: 1px solid rgba(0, 102, 255, 0.2); border-left: 4px solid #0066ff; padding: 1rem; border-radius: 0.4rem; margin-bottom: 1.5rem;">
+                <p style="margin: 0; color: #b0b0b0; font-size: 0.9rem;">
+                    <strong>Privacy Notice:</strong> Your suggestion data (name, Twitch handle if provided, and flight details) is submitted to us via a secure submission endpoint and delivered to Discord for our review. We use this information solely to process your suggestion and contact you if needed. For details, see our <a href="privacy.html" style="color: #0066ff; text-decoration: none; font-weight: 600;">Privacy Policy</a> and <a href="cookies.html" style="color: #0066ff; text-decoration: none; font-weight: 600;">Cookie Policy</a>.
+                </p>
+            </div>
+
             <form id="suggestionForm">
+                <!-- Anti-spam honeypot (should remain empty) -->
+                <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;">
+                    <label for="website">Website</label>
+                    <input type="text" id="website" name="website" autocomplete="off" tabindex="-1">
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label for="flightDate">Date of Flight</label>
@@ -274,6 +287,15 @@
                     </div>
                 </div>
 
+                <div class="form-group full" style="margin-top: 0.5rem;">
+                    <label style="font-weight: 500; color: var(--text-muted); display: flex; gap: 0.7rem; align-items: flex-start; cursor: pointer;">
+                        <input type="checkbox" id="suggestionsConsent" name="suggestionsConsent" required style="margin-top: 0.25rem;">
+                        <span style="line-height: 1.5;">
+                            I understand and consent that the information I submit will be sent to Discord for review, and may be processed/stored by Discord as a third-party service. I can request deletion via the contact details in the Privacy Policy.
+                        </span>
+                    </label>
+                </div>
+
                 <button type="submit" class="submit-btn">Submit Flight Suggestion</button>
             </form>
         </div>
@@ -303,8 +325,102 @@
         const successMessage = document.getElementById('successMessage');
         const errorMessage = document.getElementById('errorMessage');
 
+        function showFormError(message) {
+            successMessage.style.display = 'none';
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+                errorMessage.textContent = '✗ Oops! Something went wrong. Please try again.';
+            }, 6000);
+        }
+
+        function normalizeText(value) {
+            return (value || '').trim();
+        }
+
+        function validateSuggestionForm() {
+            // Honeypot
+            const honeypot = document.getElementById('website');
+            if (honeypot && normalizeText(honeypot.value) !== '') {
+                return '✗ Submission blocked.';
+            }
+
+            // Rate-limit (client-side only)
+            const now = Date.now();
+            const last = parseInt(localStorage.getItem('fwj-suggestions-last-submit') || '0', 10);
+            const cooldownMs = 60_000;
+            if (last && (now - last) < cooldownMs) {
+                const seconds = Math.ceil((cooldownMs - (now - last)) / 1000);
+                return `✗ Please wait ${seconds}s before submitting again.`;
+            }
+
+            const consentCheckbox = document.getElementById('suggestionsConsent');
+            if (consentCheckbox && !consentCheckbox.checked) {
+                return '✗ Please confirm the privacy consent checkbox before submitting.';
+            }
+
+            const flightNumber = normalizeText(document.getElementById('flightNumber').value).toUpperCase();
+            const callsign = normalizeText(document.getElementById('callsign').value).toUpperCase();
+            const aircraft = normalizeText(document.getElementById('aircraft').value);
+            const departure = normalizeText(document.getElementById('departure').value).toUpperCase();
+            const arrival = normalizeText(document.getElementById('arrival').value).toUpperCase();
+            const route = normalizeText(document.getElementById('route').value).toUpperCase();
+            const flightRadarLink = normalizeText(document.getElementById('flightRadarLink').value);
+            const flightTime = normalizeText(document.getElementById('flightTime').value);
+            const flightLength = normalizeText(document.getElementById('flightLength').value);
+            const name = normalizeText(document.getElementById('name').value);
+            const twitchHandle = normalizeText(document.getElementById('twitchHandle').value);
+
+            if (name.length < 2 || name.length > 60) return '✗ Name must be 2–60 characters.';
+            if (flightNumber.length < 2 || flightNumber.length > 8) return '✗ Flight Number must be 2–8 characters.';
+            if (callsign.length < 3 || callsign.length > 10) return '✗ Callsign must be 3–10 characters.';
+            if (aircraft.length < 2 || aircraft.length > 20) return '✗ Aircraft must be 2–20 characters.';
+            if (departure.length < 3 || departure.length > 30) return '✗ Departure must be 3–30 characters.';
+            if (arrival.length < 3 || arrival.length > 30) return '✗ Arrival must be 3–30 characters.';
+            if (route.length < 7 || route.length > 30) return '✗ Route must be 7–30 characters (e.g., MAN - MCO).';
+            if (flightTime.length < 2 || flightTime.length > 30) return '✗ Flight Time looks invalid.';
+            if (!flightLength) return '✗ Please select a Flight Length.';
+
+            if (!/^[A-Z0-9]{2,8}$/.test(flightNumber)) return '✗ Flight Number must be letters/numbers only (e.g., VS73).';
+            if (!/^[A-Z0-9]{3,10}$/.test(callsign)) return '✗ Callsign must be letters/numbers only (e.g., VIR73Q).';
+            if (!/^[A-Za-z0-9][A-Za-z0-9 \-\/]{1,19}$/.test(aircraft)) return '✗ Aircraft contains invalid characters.';
+
+            const airportCodeOk = (text) => /^[A-Z]{3,4}$/.test(text) || /^[A-Z0-9 .\-]{3,30}$/.test(text);
+            if (!airportCodeOk(departure)) return '✗ Departure looks invalid (use airport code or name).';
+            if (!airportCodeOk(arrival)) return '✗ Arrival looks invalid (use airport code or name).';
+
+            const routeOk = /^([A-Z]{3,4})\s*-\s*([A-Z]{3,4})(\s*-\s*([A-Z]{3,4}))*$/.test(route);
+            if (!routeOk) return '✗ Route must be airport codes like “MAN - MCO” (optional extra legs).';
+
+            if (!/\d/.test(flightTime)) return '✗ Flight Time must include a number (e.g., “8h”, “8 hours”).';
+
+            if (twitchHandle) {
+                const cleaned = twitchHandle.startsWith('@') ? twitchHandle.slice(1) : twitchHandle;
+                if (!/^[A-Za-z0-9_]{3,25}$/.test(cleaned)) return '✗ Twitch handle looks invalid.';
+            }
+
+            if (flightRadarLink) {
+                try {
+                    const url = new URL(flightRadarLink);
+                    if (url.protocol !== 'https:') return '✗ FlightRadar24 link must start with https://';
+                    if (!url.hostname.toLowerCase().includes('flightradar24.com')) return '✗ Please use a FlightRadar24 link (flightradar24.com).';
+                } catch {
+                    return '✗ FlightRadar24 link is not a valid URL.';
+                }
+            }
+
+            return null;
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const validationError = validateSuggestionForm();
+            if (validationError) {
+                showFormError(validationError);
+                return;
+            }
 
             // Get form data
             const formData = {
@@ -324,99 +440,20 @@
             };
 
             try {
-                // Discord webhook URL
-                const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1463997244826189994/_p5YPDCSyjNJYEOST8fllANBUuMoAJ7J8RC9sUszWPCGKHJn1IHBhWsUSh3vnbwmTLZi';
+                const endpoint = document.querySelector('meta[name="fwj-suggestions-endpoint"]')?.getAttribute('content') || '/api/suggestions';
 
-                // Create Discord embed
-                const discordMessage = {
-                    content: `✈️ **New Flight Suggestion from ${formData.name}**`,
-                    embeds: [{
-                        title: '✈️ Flight Suggestion Received',
-                        description: `${formData.flightNumber} - ${formData.departure} to ${formData.arrival}`,
-                        color: 0xFF8C42,
-                        fields: [
-                            {
-                                name: '✈️ Flight Number',
-                                value: formData.flightNumber,
-                                inline: true
-                            },
-                            {
-                                name: '📡 Callsign',
-                                value: formData.callsign,
-                                inline: true
-                            },
-                            {
-                                name: '🛩️ Aircraft',
-                                value: formData.aircraft,
-                                inline: true
-                            },
-                            {
-                                name: '🛫 Departure',
-                                value: formData.departure,
-                                inline: true
-                            },
-                            {
-                                name: '🛬 Arrival',
-                                value: formData.arrival,
-                                inline: true
-                            },
-                            {
-                                name: '📍 Route',
-                                value: formData.route,
-                                inline: true
-                            },
-                            {
-                                name: '🔗 FlightRadar24 Link',
-                                value: formData.flightRadarLink,
-                                inline: false
-                            },
-                            {
-                                name: '⏱️ Flight Time',
-                                value: formData.flightTime,
-                                inline: true
-                            },
-                            {
-                                name: '📊 Flight Length',
-                                value: formData.flightLength,
-                                inline: true
-                            },
-                            {
-                                name: '📅 Date of Flight',
-                                value: formData.flightDate,
-                                inline: true
-                            },
-                            {
-                                name: '👤 Suggested By',
-                                value: formData.name,
-                                inline: true
-                            },
-                            {
-                                name: '🎥 Twitch Handle',
-                                value: formData.twitchHandle,
-                                inline: true
-                            },
-                            {
-                                name: '⏰ Submitted',
-                                value: new Date(formData.timestamp).toLocaleString(),
-                                inline: false
-                            }
-                        ],
-                        footer: {
-                            text: 'From: flyingwithjoel.co.uk'
-                        }
-                    }]
-                };
-
-                // Send to Discord webhook
-                const response = await fetch(DISCORD_WEBHOOK_URL, {
+                // Send to the server-side proxy (Cloudflare Worker recommended) to avoid exposing the Discord webhook.
+                // Recommended Worker route: https://flyingwithjoel.co.uk/api/suggestions
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(discordMessage)
+                    body: JSON.stringify(formData)
                 });
 
                 if (response.ok) {
+                    localStorage.setItem('fwj-suggestions-last-submit', String(Date.now()));
                     // Show success message
                     successMessage.style.display = 'block';
                     errorMessage.style.display = 'none';
@@ -427,12 +464,24 @@
                         successMessage.style.display = 'none';
                     }, 5000);
                 } else {
-                    throw new Error('Failed to submit');
+                    let details = '✗ Oops! Something went wrong. Please try again.';
+                    try {
+                        const data = await response.json();
+                        if (data && typeof data.error === 'string' && data.error.trim()) {
+                            details = `✗ ${data.error.trim()}`;
+                        } else if (response.status === 404) {
+                            details = '✗ Submission endpoint is not configured yet.';
+                        }
+                    } catch {
+                        if (response.status === 404) {
+                            details = '✗ Submission endpoint is not configured yet.';
+                        }
+                    }
+                    throw new Error(details);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                successMessage.style.display = 'none';
-                errorMessage.style.display = 'block';
+                showFormError(error && error.message ? error.message : '✗ Oops! Something went wrong. Please try again.');
 
                 // Hide error message after 5 seconds
                 setTimeout(() => {
@@ -461,11 +510,11 @@
     <!-- Cookie Consent Banner -->
     <div id="cookie-consent-banner" class="cookie-consent-banner">
         <div class="cookie-consent-content">
-            <p>We use essential cookies to store your timezone preference and improve your experience. <a href="privacy.html">Learn more about our privacy practices</a>.</p>
+            <p>We use essential local storage (localStorage) to remember your preferences (such as timezone). <a href="privacy.html">Learn more about our privacy practices</a>.</p>
         </div>
         <div class="cookie-consent-buttons">
-            <button id="cookie-accept" class="cookie-consent-btn accept">Accept</button>
-            <button id="cookie-decline" class="cookie-consent-btn decline">Decline</button>
+            <button id="cookie-accept-btn" class="cookie-consent-btn accept">Accept</button>
+            <button id="cookie-reject-btn" class="cookie-consent-btn decline">Decline</button>
         </div>
     </div>
 
