@@ -97,12 +97,12 @@ Solutions Implemented:
    
    Sections for hosting provider requirements:
    - Section 1: Hosting Provider Information
-     Lists requirements we've ensured:
-     * GDPR compliance certified/contracted
-     * Data centers in compliant jurisdictions
-     * Data Processing Agreements in place
-     * Security certifications (ISO 27001+)
-     * Regular security audits conducted
+       Lists requirements to verify / target (provider-dependent):
+       * Appropriate GDPR/UK GDPR terms/DPA where applicable
+       * Data center/processing locations documented by provider
+       * Data Processing Agreement availability
+       * Security certifications/audits (provider documentation)
+       * Security review cadence (internal checks + provider attestations)
    
    - Section 4: Data Processing Agreements
      Explains what DPA should include:
@@ -113,13 +113,14 @@ Solutions Implemented:
    
    - Section 10: Hosting Provider Compliance Checklist
      7-point checklist of GDPR requirements:
-     ✅ DPA in place
-     ✅ Appropriate security measures
-     ✅ Data breach notification procedures
-     ✅ Support for access requests
-     ✅ Support for erasure rights
-     ✅ Maintain audit logs
-     ✅ GDPR-compliant data centers
+       (Checklist items to verify with your providers)
+       ✅ DPA availability/in place where applicable
+       ✅ Appropriate security measures
+       ✅ Data breach notification procedures
+       ✅ Support for access requests
+       ✅ Support for erasure rights
+       ✅ Maintain audit logs (provider-dependent)
+       ✅ Processing locations documented (avoid blanket "GDPR-compliant data centers" claims)
 
 2. Infrastructure Details Documented
    - Section 5: Server Infrastructure Details
@@ -172,17 +173,10 @@ Contact Form Data:
 ✅ Used for: Responding to business enquiries only
 ✅ Stored: Hosting provider's secure servers
 ✅ Retention: 2 years
-✅ Encryption: HTTPS in transit, encrypted at rest
+✅ Encryption: HTTPS in transit; at-rest encryption is provider-managed (verify provider controls)
 ✅ Access: Limited to business owner only
 ✅ Deletion: Available upon request (GDPR right to erasure)
-✅ DPA: In place with hosting provider
-
-Timezone Preferences:
-✅ Stored: Your device (localStorage)
-✅ Sent to servers: NEVER (client-side only)
-✅ Retention: Until you clear browser data
-✅ Security: Only accessible by this website
-✅ Deletion: Clear browser localStorage anytime
+⚠️ DPA: Provider-dependent; verify DPA/terms with your hosting provider
 
 Cookie Consent:
 ✅ Stored: Your device (localStorage)
@@ -239,8 +233,8 @@ Hosting Provider:
 
 Website Configuration:
 [ ] Test cookie consent banner on first visit
-[ ] Verify localStorage saves timezone preference
-[ ] Test "Reject" button clears preferences
+[ ] Verify localStorage saves consent preference
+[ ] Test "Reject" keeps optional third-party features disabled
 [ ] Test all policy links work correctly
 [ ] Verify contact form uses secure submission (HTTPS)
 [ ] Test responsive design on mobile devices
@@ -275,7 +269,7 @@ Referenced/Verified:
 ✅ d:\Website\cookies.html (Contains Twitch/third-party info)
 
 ===============================================
-WEBSITE IS NOW FULLY COMPLIANT
+PRIVACY/COMPLIANCE UPDATE SUMMARY (NOT LEGAL ADVICE)
 ===============================================
 
 All three remaining considerations have been addressed:
@@ -283,8 +277,8 @@ All three remaining considerations have been addressed:
 2. Twitch integration: Properly disclosed across multiple pages
 3. Hosting compliance: Comprehensive guide and checklist provided
 
-Your website is ready for deployment with complete legal protection,
-transparency, and GDPR compliance.
+This update reflects best-effort technical and policy alignment for a static site.
+It is not legal advice and does not guarantee compliance in every jurisdiction.
 
 Date Completed: January 23, 2026
 Status: ✅ ALL READY FOR DEPLOYMENT

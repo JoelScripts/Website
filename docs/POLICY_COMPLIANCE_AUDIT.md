@@ -5,7 +5,7 @@
 ---
 
 ## Executive Summary
-✅ **OVERALL ASSESSMENT: COMPLIANT** - Your website's stated policies align with actual implementation. You are maintaining good privacy practices.
+✅ **OVERALL ASSESSMENT: PRIVACY-CONSCIOUS (BEST-EFFORT)** - Policies broadly align with implementation for this static site. This is not legal advice and not a guarantee of compliance for every jurisdiction or scenario.
 
 ---
 
@@ -16,9 +16,9 @@
 |-------|--------|----------|
 | No Google Analytics | ✅ VERIFIED | No GA/gtag code found in index.html or assets |
 | Contact form submissions kept 2 years | ✅ STATED | Policy clearly documents this |
-| Timezone stored in localStorage only | ✅ VERIFIED | main.js uses localStorage.setItem for timezone |
+| Consent stored locally | ✅ VERIFIED | Consent choice stored in localStorage (gdpr-consent-accepted) |
 | No third-party tracking | ✅ VERIFIED | No Facebook Pixel, no behavior tracking code |
-| Google Fonts used | ✅ VERIFIED | fonts.googleapis.com loaded in all pages |
+| Google Fonts used | ✅ VERIFIED | Loaded via fonts.googleapis.com after consent (optional resource) |
 | Twitch integration | ✅ VERIFIED | Twitch embed SDK referenced, links present |
 
 ### Potential Issues: NONE FOUND
@@ -35,26 +35,11 @@ Your privacy policy accurately describes your implementation.
 | No analytics cookies | ✅ VERIFIED | No Google Analytics or tracking scripts |
 | No marketing cookies | ✅ VERIFIED | No retargeting or ad networks |
 | Minimal cookie usage | ✅ VERIFIED | Only essential functionality present |
-| localStorage used only for timezone | ✅ VERIFIED | main.js only stores timezone preference |
+| localStorage used only for consent preference | ✅ VERIFIED | main.js stores consent preference (gdpr-consent-accepted) |
 | Cookie consent banner present | ⚠️ PARTIALLY | Banner code is in HTML but check status |
 
-### Cookie Consent Banner Status: ⚠️ ACTION NEEDED
-**Issue:** The banner references `cookie-accept` and `cookie-decline` button IDs, but index.html uses `cookie-accept-btn` and `cookie-reject-btn`
-
-**Location:** assets/js/main.js lines 35-45
-**Current Code:** 
-```javascript
-const acceptBtn = document.getElementById('cookie-accept');
-const declineBtn = document.getElementById('cookie-decline');
-```
-
-**Should Be:**
-```javascript
-const acceptBtn = document.getElementById('cookie-accept-btn');
-const declineBtn = document.getElementById('cookie-reject-btn');
-```
-
-**Impact:** Cookie consent banner buttons don't work - NEEDS FIX
+### Cookie Consent Banner Status: ✅ IMPLEMENTED
+Banner IDs vary across pages, and the shared consent script supports multiple button ID variants.
 
 ---
 
@@ -63,12 +48,12 @@ const declineBtn = document.getElementById('cookie-reject-btn');
 ### Claimed Practices ✅
 | Claim | Status | Evidence |
 |-------|--------|----------|
-| Terms acceptance enforced | ✅ VERIFIED | main.js enforces termsAccepted check |
-| Declining terms redirects to access_denied | ✅ VERIFIED | window.location.href = 'access_denied.html' |
-| Whitelisted pages exclude enforcement | ✅ VERIFIED | terms.html, privacy.html, access_denied.html excluded |
+| Terms acceptance enforced | ❌ NOT USED | Terms are informational; there is no acceptance gate |
+| Declining terms redirects to access_denied | ❌ NOT USED | No Terms decline redirect is implemented |
+| Whitelisted pages exclude enforcement | ❌ NOT APPLICABLE | No Terms enforcement/whitelist logic exists |
 
 ### Implementation Quality: ✅ GOOD
-Your Terms enforcement is working as described.
+Terms are presented as informational content. Access to the site is not blocked based on Terms acceptance.
 
 ---
 
@@ -82,7 +67,7 @@ Your Terms enforcement is working as described.
    - Status: ✅ COMPLIANT
 
 2. **Browser Storage (localStorage)**
-   - What: User timezone preference only
+   - What: Consent preference for optional third-party content
    - Duration: Until user clears browser
    - Storage: Client-side only
    - Status: ✅ COMPLIANT
@@ -121,7 +106,7 @@ Your Terms enforcement is working as described.
 | Data Protection Officer needed | ✅ NO | Solo operator, not required |
 | Data Processing Agreement needed | ⚠️ MAYBE | Only if using 3rd party email hosting |
 
-**GDPR Status: ✅ COMPLIANT**
+**GDPR Status: ✅ Reviewed (best-effort)**
 
 ---
 
@@ -135,7 +120,7 @@ Your Terms enforcement is working as described.
 | Right to opt-out | ✅ YES | Can disable localStorage anytime |
 | Do not sell data | ✅ YES | Explicitly stated |
 
-**CCPA Status: ✅ COMPLIANT**
+**CCPA Status: ✅ Best-effort alignment**
 
 ---
 
@@ -148,7 +133,7 @@ Your Terms enforcement is working as described.
 | No marketing to children | ✅ YES | No targeted advertising |
 | Minimal data collection | ✅ YES | Only essential data |
 
-**COPPA Status: ✅ COMPLIANT** (Exceeds requirements)
+**COPPA Status: ✅ Best-effort alignment**
 
 ---
 
@@ -156,15 +141,7 @@ Your Terms enforcement is working as described.
 
 ### 🔴 CRITICAL ISSUES: 0
 
-### 🟡 MEDIUM ISSUES: 1
-
-**Issue #1: Cookie Consent Banner Buttons Not Working**
-- **Severity:** Medium
-- **Description:** JavaScript references wrong button IDs
-- **Location:** assets/js/main.js
-- **Fix Required:** Change button ID selectors to match HTML
-- **Timeline:** Fix immediately
-- **User Impact:** Users can't interact with cookie banner
+### 🟡 MEDIUM ISSUES: 0
 
 ### 🟢 MINOR ISSUES: 0
 
@@ -191,13 +168,13 @@ Your Terms enforcement is working as described.
 
 | Policy | Matches Implementation | Risk Level |
 |--------|----------------------|-----------|
-| Privacy Policy | ✅ 95% Match | LOW |
-| Cookie Policy | ⚠️ 90% Match (button IDs issue) | MEDIUM |
-| Terms of Service | ✅ 100% Match | LOW |
+| Privacy Policy | ✅ High match | LOW |
+| Cookie Policy | ✅ High match | LOW |
+| Terms of Service | ✅ High match | LOW |
 | Data Collection | ✅ Accurate | LOW |
 | Third-Party Disclosure | ✅ Complete | LOW |
-| GDPR Compliance | ✅ Compliant | LOW |
-| CCPA Compliance | ✅ Compliant | LOW |
+| GDPR/UK GDPR alignment | ✅ Best-effort | LOW |
+| CCPA alignment | ✅ Best-effort | LOW |
 
 ---
 

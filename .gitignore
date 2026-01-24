@@ -1,0 +1,18 @@
+# Data request packets (contain personal data)
+data_requests/
+
+# Common secrets
+*.env
+.env
+
+# Local Python virtual environment
+.venv/
+
+# Cloudflare Worker local secrets/dev files
+.dev.vars
+.wrangler/
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/

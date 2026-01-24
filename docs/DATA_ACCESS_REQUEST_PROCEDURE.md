@@ -81,8 +81,7 @@ Action: Document that server logs exist but are:
 ```
 Location: Their device only (localStorage)
 Note: You cannot access this
-Action: Include note that timezone preference 
-stored on their device is within their control
+Action: Include note that consent preference stored on their device is within their control
 ```
 
 #### D. No Other Storage
@@ -127,7 +126,7 @@ Submission #2:
 
 2. BROWSER DATA
 ---------------
-Timezone Preference: [If stored in their browser]
+Consent Preference: [Stored in their browser]
   Storage: localStorage (client-side only)
   Control: User can delete anytime via browser settings
   Note: This data is on YOUR device, not our servers
@@ -547,7 +546,7 @@ WHAT WAS DELETED:
 
 WHAT REMAINS:
 - Server logs (auto-purged by GitHub Pages)
-- Timezone data (in your browser, not our servers)
+- Consent preference data (in your browser, not our servers)
 
 This deletion is permanent and cannot be undone.
 

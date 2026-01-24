@@ -9,7 +9,7 @@
 
 **What you've now added:**
 ✅ Flight Simulation Disclaimer  
-✅ Affiliate Link Disclosure (FTC Compliant)  
+✅ Affiliate Link Disclosure (best-effort disclosure guidance)  
 ✅ Liability Limitation  
 
 **Current Risk Level:** 🟡 LOW-MEDIUM (Down from MODERATE)
@@ -359,13 +359,13 @@ Not done? ⚠️ LOW-MEDIUM RISK
 ```
 BEFORE:
 🔴 Missing Flight Simulation Disclaimer
-🔴 Weak Affiliate Disclosure (not FTC compliant)
+🔴 Weak Affiliate Disclosure (may be insufficient)
 🔴 No Liability Protection
 🟡 Missing other important items
 
 NOW:
 🟢 Flight Simulator Disclaimer ✅
-🟢 FTC-Compliant Affiliate Disclosure ✅
+🟢 Improved affiliate disclosure ✅
 🟢 Liability Limitation ✅
 🟡 Still missing: Tax/business setup, content rating, etc.
 ```
@@ -377,7 +377,7 @@ NOW:
 ### CRITICAL - Do Within 1 Week
 ```
 1. ⚠️ TAX/BUSINESS STATUS
-   If earning ANY money, you MUST register
+   If earning ANY money, you may need to register and/or file taxes
    Consult: Accountant/Tax Professional
    Risk: VERY HIGH if not done
    

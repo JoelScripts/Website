@@ -27,13 +27,13 @@
 
 </head>
 <body>
-    <!-- Cookie Consent Banner - GDPR Compliant -->
+    <!-- Cookie Consent Banner -->
     <div id="cookie-consent-banner" style="position: fixed; bottom: 0; left: 0; right: 0; background: rgba(26, 26, 26, 0.98); border-top: 2px solid #0066ff; padding: 1.5rem; z-index: 10000; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.5); font-family: 'Poppins', sans-serif; display: none;">
         <div style="max-width: 1200px; margin: 0 auto;">
             <div style="display: flex; align-items: flex-start; gap: 2rem; flex-wrap: wrap; justify-content: space-between;">
                 <div style="flex: 1; min-width: 250px;">
                     <p style="margin: 0 0 0.5rem 0; color: #e0e0e0; font-size: 0.95rem;">
-                        <strong>Your Privacy Matters</strong> - We use essential cookies and localStorage to remember your timezone preference. Third-party services (Google Fonts, Twitch, YouTube) may also collect limited data.
+                        <strong>Your Privacy Matters</strong> - We use localStorage to remember your choices (for example, whether you've opted in to optional third-party embeds/resources). Optional third-party services (Google Fonts, Twitch, YouTube) may set cookies or use similar technologies after you opt in.
                     </p>
                     <p style="margin: 0; color: #a0a0a0; font-size: 0.85rem;">
                         Learn more: <a href="pages/privacy.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Privacy Policy</a> | <a href="pages/cookies.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Cookie Policy</a> | <a href="pages/terms.html" style="color: #0066ff; text-decoration: none; font-weight: 500;">Terms of Service</a>
@@ -462,7 +462,7 @@
                         <div data-embed="youtube" data-src="https://www.youtube-nocookie.com/embed/eZS-YndjDWo" style="margin-top: 1.5rem; position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 0.4rem;">
                             <div class="embed-placeholder" style="position: absolute; inset: 0; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 0.75rem; padding: 1rem; text-align: center; background: rgba(10, 10, 10, 0.92); border: 1px solid rgba(255, 255, 255, 0.08);">
                                 <p style="margin: 0; color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">
-                                    YouTube video embeds are disabled until you accept non-essential cookies.
+                                    YouTube video embeds are disabled until you accept optional third-party embeds.
                                 </p>
                                 <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
                                     <button type="button" class="embed-consent-btn" style="background: var(--primary); color: #0a0a0a; border: none; padding: 0.6rem 1rem; border-radius: 0.4rem; font-weight: 700; cursor: pointer;">Enable embeds</button>
@@ -696,13 +696,11 @@
             window.addEventListener('fwj:consent:granted', () => {
                 loadTwitchSDK();
                 initializeEmbeds();
-                if (typeof setupTimezoneSelector === 'function') setupTimezoneSelector();
                 if (typeof loadHighlights === 'function') loadHighlights();
             });
 
             window.addEventListener('fwj:consent:rejected', () => {
                 initializeEmbeds();
-                if (localStorage.getItem('preferredTimezone')) localStorage.removeItem('preferredTimezone');
             });
         });
         
@@ -734,7 +732,7 @@
                                 <span style="font-size: 3rem;">🔒</span>
                             </div>
                             <h4>Embeds Disabled</h4>
-                            <span class="view-count" style="display: block; color: var(--text-muted);">Accept non-essential cookies to load Twitch clips.</span>
+                            <span class="view-count" style="display: block; color: var(--text-muted);">Accept optional third-party embeds to load Twitch clips.</span>
                         </div>
                     `;
                     return;
@@ -807,22 +805,6 @@
 
         // Run on page load
         window.addEventListener('load', highlightToday);
-
-        // Timezone selector setup - runs after DOM is loaded
-        function setupTimezoneSelector() {
-            // REMOVED - No timezone selector needed for minimal GDPR compliance
-        }
-
-        // Setup timezone selector on page load
-        // REMOVED - No timezone selector needed for minimal GDPR compliance
-
-        function convertZuluToSelectedTimezone(timezone) {
-            // REMOVED - Times displayed in Zulu time only
-        }
-
-        function convertTimeToTimezone(zuluTimeStr, timezone) {
-            // REMOVED - Times displayed in Zulu time only
-        }
 
         // Run on page load
         window.addEventListener('load', updateLiveStatus);

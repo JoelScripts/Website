@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /docs/
+Disallow: /tools/
+Disallow: /workers/
+Disallow: /data_requests/
+
+# Note: robots.txt is advisory. It reduces indexing but does not prevent access.

@@ -25,34 +25,37 @@
     <!-- Access Denied Section -->
     <section style="max-width: 800px; margin: 4rem auto; padding: 2rem; text-align: center;">
         <div style="background: rgba(255, 68, 68, 0.1); border: 2px solid #ff4444; border-radius: 1rem; padding: 3rem 2rem;">
-            <h1 style="font-size: 2.5rem; color: #ff6666; margin-bottom: 1rem;">⛔ Access Denied</h1>
-            
+            <h1 style="font-size: 2.5rem; color: #ff6666; margin-bottom: 1rem;">⛔ Page Unavailable</h1>
+
             <p style="font-size: 1.1rem; color: var(--text-light); margin-bottom: 1.5rem; line-height: 1.8;">
-                You have declined the Terms of Service and are therefore unable to access this website.
+                This page is not currently available.
             </p>
 
             <div style="background: rgba(255, 68, 68, 0.05); border-left: 4px solid #ff4444; padding: 1.5rem; border-radius: 0.5rem; margin: 2rem 0; text-align: left;">
                 <h3 style="color: #ff6666; margin-top: 0;">Why am I seeing this?</h3>
                 <p style="color: var(--text-muted); margin: 0.5rem 0;">
-                    Access to this website requires acceptance of our Terms of Service. By declining the terms, you have opted out of using this service.
+                    You may have followed an outdated link, or the content you were trying to access has been moved.
                 </p>
             </div>
 
             <div style="background: rgba(102, 187, 106, 0.05); border-left: 4px solid #66BB6A; padding: 1.5rem; border-radius: 0.5rem; margin: 2rem 0; text-align: left;">
                 <h3 style="color: #66BB6A; margin-top: 0;">What can I do?</h3>
                 <p style="color: var(--text-muted); margin: 0.5rem 0;">
-                    If you would like to access this website, you must accept the Terms of Service. You can review and accept the terms by clicking the button below.
+                    Go back to the homepage, or review our policies using the links below.
                 </p>
             </div>
 
             <div style="margin-top: 2.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <button onclick="clearDeclinedTerms()" style="background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; padding: 0.9rem 2rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.3s ease;">
-                    Review Terms Again
-                </button>
+                <a href="../index.html" style="background: linear-gradient(90deg, var(--primary), var(--secondary)); color: white; border: none; padding: 0.9rem 2rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.3s ease; text-decoration: none; display: inline-block;">
+                    Back to Home
+                </a>
+                <a href="terms.html" style="background: rgba(255, 255, 255, 0.06); color: var(--text-light); border: 1px solid rgba(255,255,255,0.18); padding: 0.9rem 2rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.3s ease; text-decoration: none; display: inline-block;">
+                    Terms of Service
+                </a>
             </div>
 
             <p style="margin-top: 3rem; color: var(--text-muted); font-size: 0.85rem;">
-                If you have questions about our policies, please contact us at <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a>
+                If you think this is an error, contact us at <a href="mailto:flywithjoeluk@gmail.com" style="color: var(--primary); text-decoration: none; font-weight: 600;">flywithjoeluk@gmail.com</a>
             </p>
         </div>
     </section>
@@ -86,11 +89,6 @@
                 navLinks.classList.remove('active');
             });
         });
-
-        function clearDeclinedTerms() {
-            localStorage.removeItem('termsDeclined');
-            window.location.href = 'terms.html';
-        }
     </script>
 </body>
 </html>

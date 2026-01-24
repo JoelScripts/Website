@@ -81,37 +81,38 @@ All Recommended Actions Have Been Completed:
    Existing JavaScript implementation verified:
    - localStorage usage for consent preference (gdpr-consent-accepted)
    - Consent flag checked before using optional features
-   - localStorage timezone preference properly gated behind consent check
    - Banner shows only on first visit (no consent found)
    - Accept button sets consent to 'true' and enables features
-   - Reject button sets consent to 'false' and clears timezone preference
+   - Reject button sets consent to 'false' and keeps optional third-party features disabled
    - hasUserConsent() function properly checks consent status
 
 ===============================================
-GDPR COMPLIANCE CHECKLIST - ALL ITEMS COMPLETE
+GDPR/UK GDPR COMPLIANCE CHECKLIST (INTERNAL SNAPSHOT)
 ===============================================
 
-Legal Documentation:
+Note: This is an internal best-effort checklist for this static website. It is not legal advice and not a guarantee of compliance in all jurisdictions or scenarios.
+
+Legal Documentation (present and maintained):
 ✅ Privacy Policy (comprehensive, multi-section)
 ✅ Terms of Service (includes flight sim disclaimer)
 ✅ Cookie Policy (detailed, browser-specific)
 ✅ All three policies linked prominently throughout site
 
-Consent Management:
+Consent Management (intended behavior):
 ✅ Clear, affirmative consent required
 ✅ No pre-ticked boxes (cookies off by default)
 ✅ Granular consent options (Accept All / Reject Non-Essential)
 ✅ Easy consent modification mechanism
 ✅ Proper localStorage implementation for consent
 
-Third-Party Disclosure:
+Third-Party Disclosure (high level):
 ✅ Google Fonts explicitly mentioned
 ✅ Twitch Embed explicitly mentioned
 ✅ LinkTree explicitly mentioned
 ✅ Links to third-party privacy policies provided
 ✅ Data processing information provided
 
-User Rights:
+User Rights (process in place / supported where applicable):
 ✅ Right to access information
 ✅ Right to correction
 ✅ Right to erasure (deletion)
@@ -175,15 +176,15 @@ Existing (verified):
 - d:\Website\terms.html (Already exists, with required disclaimers)
 
 ===============================================
-WEBSITE IS NOW GDPR COMPLIANT
+PRIVACY REVIEW SUMMARY (NOT LEGAL ADVICE)
 ===============================================
 
-Your website now complies with GDPR requirements and best practices for:
+This website has been updated to follow common GDPR/UK GDPR and ePrivacy/PECR-style best practices for:
 - European users (GDPR)
 - UK users (Data Protection Act 2018/UK GDPR)
 - Other privacy-conscious users worldwide
 
-All recommended actions from the initial compliance review have been implemented.
-The website is ready for deployment with full legal protection and transparency.
+This is a best-effort technical and policy alignment review, not legal advice.
+For jurisdiction-specific requirements and risk tolerance, consult a qualified legal professional.
 
 Last Updated: January 23, 2026

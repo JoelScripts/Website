@@ -13,8 +13,8 @@
 ✅ Data Breach Notification (documented)
 ✅ Hosting Transparency (GitHub Pages documented)
 ✅ Contact Form Security (HTTPS explained)
-✅ GDPR Compliance (documented)
-✅ CCPA Compliance (documented)
+✅ GDPR/UK GDPR approach (documented)
+✅ Non-UK/EU laws (noted where applicable; not a blanket claim)
 ✅ Data Access Procedures (created)
 ```
 
@@ -56,7 +56,7 @@ This content is for entertainment purposes only."
 #### 2. 💰 AFFILIATE LINK DISCLOSURE ⚠️ URGENT
 **Why:** FTC requirement + UK ASA requirement
 **Status:** ❌ NOT CLEAR ENOUGH
-**Risk:** HIGH - Can face fines ($43,000+ per violation in USA)
+**Risk:** HIGH - May face enforcement action if disclosures are unclear
 
 **Current situation:**
 - You mention affiliate links exist

@@ -428,12 +428,12 @@
             <!-- Card 3: Access Control & Authentication -->
             <div class="card">
                 <h3>🔑 Access Control & Authentication</h3>
-                <p>We implement strict access controls to ensure only authorized personnel can access your data. Multi-factor authentication, role-based access control (RBAC), and comprehensive logging track all data access. Employees have access only to data necessary for their role.</p>
+                <p>We do not operate a first-party user database for this site. Where information is stored by third parties (e.g., email and Discord), access is limited to the accounts needed to run the site. We encourage (and where possible enable) multi-factor authentication on those accounts.</p>
                 <ul>
-                    <li>Multi-factor authentication (MFA)</li>
-                    <li>Role-based access control (RBAC)</li>
-                    <li>Comprehensive access logging</li>
-                    <li>Regular access reviews</li>
+                    <li>Access restricted to required accounts</li>
+                    <li>MFA enabled where available</li>
+                    <li>Provider-side access logs (where offered)</li>
+                    <li>Periodic account security checks</li>
                 </ul>
                 <div class="card-note">
                     <strong>Principle:</strong> Least privilege access.
@@ -471,12 +471,12 @@
             <!-- Card 6: Incident Response Plan -->
             <div class="card">
                 <h3>🚨 Incident Response Plan</h3>
-                <p>We maintain a comprehensive incident response plan to quickly and effectively address any security breaches. Our team is trained to respond to incidents, contain threats, investigate root causes, and notify affected parties within required timeframes.</p>
+                <p>If we become aware of a security incident that may affect information we control (for example, a compromised email or Discord account used to receive messages), we will work to secure access, assess impact, and take appropriate notification steps where required by applicable law.</p>
                 <ul>
-                    <li>Incident response process</li>
-                    <li>Rapid containment procedures</li>
-                    <li>Root cause analysis</li>
-                    <li>Regulatory notification compliance</li>
+                    <li>Account lockdown and recovery</li>
+                    <li>Impact assessment and documentation</li>
+                    <li>Provider support and remediation</li>
+                    <li>Notifications where legally required</li>
                 </ul>
                 <div class="card-note">
                     <strong>Commitment:</strong> Prompt response and transparency.
@@ -568,45 +568,45 @@
             <!-- Card 2: Certificate Management -->
             <div class="card">
                 <h3>📜 Certificate Management</h3>
-                <p>Our SSL certificate is issued by a trusted Certificate Authority (CA) and is regularly renewed before expiration. We monitor certificate validity and automatically renew it to ensure uninterrupted encryption and security.</p>
+                <p>TLS certificates for this site are managed by our hosting/CDN provider. Certificates are issued by a trusted Certificate Authority and renewed by the platform as part of the hosting service.</p>
                 <ul>
                     <li>Trusted CA-issued certificate</li>
-                    <li>Automatic renewal</li>
-                    <li>Extended validation available</li>
-                    <li>Regular monitoring</li>
+                    <li>Provider-managed issuance and renewal</li>
+                    <li>Standard web PKI validation</li>
+                    <li>Periodic spot checks</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Status:</strong> Valid and up-to-date.
+                    <strong>Status:</strong> Provider-managed.
                 </div>
             </div>
 
             <!-- Card 3: Certificate Validation -->
             <div class="card">
                 <h3>✅ Certificate Validation</h3>
-                <p>When you visit our website, your browser verifies that our SSL certificate is valid and has been issued by a trusted Certificate Authority. The green lock icon in your browser's address bar indicates a secure, authenticated connection.</p>
+                <p>When you visit our website, your browser validates the site's certificate chain, domain name, and expiry. Browser UI varies, but you'll typically see a lock icon for an encrypted HTTPS connection.</p>
                 <ul>
-                    <li>Browser verification automatic</li>
-                    <li>Green lock indicator</li>
-                    <li>Domain validation confirmed</li>
-                    <li>Trust chain verified</li>
+                    <li>Automatic browser verification</li>
+                    <li>Domain and expiry validation</li>
+                    <li>Trust chain verification</li>
+                    <li>Warnings shown on misconfiguration</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Visual:</strong> Look for the green lock.
+                    <strong>Tip:</strong> Check for HTTPS and any browser warnings.
                 </div>
             </div>
 
             <!-- Card 4: Cipher Suites & Protocols -->
             <div class="card">
                 <h3>🔑 Cipher Suites & Protocols</h3>
-                <p>We use only strong, modern cipher suites and disable legacy or weak encryption protocols. Our security configuration is optimized to protect against known attacks while maintaining compatibility with modern browsers and clients.</p>
+                <p>TLS protocol versions and cipher suites are configured by the hosting/CDN provider. We rely on the platform to maintain modern, secure defaults and to retire weak protocols over time.</p>
                 <ul>
-                    <li>Modern cipher suites only</li>
-                    <li>Legacy protocols disabled</li>
-                    <li>Regular protocol updates</li>
-                    <li>Compatibility maintained</li>
+                    <li>Provider-managed TLS configuration</li>
+                    <li>Modern browser compatibility</li>
+                    <li>Weak protocols retired by platform updates</li>
+                    <li>No custom TLS tuning on a static site</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Approach:</strong> Security-first configuration.
+                    <strong>Approach:</strong> Provider-managed security defaults.
                 </div>
             </div>
         </div>
@@ -633,45 +633,45 @@
             <!-- Card 2: Password Security -->
             <div class="card">
                 <h3>🔑 Password Security</h3>
-                <p>All passwords in our system are hashed using bcrypt with strong salts. Even our administrators cannot see your original password. If a password reset is needed, a secure token is sent via email. We never store passwords in plain text.</p>
+                <p>This website does not provide user accounts and does not store first-party passwords. If you interact with third-party services linked from this site (e.g., Twitch, Discord, YouTube), their authentication and password handling are controlled by those providers.</p>
                 <ul>
-                    <li>Bcrypt hashing with salt</li>
-                    <li>Never stored in plain text</li>
-                    <li>Secure reset tokens</li>
-                    <li>No admin password visibility</li>
+                    <li>No first-party login or password database</li>
+                    <li>Third-party providers handle authentication</li>
+                    <li>Use strong passwords and enable 2FA where available</li>
+                    <li>Report suspicious activity promptly</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Standard:</strong> Industry-best practices.
+                    <strong>Scope:</strong> Static site (no accounts).
                 </div>
             </div>
 
             <!-- Card 3: Server-Side Security -->
             <div class="card">
                 <h3>⚙️ Server-Side Security</h3>
-                <p>Our servers are hardened with security best practices including disabled unnecessary services, regular security patches, firewall rules, and system hardening. Only required services are running, and all systems are kept up-to-date.</p>
+                <p>This site is hosted as static content on third-party infrastructure. We do not manage our own servers; platform hardening, patching, and network protections are handled by the hosting provider. We reduce risk by keeping the site static and minimizing data collection.</p>
                 <ul>
-                    <li>Disabled unnecessary services</li>
-                    <li>Regular security patches</li>
-                    <li>Firewall protection</li>
-                    <li>System hardening</li>
+                    <li>Static hosting (reduced attack surface)</li>
+                    <li>Provider-managed patching and infrastructure security</li>
+                    <li>Minimal secrets (only where needed, e.g., proxies)</li>
+                    <li>Least-privilege access to operational accounts</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Practice:</strong> Principle of least privilege.
+                    <strong>Practice:</strong> Keep it simple and minimize collection.
                 </div>
             </div>
 
             <!-- Card 4: Vulnerability Management -->
             <div class="card">
                 <h3>🐛 Vulnerability Management</h3>
-                <p>We maintain a vulnerability management program that includes regular scanning, assessment, and remediation. Vulnerabilities are prioritized by severity and addressed immediately. We also accept responsible vulnerability disclosures from security researchers.</p>
+                <p>We periodically review site code and third-party integrations, and we welcome responsible vulnerability disclosures. As a small static site, we do not promise specific response times, but we aim to address credible reports as soon as practical.</p>
                 <ul>
-                    <li>Regular vulnerability scanning</li>
-                    <li>Severity-based remediation</li>
-                    <li>Responsible disclosure program</li>
-                    <li>Security researcher collaboration</li>
+                    <li>Periodic review of site code and dependencies</li>
+                    <li>Reduce unnecessary third-party loading</li>
+                    <li>Accept responsible disclosures via email</li>
+                    <li>Fixes prioritized by severity and impact</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Policy:</strong> Proactive vulnerability management.
+                    <strong>Policy:</strong> Responsible disclosure welcomed.
                 </div>
             </div>
         </div>
@@ -698,15 +698,15 @@
             <!-- Card 2: CCPA Compliance -->
             <div class="card">
                 <h3>🇺🇸 CCPA Compliance</h3>
-                <p>For California residents, our security practices comply with CCPA requirements. We maintain reasonable security procedures and practices to protect personal information from unauthorized access, destruction, and misuse.</p>
+                <p>If you are a California resident, we aim to be transparent about how the site works and the role of third-party providers. We do not sell personal information and do not run first-party advertising or analytics trackers on this site.</p>
                 <ul>
-                    <li>Reasonable security measures</li>
-                    <li>Data breach notification</li>
-                    <li>User rights implementation</li>
-                    <li>Regular security assessment</li>
+                    <li>No sale of personal information</li>
+                    <li>No first-party ad-tech tracking</li>
+                    <li>Rights requests can be made via email</li>
+                    <li>Third-party providers have their own policies</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Status:</strong> CCPA-compliant practices.
+                    <strong>Note:</strong> Applicability depends on your situation and the services you use.
                 </div>
             </div>
 
@@ -762,27 +762,27 @@
             <!-- Card 2: Vulnerability Response -->
             <div class="card">
                 <h3>⚡ Vulnerability Response Process</h3>
-                <p>When a vulnerability is reported, we follow a structured response process: acknowledge receipt, assess severity, develop fix, test thoroughly, deploy patch, and verify remediation. Critical vulnerabilities are addressed within 24 hours.</p>
+                <p>When a vulnerability is reported, we aim to: acknowledge receipt (when possible), assess severity, implement a mitigation or fix, and verify remediation. Timelines depend on severity, complexity, and third-party dependencies.</p>
                 <ul>
-                    <li>Immediate acknowledgment</li>
-                    <li>Severity assessment</li>
-                    <li>Rapid patch development</li>
-                    <li>Deployment and verification</li>
+                    <li>Acknowledge and assess</li>
+                    <li>Prioritize by severity and impact</li>
+                    <li>Implement mitigation/fix</li>
+                    <li>Deploy and verify</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Timeline:</strong> Critical fixes within 24 hours.
+                    <strong>Timeline:</strong> As soon as practical.
                 </div>
             </div>
 
             <!-- Card 3: Bug Bounty Program -->
             <div class="card">
                 <h3>💰 Security Research Support</h3>
-                <p>We acknowledge and appreciate the work of security researchers who help identify and responsibly disclose vulnerabilities. While we don't currently have a formal bug bounty program, we recognize and reward responsible disclosures appropriately.</p>
+                <p>We appreciate security researchers who help identify and responsibly disclose issues. We do not currently run a formal bug bounty or offer guaranteed rewards, but we can provide acknowledgement (with your permission) for valid reports.</p>
                 <ul>
-                    <li>Researcher acknowledgment</li>
-                    <li>Disclosure credit available</li>
-                    <li>Security community support</li>
-                    <li>Future bounty program</li>
+                    <li>Responsible disclosure encouraged</li>
+                    <li>Credit/acknowledgement by request</li>
+                    <li>No guaranteed bounty payments</li>
+                    <li>Please include clear reproduction steps</li>
                 </ul>
                 <div class="card-note">
                     <strong>Thanks:</strong> We appreciate your help.
@@ -792,10 +792,10 @@
             <!-- Card 4: Security Contact -->
             <div class="card">
                 <h3>📧 Security Contact Information</h3>
-                <p>For security-related inquiries, vulnerability reports, or security questions, please contact us directly. Our security team reviews all reports and responds within 24 business hours.</p>
+                <p>For security-related inquiries, vulnerability reports, or security questions, please contact us directly. We aim to respond within a reasonable timeframe.</p>
                 <p><strong>Email:</strong> <a href="mailto:flywithjoeluk@gmail.com">flywithjoeluk@gmail.com</a></p>
                 <div class="card-note">
-                    <strong>Response:</strong> Within 24 business hours.
+                    <strong>Response:</strong> As soon as practical.
                 </div>
             </div>
         </div>
@@ -807,7 +807,7 @@
             <!-- Card 1: Data Breach Notification -->
             <div class="card">
                 <h3>🚨 Data Breach Notification</h3>
-                <p>In the unlikely event of a data breach, we will notify affected individuals promptly. Notifications will include details of the breach, affected data, steps taken, and what you can do to protect yourself. We comply with GDPR and CCPA notification requirements.</p>
+                <p>In the unlikely event of a data breach affecting information we control, we will take appropriate steps including containment and notification where required by applicable law. Notifications (if required) will include what happened, what information was involved, steps taken, and recommended next steps.</p>
                 <ul>
                     <li>Notification as required by applicable law</li>
                     <li>Detailed breach information</li>
@@ -835,7 +835,7 @@
             <!-- Card 3: Privacy Incidents -->
             <div class="card">
                 <h3>🔍 Privacy Incidents</h3>
-                <p>A privacy incident (such as unauthorized data access) is different from a security vulnerability. Privacy incidents are reported according to GDPR and CCPA requirements, including notification to relevant authorities when required.</p>
+                <p>A privacy incident (such as unauthorized data access) is different from a security vulnerability. Where applicable, privacy incidents are handled according to relevant privacy laws, including notification to relevant authorities and/or individuals when required.</p>
                 <ul>
                     <li>Incident investigation</li>
                     <li>Authority notification</li>
@@ -903,7 +903,7 @@
             <!-- Card 3: GitHub Security Standards -->
             <div class="card">
                 <h3>🔐 GitHub's Security Measures</h3>
-                <p>GitHub, as our hosting provider, implements world-class security measures for all customers. Their infrastructure is regularly audited, monitored, and updated to prevent unauthorized access and data breaches.</p>
+                <p>GitHub, as our hosting provider, maintains security measures for its platform and infrastructure. Specific controls and audit scope depend on GitHub's services and published documentation.</p>
                 <ul>
                     <li>DDoS protection and mitigation</li>
                     <li>Automatic security scanning</li>
@@ -911,14 +911,14 @@
                     <li>Provider-managed security program</li>
                 </ul>
                 <div class="card-note">
-                    <strong>Standard:</strong> Industry-leading security practices.
+                    <strong>Standard:</strong> Provider-managed platform security.
                 </div>
             </div>
 
             <!-- Card 4: Data Residency & Privacy -->
             <div class="card">
                 <h3>🛡️ Data Residency Considerations</h3>
-                <p>Our hosting on GitHub Pages means website content is served globally through their CDN. This provides fast loading times worldwide. Contact form data sent via email may be processed in various locations depending on your email provider. For EU residents, this complies with GDPR adequacy requirements.</p>
+                <p>Our hosting on GitHub Pages means website content is served globally through their CDN. This provides fast loading times worldwide. Contact form data sent via email may be processed in various locations depending on your email provider. Where international transfers apply, safeguards (such as SCCs and/or adequacy mechanisms) are provider-dependent.</p>
                 <ul>
                     <li><strong>Website Content:</strong> Global CDN distribution</li>
                     <li><strong>Contact Form Data:</strong> Email provider dependent</li>
@@ -958,7 +958,7 @@
                     <li>Consider end-to-end encryption (PGP/GPG)</li>
                     <li>Avoid sending highly sensitive data via email</li>
                     <li>We don't store passwords or payment info</li>
-                    <li>Email retention is limited to 2 years</li>
+                    <li>Email retention is reviewed periodically (aim: no longer than 2 years)</li>
                 </ul>
                 <div class="card-note">
                     <strong>Responsibility:</strong> Shared between provider and user.
@@ -973,7 +973,7 @@
                     <li><strong>In Transit:</strong> HTTPS encryption (TLS 1.2+)</li>
                     <li><strong>At Rest:</strong> Email provider encryption</li>
                     <li><strong>No Databases:</strong> No unencrypted storage servers</li>
-                    <li><strong>Deletion:</strong> Removed after 2 years</li>
+                    <li><strong>Deletion:</strong> We aim to remove messages after ~2 years (or sooner on request), subject to provider retention/backups</li>
                     <li><strong>User Control:</strong> Request deletion anytime</li>
                 </ul>
                 <div class="card-note">
@@ -990,7 +990,7 @@
                     <li>Green padlock icon in address bar</li>
                     <li>No browser security warnings</li>
                     <li>Click padlock → Certificate info → Verified</li>
-                    <li>Certificate issuer: Let's Encrypt</li>
+                    <li>Certificate issuer: varies by hosting/CDN (often Let's Encrypt)</li>
                 </ul>
                 <div class="card-note">
                     <strong>Action:</strong> Check before every form submission.
