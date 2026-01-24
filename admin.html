@@ -299,10 +299,54 @@
       { value: 'completed', label: '✅ Completed' },
     ];
 
-    const SCHEDULE_API_CANDIDATES = [
-      '/api/schedule',
-      'https://api.flyingwithjoel.co.uk/api/schedule.php',
-    ];
+    const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
+
+    function sanitizeApiUrl(raw) {
+      const s = (raw || '').trim();
+      if (!s) return null;
+      // Allow absolute http(s) or same-origin relative paths.
+      if (/^https?:\/\//i.test(s)) return s.replace(/\s+/g, '');
+      if (s.startsWith('/')) return s;
+      return null;
+    }
+
+    function getScheduleApiOverride() {
+      // Query param wins and is persisted.
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const qp = sanitizeApiUrl(params.get('scheduleApi'));
+        if (qp) {
+          localStorage.setItem(SCHEDULE_API_LOCALSTORAGE_KEY, qp);
+          return qp;
+        }
+      } catch {
+        // ignore
+      }
+
+      try {
+        const fromLs = sanitizeApiUrl(localStorage.getItem(SCHEDULE_API_LOCALSTORAGE_KEY));
+        if (fromLs) return fromLs;
+      } catch {
+        // ignore
+      }
+
+      // Optional meta override.
+      const meta = document.querySelector('meta[name="schedule-api"]');
+      const metaVal = sanitizeApiUrl(meta ? meta.getAttribute('content') : '');
+      return metaVal;
+    }
+
+    function getScheduleApiCandidates() {
+      const override = getScheduleApiOverride();
+      const candidates = [
+        override,
+        '/api/schedule',
+        'https://api.flyingwithjoel.co.uk/api/schedule.php',
+      ].filter(Boolean);
+
+      // De-dupe
+      return Array.from(new Set(candidates));
+    }
 
     let authHeader = null;
 
@@ -761,7 +805,7 @@
     async function loadCurrent() {
       setStatus('Loading…');
       try {
-        const result = await fetchFirstOkJson(SCHEDULE_API_CANDIDATES, { cache: 'no-store' });
+        const result = await fetchFirstOkJson(getScheduleApiCandidates(), { cache: 'no-store' });
         if (!result) throw new Error('No schedule API responded.');
         const data = result.data;
         const items = Array.isArray(data) ? data : buildEmptySchedule();
@@ -794,7 +838,7 @@
 
       setStatus('Saving…');
       try {
-        const targets = SCHEDULE_API_CANDIDATES;
+        const targets = getScheduleApiCandidates();
         let savedUrl = null;
         let lastStatus = null;
         let lastBody = null;

@@ -104,7 +104,7 @@
 
             </div>
         </div>
-        <div class="weekly-schedule" id="weekly-schedule">
+        <div class="weekly-schedule is-hydrating" id="weekly-schedule">
             <!-- MONDAY JAN 19 -->
             <div class="day-card" data-date="1-19">
                 <div class="day-name">MON</div>
@@ -790,12 +790,52 @@
             'https://api.flyingwithjoel.co.uk/api/schedule.php',
         ];
 
+        const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
+
+        function sanitizeApiUrl(raw) {
+            const s = (raw || '').trim();
+            if (!s) return null;
+            if (/^https?:\/\//i.test(s)) return s.replace(/\s+/g, '');
+            if (s.startsWith('/')) return s;
+            return null;
+        }
+
+        function getScheduleApiOverride() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const qp = sanitizeApiUrl(params.get('scheduleApi'));
+                if (qp) {
+                    localStorage.setItem(SCHEDULE_API_LOCALSTORAGE_KEY, qp);
+                    return qp;
+                }
+            } catch {
+                // ignore
+            }
+
+            try {
+                const fromLs = sanitizeApiUrl(localStorage.getItem(SCHEDULE_API_LOCALSTORAGE_KEY));
+                if (fromLs) return fromLs;
+            } catch {
+                // ignore
+            }
+
+            const meta = document.querySelector('meta[name="schedule-api"]');
+            const metaVal = sanitizeApiUrl(meta ? meta.getAttribute('content') : '');
+            return metaVal;
+        }
+
+        function getScheduleApiCandidates() {
+            const override = getScheduleApiOverride();
+            const all = [override, ...SCHEDULE_API_CANDIDATES].filter(Boolean);
+            return Array.from(new Set(all));
+        }
+
         async function fetchFirstOkJson(urls, init) {
             for (const u of urls) {
                 try {
                     const resp = await fetch(u, init);
                     if (!resp.ok) continue;
-                    return await resp.json();
+                    return { url: u, data: await resp.json() };
                 } catch {
                     // try next
                 }
@@ -808,7 +848,8 @@
             if (!container) return;
 
             try {
-                const items = await fetchFirstOkJson(SCHEDULE_API_CANDIDATES, { cache: 'no-store' });
+                const result = await fetchFirstOkJson(getScheduleApiCandidates(), { cache: 'no-store' });
+                const items = result && result.data;
                 if (!Array.isArray(items) || items.length === 0) return;
 
                 renderWeeklySchedule(items);
@@ -819,6 +860,8 @@
                 addLiveCardClickHandler();
             } catch {
                 // Keep the hardcoded schedule as fallback.
+            } finally {
+                container.classList.remove('is-hydrating');
             }
         }
 

@@ -335,6 +335,12 @@ body {
     gap: 1.5rem;
 }
 
+
+.weekly-schedule.is-hydrating {
+    opacity: 0.55;
+    filter: saturate(0.9);
+    transition: opacity 160ms ease;
+}
 .day-card {
     background: linear-gradient(135deg, var(--card-bg) 0%, rgba(26, 26, 26, 0.8) 100%);
     border: 1px solid var(--border);
