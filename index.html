@@ -833,10 +833,30 @@
                 card.classList.add('day-card');
 
                 const status = (item && item.status ? String(item.status) : '').toLowerCase();
-                const hasStream = status === 'scheduled' || status === 'completed' || status === 'cancelled';
+                const hasStream = status === 'scheduled' || status === 'completed' || status === 'cancelled' || status === 'delayed';
                 if (hasStream) card.classList.add('has-stream');
                 if (status === 'completed') card.classList.add('completed');
                 if (status === 'cancelled') card.classList.add('cancelled');
+                if (status === 'delayed') card.classList.add('delayed');
+
+                const pill = document.createElement('div');
+                pill.className = 'status-pill';
+                if (status === 'completed') {
+                    pill.textContent = 'COMPLETED';
+                    pill.classList.add('completed');
+                } else if (status === 'cancelled') {
+                    pill.textContent = 'CANCELLED';
+                    pill.classList.add('cancelled');
+                } else if (status === 'delayed') {
+                    pill.textContent = 'DELAYED';
+                    pill.classList.add('delayed');
+                } else if (status === 'scheduled') {
+                    pill.textContent = 'SCHEDULED';
+                    pill.classList.add('scheduled');
+                } else {
+                    pill.textContent = '';
+                }
+                if (pill.textContent) card.appendChild(pill);
 
                 if (item && item.dateKey) {
                     card.setAttribute('data-date', String(item.dateKey));
@@ -886,6 +906,13 @@
                     cancelledEl.setAttribute('style', 'font-size: 0.8rem; color: #ff6666; margin-top: 0.5rem; font-weight: 600;');
                     cancelledEl.textContent = '✖️ Cancelled';
                     card.appendChild(cancelledEl);
+                }
+
+                if (status === 'delayed') {
+                    const delayedEl = document.createElement('div');
+                    delayedEl.setAttribute('style', 'font-size: 0.8rem; color: #FFB74D; margin-top: 0.5rem; font-weight: 700;');
+                    delayedEl.textContent = '⏰ Delayed';
+                    card.appendChild(delayedEl);
                 }
 
                 container.appendChild(card);
@@ -976,12 +1003,38 @@
                 const dateString = `${month}-${date}`;
                 const isToday = cardDate === dateString;
                 
-                if (isLive && isToday && !card.classList.contains('cancelled')) {
+                const isBlockedByStatus = card.classList.contains('cancelled') || card.classList.contains('completed');
+                if (isLive && isToday && !isBlockedByStatus) {
                     card.classList.add('live');
                     card.style.cursor = 'pointer';
+
+                    const pill = card.querySelector('.status-pill');
+                    if (pill) {
+                        pill.textContent = 'LIVE';
+                        pill.className = 'status-pill live';
+                    }
                 } else {
                     card.classList.remove('live');
                     card.style.cursor = 'default';
+
+                    const pill = card.querySelector('.status-pill');
+                    if (pill) {
+                        if (card.classList.contains('completed')) {
+                            pill.textContent = 'COMPLETED';
+                            pill.className = 'status-pill completed';
+                        } else if (card.classList.contains('cancelled')) {
+                            pill.textContent = 'CANCELLED';
+                            pill.className = 'status-pill cancelled';
+                        } else if (card.classList.contains('delayed')) {
+                            pill.textContent = 'DELAYED';
+                            pill.className = 'status-pill delayed';
+                        } else if (card.classList.contains('has-stream')) {
+                            pill.textContent = 'SCHEDULED';
+                            pill.className = 'status-pill scheduled';
+                        } else {
+                            pill.textContent = '';
+                        }
+                    }
                 }
             });
         }

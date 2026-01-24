@@ -178,6 +178,14 @@
     const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DEFAULT_DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
 
+    const STATUSES = [
+      { value: 'none', label: 'No stream' },
+      { value: 'scheduled', label: 'Scheduled' },
+      { value: 'cancelled', label: 'Cancelled' },
+      { value: 'delayed', label: 'Delayed' },
+      { value: 'completed', label: 'Completed' },
+    ];
+
     const SCHEDULE_API_CANDIDATES = [
       '/api/schedule',
       'https://api.flyingwithjoel.co.uk/api/schedule.php',
@@ -200,6 +208,11 @@
 
     function monthOptionsHtml(selectedIndex) {
       return MONTHS.map((m, idx) => `<option value="${idx + 1}" ${idx === selectedIndex ? 'selected' : ''}>${m}</option>`).join('');
+    }
+
+    function statusOptionsHtml(selectedValue) {
+      const v = (selectedValue || 'none').toLowerCase();
+      return STATUSES.map((s) => `<option value="${s.value}" ${s.value === v ? 'selected' : ''}>${s.label}</option>`).join('');
     }
 
     function buildEmptySchedule() {
@@ -236,6 +249,11 @@
       items.slice(0, 7).forEach((item, idx) => {
         const parsed = parseDateKey(item.dateKey);
         const monthIdx = parsed.month - 1;
+        const status = (item && item.status ? String(item.status) : 'none').toLowerCase();
+        const originalZulu = (item && item.originalZuluTime ? String(item.originalZuluTime) : '');
+        const zuluForTimeField = status === 'delayed' ? originalZulu : (item && item.zuluTime ? String(item.zuluTime) : '');
+        const zuluForDelayedTo = status === 'delayed' ? (item && item.zuluTime ? String(item.zuluTime) : '') : '';
+        const vodUrl = (item && item.vodUrl ? String(item.vodUrl) : '');
 
         const row = document.createElement('div');
         row.className = 'schedule-item';
@@ -258,20 +276,29 @@
 
           <div class="field">
             <label>Time (Zulu)</label>
-            <input type="text" class="time" placeholder="18:00 Zulu" value="${(item.zuluTime || '').replace(/"/g,'&quot;')}" />
+            <input type="text" class="time" placeholder="18:00 Zulu" value="${(zuluForTimeField || '').replace(/"/g,'&quot;')}" />
+          </div>
+
+          <div class="field delayedWrap">
+            <label>New Time (Zulu)</label>
+            <input type="text" class="delayedTo" placeholder="19:30 Zulu" value="${(zuluForDelayedTo || '').replace(/"/g,'&quot;')}" />
+            <small class="delayedHint"></small>
           </div>
 
           <div class="field">
             <label>Title</label>
             <input type="text" class="title" placeholder="Microsoft Flight Simulator" value="${(item.streamTitle || '').replace(/"/g,'&quot;')}" />
+
+            <div class="vodWrap" style="margin-top: 0.6rem;">
+              <label style="font-size: 0.85rem; font-weight: 700;">Twitch VOD link (optional)</label>
+              <input type="url" class="vodUrl" placeholder="https://www.twitch.tv/videos/..." value="${(vodUrl || '').replace(/"/g,'&quot;')}" />
+              <small class="vodHint"></small>
+            </div>
           </div>
 
           <div class="field">
-            <label>Stream?</label>
-            <div class="toggle">
-              <input type="checkbox" class="hasStream" ${item.status && item.status !== 'none' ? 'checked' : ''} />
-              <span>Has stream</span>
-            </div>
+            <label>Status</label>
+            <select class="status">${statusOptionsHtml(status)}</select>
             <small class="streamHint"></small>
           </div>
         `;
@@ -308,16 +335,43 @@
 
       previewEl.textContent = `${MONTHS[mIdx]} ${d}`;
 
-      const hasStream = row.querySelector('.hasStream').checked;
+      const status = (row.querySelector('.status').value || 'none').toLowerCase();
       const hintEl = row.querySelector('.streamHint');
-      hintEl.textContent = hasStream ? 'Status: scheduled' : 'No stream planned';
+
+      const timeEl = row.querySelector('.time');
+      const titleEl = row.querySelector('.title');
+      const delayedWrap = row.querySelector('.delayedWrap');
+      const delayedToEl = row.querySelector('.delayedTo');
+      const delayedHintEl = row.querySelector('.delayedHint');
+
+      const vodWrap = row.querySelector('.vodWrap');
+      const vodUrlEl = row.querySelector('.vodUrl');
+      const vodHintEl = row.querySelector('.vodHint');
+
+      const isNone = status === 'none';
+      const isDelayed = status === 'delayed';
+      const isCompleted = status === 'completed';
+
+      hintEl.textContent = isNone ? 'No stream planned' : `Status: ${status}`;
+
+      // Show/hide delayed UI
+      delayedWrap.style.display = isDelayed ? '' : 'none';
+      delayedToEl.disabled = !isDelayed;
+      delayedHintEl.textContent = isDelayed ? 'Enter the delayed (new) start time' : '';
+
+      // Show/hide VOD UI (only meaningful for completed)
+      vodWrap.style.display = isCompleted ? '' : 'none';
+      vodUrlEl.disabled = !isCompleted;
+      vodHintEl.textContent = isCompleted ? 'This will appear on the completed card on the homepage.' : '';
 
       // UX: disable time/title when no stream
-      row.querySelector('.time').disabled = !hasStream;
-      row.querySelector('.title').disabled = !hasStream;
-      if (!hasStream) {
-        row.querySelector('.time').value = '';
-        row.querySelector('.title').value = '';
+      timeEl.disabled = isNone;
+      titleEl.disabled = isNone;
+      if (isNone) {
+        timeEl.value = '';
+        titleEl.value = '';
+        delayedToEl.value = '';
+        vodUrlEl.value = '';
       }
     }
 
@@ -330,11 +384,13 @@
         const dateKey = `${month}-${day}`;
         const dateText = `${MONTHS[month - 1]} ${day}`;
 
-        const hasStream = row.querySelector('.hasStream').checked;
+        const status = (row.querySelector('.status').value || 'none').toLowerCase();
         const zuluTimeRaw = (row.querySelector('.time').value || '').trim();
+        const delayedToRaw = (row.querySelector('.delayedTo').value || '').trim();
         const titleRaw = (row.querySelector('.title').value || '').trim();
+        const vodUrlRaw = (row.querySelector('.vodUrl')?.value || '').trim();
 
-        if (!hasStream) {
+        if (status === 'none') {
           return {
             dateKey,
             dayName,
@@ -348,15 +404,59 @@
           };
         }
 
-        const zuluTime = zuluTimeRaw && zuluTimeRaw.toLowerCase().includes('zulu') ? zuluTimeRaw : (zuluTimeRaw ? `${zuluTimeRaw} Zulu` : '');
-        const timeText = zuluTime || 'TBC';
+        const normalizeZulu = (raw) => {
+          const r = (raw || '').trim();
+          if (!r) return '';
+          return r.toLowerCase().includes('zulu') ? r : `${r} Zulu`;
+        };
+
         const streamTitle = titleRaw || 'Stream';
+
+        if (status === 'completed') {
+          const zuluTime = normalizeZulu(zuluTimeRaw);
+          const timeText = zuluTime || 'Completed';
+          const vodUrl = vodUrlRaw || null;
+
+          return {
+            dateKey,
+            dayName,
+            dateText,
+            status: 'completed',
+            gameLogo: '✈️',
+            timeText,
+            zuluTime: zuluTime || null,
+            streamTitle,
+            vodUrl,
+          };
+        }
+
+        if (status === 'delayed') {
+          const originalZuluTime = normalizeZulu(zuluTimeRaw);
+          const delayedZuluTime = normalizeZulu(delayedToRaw);
+          const timeText = delayedZuluTime ? `Delayed to ${delayedZuluTime}` : 'Delayed (new time TBC)';
+
+          return {
+            dateKey,
+            dayName,
+            dateText,
+            status: 'delayed',
+            gameLogo: '✈️',
+            timeText,
+            zuluTime: delayedZuluTime || null,
+            originalZuluTime: originalZuluTime || null,
+            streamTitle,
+            vodUrl: null,
+          };
+        }
+
+        const zuluTime = normalizeZulu(zuluTimeRaw);
+        const timeText = zuluTime || (status === 'cancelled' ? 'Cancelled' : 'TBC');
 
         return {
           dateKey,
           dayName,
           dateText,
-          status: 'scheduled',
+          status: status === 'cancelled' ? 'cancelled' : 'scheduled',
           gameLogo: '✈️',
           timeText,
           zuluTime: zuluTime || null,

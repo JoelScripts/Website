@@ -383,6 +383,11 @@ body {
     opacity: 0.7;
 }
 
+.day-card.delayed {
+    border-color: #FFB74D;
+    background: linear-gradient(135deg, rgba(255, 183, 77, 0.06) 0%, rgba(26, 26, 26, 0.85) 100%);
+}
+
 .day-card.cancelled .stream-time,
 .day-card.cancelled .stream-title {
     text-decoration: line-through;
@@ -658,6 +663,50 @@ body {
 }
 
 .card h3 {
+
+.day-card .status-pill {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.day-card .status-pill.scheduled {
+    border-color: rgba(255, 140, 66, 0.5);
+    background: rgba(255, 140, 66, 0.12);
+    color: #FFB88A;
+}
+
+.day-card .status-pill.live {
+    border-color: rgba(255, 0, 0, 0.6);
+    background: rgba(255, 0, 0, 0.18);
+    color: #ff8080;
+}
+
+.day-card .status-pill.completed {
+    border-color: rgba(76, 175, 80, 0.55);
+    background: rgba(76, 175, 80, 0.14);
+    color: #9BE7A0;
+}
+
+.day-card .status-pill.cancelled {
+    border-color: rgba(255, 68, 68, 0.6);
+    background: rgba(255, 68, 68, 0.14);
+    color: #ff9a9a;
+}
+
+.day-card .status-pill.delayed {
+    border-color: rgba(255, 183, 77, 0.65);
+    background: rgba(255, 183, 77, 0.16);
+    color: #FFD9A6;
+}
     margin-bottom: 1.2rem;
     color: var(--text-light);
     font-size: 1rem;

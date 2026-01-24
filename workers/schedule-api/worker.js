@@ -105,10 +105,11 @@ function isValidScheduleArray(value) {
 
     if (typeof item.status !== 'string') return false;
     const status = item.status.toLowerCase();
-    if (!['none', 'scheduled', 'completed', 'cancelled'].includes(status)) return false;
+    if (!['none', 'scheduled', 'completed', 'cancelled', 'delayed'].includes(status)) return false;
 
     // Optional fields
     if (item.zuluTime !== null && item.zuluTime !== undefined && typeof item.zuluTime !== 'string') return false;
+    if (item.originalZuluTime !== null && item.originalZuluTime !== undefined && typeof item.originalZuluTime !== 'string') return false;
     if (item.timeText !== null && item.timeText !== undefined && typeof item.timeText !== 'string') return false;
     if (item.streamTitle !== null && item.streamTitle !== undefined && typeof item.streamTitle !== 'string') return false;
     if (item.vodUrl !== null && item.vodUrl !== undefined && typeof item.vodUrl !== 'string') return false;
