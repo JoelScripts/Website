@@ -12,6 +12,34 @@
 
 const SCHEDULE_KEY = 'schedule_v1';
 
+const ALLOWED_ORIGINS = new Set([
+  'https://flyingwithjoel.co.uk',
+  'https://www.flyingwithjoel.co.uk',
+]);
+
+function corsHeadersFor(request) {
+  const origin = request.headers.get('origin');
+  if (!origin) {
+    return {
+      'access-control-allow-origin': '*',
+      'access-control-allow-methods': 'GET,PUT,OPTIONS',
+      'access-control-allow-headers': 'content-type, authorization',
+    };
+  }
+
+  if (ALLOWED_ORIGINS.has(origin)) {
+    return {
+      'access-control-allow-origin': origin,
+      'vary': 'origin',
+      'access-control-allow-methods': 'GET,PUT,OPTIONS',
+      'access-control-allow-headers': 'content-type, authorization',
+    };
+  }
+
+  // Not an allowed browser origin; omit CORS headers.
+  return {};
+}
+
 function jsonResponse(data, init = {}) {
   const headers = new Headers(init.headers || {});
   headers.set('content-type', 'application/json; charset=utf-8');
@@ -87,25 +115,44 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    if (request.method === 'OPTIONS') {
+      return new Response(null, {
+        status: 204,
+        headers: {
+          ...corsHeadersFor(request),
+          'access-control-max-age': '86400',
+        },
+      });
+    }
+
     // Only handle the schedule endpoint (route usually limits this already)
     if (!url.pathname.startsWith('/api/schedule')) {
-      return new Response('Not Found', { status: 404, headers: { 'cache-control': 'no-store' } });
+      return new Response('Not Found', {
+        status: 404,
+        headers: {
+          ...corsHeadersFor(request),
+          'cache-control': 'no-store',
+        },
+      });
     }
 
     if (!env.SCHEDULE_KV) {
-      return jsonResponse({ error: 'Missing KV binding SCHEDULE_KV.' }, { status: 500 });
+      return jsonResponse(
+        { error: 'Missing KV binding SCHEDULE_KV.' },
+        { status: 500, headers: corsHeadersFor(request) }
+      );
     }
 
     if (request.method === 'GET') {
       const raw = await env.SCHEDULE_KV.get(SCHEDULE_KEY);
-      if (!raw) return jsonResponse([]);
+      if (!raw) return jsonResponse([], { headers: corsHeadersFor(request) });
 
       try {
         const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) return jsonResponse([]);
-        return jsonResponse(parsed);
+        if (!Array.isArray(parsed)) return jsonResponse([], { headers: corsHeadersFor(request) });
+        return jsonResponse(parsed, { headers: corsHeadersFor(request) });
       } catch {
-        return jsonResponse([]);
+        return jsonResponse([], { headers: corsHeadersFor(request) });
       }
     }
 
@@ -113,23 +160,41 @@ export default {
       const creds = parseBasicAuth(request);
       const userOk = creds && safeEqual(creds.username, env.ADMIN_USERNAME || '');
       const passOk = creds && safeEqual(creds.password, env.ADMIN_PASSWORD || '');
-      if (!userOk || !passOk) return unauthorizedResponse();
+      if (!userOk || !passOk) {
+        const resp = unauthorizedResponse();
+        const headers = new Headers(resp.headers);
+        const cors = corsHeadersFor(request);
+        for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+        return new Response(resp.body, { status: resp.status, headers });
+      }
 
       let body;
       try {
         body = await request.json();
       } catch {
-        return jsonResponse({ error: 'Invalid JSON body.' }, { status: 400 });
+        return jsonResponse(
+          { error: 'Invalid JSON body.' },
+          { status: 400, headers: corsHeadersFor(request) }
+        );
       }
 
       if (!isValidScheduleArray(body)) {
-        return jsonResponse({ error: 'Schedule must be a valid array of schedule items.' }, { status: 400 });
+        return jsonResponse(
+          { error: 'Schedule must be a valid array of schedule items.' },
+          { status: 400, headers: corsHeadersFor(request) }
+        );
       }
 
       await env.SCHEDULE_KV.put(SCHEDULE_KEY, JSON.stringify(body));
-      return jsonResponse({ ok: true });
+      return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
     }
 
-    return methodNotAllowed();
+    return new Response('Method Not Allowed', {
+      status: 405,
+      headers: {
+        ...corsHeadersFor(request),
+        'cache-control': 'no-store',
+      },
+    });
   },
 };
