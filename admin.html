@@ -85,7 +85,7 @@
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
       gap: 0.9rem;
-      align-items: end;
+      align-items: start;
       padding: 0.9rem;
     }
     .schedule-item .field { min-width: 0; }
@@ -166,6 +166,7 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 0.85rem;
         padding: 1rem;
+        align-items: start;
       }
 
       .schedule-item .field-day { grid-column: 1; }
@@ -173,8 +174,8 @@
       .schedule-item .field-time { grid-column: 1; }
       .schedule-item .field-title { grid-column: 2; }
 
-      .schedule-item .field-status { grid-column: 1 / -1; }
-      .schedule-item .field-delayed { grid-column: 1 / -1; }
+      .schedule-item .field.field-status { grid-column: 1 / -1; }
+      .schedule-item .field.field-delayed { grid-column: 1 / -1; }
 
       /* Delayed/completed can have extra inputs; give them room */
       .schedule-item.is-delayed .field-title { grid-column: 1 / -1; }
@@ -182,7 +183,7 @@
 
     @media (max-width: 520px) {
       /* Small phones: single column */
-      .schedule-item { grid-template-columns: 1fr; }
+      .schedule-item { grid-template-columns: 1fr; align-items: start; }
       .schedule-item .field-day,
       .schedule-item .field-date,
       .schedule-item .field-time,
