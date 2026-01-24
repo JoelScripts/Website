@@ -6,15 +6,66 @@
   <title>📅 Schedule — Flying With Joel</title>
   <meta name="description" content="7 Day stream schedule for Flying With Joel." />
   <link rel="stylesheet" href="../assets/css/styles.css" />
+  <style>
+    .schedule-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .schedule-nav-left { display: flex; align-items: center; gap: 0.8rem; }
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 0.55rem;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: #e0e0e0;
+      text-decoration: none;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .home-btn:hover { border-color: rgba(0, 102, 255, 0.55); }
+
+    .nav-mobile { display: none; }
+    .nav-mobile select {
+      width: 100%;
+      min-width: 170px;
+      padding: 0.55rem 0.75rem;
+      border-radius: 0.6rem;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    @media (max-width: 720px) {
+      .nav-links { display: none !important; }
+      .nav-mobile { display: block; }
+    }
+  </style>
 </head>
 <body>
   <nav class="navbar">
     <div class="nav-container">
-      <div class="logo">flywithjoel</div>
-      <ul class="nav-links" style="display:flex; gap: 1rem;">
-        <li><a href="../index.html">Home</a></li>
-        <li><a href="../admin.html">Admin</a></li>
-      </ul>
+      <div class="schedule-nav">
+        <div class="schedule-nav-left">
+          <div class="logo">flywithjoel</div>
+          <a class="home-btn" href="../index.html" aria-label="Go to Home">
+            ⌂ Home
+          </a>
+        </div>
+
+        <ul class="nav-links" style="display:flex; gap: 1rem;">
+          <li><a href="../index.html">Home</a></li>
+          <li><a href="../admin.html">Admin</a></li>
+        </ul>
+
+        <div class="nav-mobile" aria-label="Mobile navigation">
+          <select id="mobile-nav" aria-label="Navigate">
+            <option value="" selected>Navigate…</option>
+            <option value="../index.html">Home</option>
+            <option value="../admin.html">Admin</option>
+          </select>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -453,6 +504,15 @@
     window.addEventListener('load', function() {
       addLiveCardClickHandler();
       setInterval(addLiveCardClickHandler, 60000);
+    });
+
+    window.addEventListener('load', function() {
+      const sel = document.getElementById('mobile-nav');
+      if (!sel) return;
+      sel.addEventListener('change', function() {
+        const v = this.value;
+        if (v) window.location.href = v;
+      });
     });
   </script>
 </body>
