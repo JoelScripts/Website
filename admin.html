@@ -831,30 +831,30 @@
         setStatus(`Loaded from ${result.url}`, 'ok');
       } catch (e) {
         console.error(e);
-        // Fallback: parse whatever schedule is currently on the homepage.
+        // Fallback: parse whatever schedule is currently on the public schedule page.
         try {
-          const fromHome = await loadScheduleFromHomepage();
+          const fromHome = await loadScheduleFromSchedulePage();
           renderEditor(fromHome);
-          setStatus('Loaded from homepage (fallback).', 'ok');
+          setStatus('Loaded from schedule page (fallback).', 'ok');
           return;
         } catch (e2) {
           console.error(e2);
         }
 
         renderEditor(buildEmptySchedule());
-        setStatus('Failed to load schedule (API + homepage fallback failed).', 'err');
+        setStatus('Failed to load schedule (API + schedule-page fallback failed).', 'err');
       }
     }
 
-    async function loadScheduleFromHomepage() {
+    async function loadScheduleFromSchedulePage() {
       // Same-origin only; this is a best-effort fallback when /api/schedule isn’t routed.
-      const resp = await fetch('/', { cache: 'no-store' });
-      if (!resp.ok) throw new Error(`Homepage fetch failed (${resp.status}).`);
+      const resp = await fetch('/pages/schedule.html', { cache: 'no-store' });
+      if (!resp.ok) throw new Error(`Schedule page fetch failed (${resp.status}).`);
       const html = await resp.text();
 
       const doc = new DOMParser().parseFromString(html, 'text/html');
       const cards = Array.from(doc.querySelectorAll('#weekly-schedule .day-card'));
-      if (!cards.length) throw new Error('No schedule cards found on homepage.');
+      if (!cards.length) throw new Error('No schedule cards found on schedule page.');
 
       const items = cards.slice(0, 7).map((card, idx) => {
         const dateKey = card.getAttribute('data-date') || '1-1';

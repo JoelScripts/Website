@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📅 Schedule — Flying With Joel</title>
+  <meta name="description" content="7 Day stream schedule for Flying With Joel." />
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">flywithjoel</div>
+      <ul class="nav-links" style="display:flex; gap: 1rem;">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../admin.html">Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="upcoming-section" style="padding-top: 2rem;">
+    <div class="schedule-header">
+      <div class="schedule-icon">📅</div>
+      <div>
+        <h2>7 Day Schedule</h2>
+        <p class="schedule-subtitle">Live badge auto-applies when the stream is live (Zulu time).</p>
+      </div>
+    </div>
+
+    <div class="weekly-schedule is-hydrating" id="weekly-schedule" style="margin-bottom: 2rem;">
+      <!-- Fallback schedule (used if the API can't be reached). The Worker-backed schedule will replace this. -->
+      <div class="day-card" data-date="1-19">
+        <div class="day-name">MON</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 19</div>
+        <div class="game-logo">-</div>
+        <div class="stream-time">No Stream Planned</div>
+        <div class="stream-title">-</div>
+      </div>
+
+      <div class="day-card has-stream completed" data-date="1-20">
+        <div class="day-name">TUE</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 20</div>
+        <div class="game-logo">✈️</div>
+        <div class="stream-time" data-zulu-time="18:00 Zulu">18:00 Zulu</div>
+        <div class="stream-title">Microsoft Flight Simulator</div>
+        <a href="https://www.twitch.tv/Flyingwithjoel/videos" target="_blank" rel="noopener noreferrer" style="font-size: 0.8rem; color: #66BB6A; margin-top: 0.5rem; font-weight: 600; text-decoration: none; display: block; cursor: pointer; transition: color 0.2s;">✓ Completed - Watch VOD</a>
+      </div>
+
+      <div class="day-card has-stream completed" data-date="1-21">
+        <div class="day-name">WED</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 21</div>
+        <div class="game-logo">✈️</div>
+        <div class="stream-time" data-zulu-time="18:00 Zulu">18:00 Zulu</div>
+        <div class="stream-title">Microsoft Flight Simulator</div>
+        <a href="https://www.twitch.tv/Flyingwithjoel/videos" target="_blank" rel="noopener noreferrer" style="font-size: 0.8rem; color: #66BB6A; margin-top: 0.5rem; font-weight: 600; text-decoration: none; display: block; cursor: pointer; transition: color 0.2s;">✓ Completed - Watch VOD</a>
+      </div>
+
+      <div class="day-card has-stream cancelled" data-date="1-22">
+        <div class="day-name">THU</div>
+        <div class="day-date" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 22</div>
+        <div class="game-logo">✈️</div>
+        <div class="stream-time" data-zulu-time="15:30 Zulu">15:30 Zulu</div>
+        <div class="stream-title">Microsoft Flight Simulator</div>
+        <div style="font-size: 0.8rem; color: #ff6666; margin-top: 0.5rem; font-weight: 600;">✖️ Cancelled</div>
+      </div>
+
+      <div class="day-card has-stream completed" data-date="1-23">
+        <div class="day-name">FRI</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 23</div>
+        <div class="game-logo">✈️</div>
+        <div class="stream-time" data-zulu-time="18:00 Zulu">18:00 Zulu</div>
+        <div class="stream-title">Microsoft Flight Simulator</div>
+        <a href="https://www.twitch.tv/videos/2677982122" target="_blank" rel="noopener noreferrer" style="font-size: 0.8rem; color: #66BB6A; margin-top: 0.5rem; font-weight: 600; text-decoration: none; display: block; cursor: pointer; transition: color 0.2s;">✓ Completed - Watch VOD</a>
+      </div>
+
+      <div class="day-card has-stream" data-date="1-24">
+        <div class="day-name">SAT</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 24</div>
+        <div class="game-logo">✈️</div>
+        <div class="stream-time" data-zulu-time="11:00 AM Zulu">11:00 AM Zulu</div>
+        <div class="stream-title">Microsoft Flight Simulator</div>
+      </div>
+
+      <div class="day-card has-stream" data-date="1-25">
+        <div class="day-name">SUN</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Jan 25</div>
+        <div class="game-logo">✈️</div>
+        <div class="stream-time" data-zulu-time="11:00 AM Zulu">11:00 AM Zulu</div>
+        <div class="stream-title">Microsoft Flight Simulator</div>
+      </div>
+    </div>
+
+    <p id="schedule-note" class="schedule-subtitle" style="margin-top: 0.5rem; color: var(--text-muted);"></p>
+  </section>
+
+  <script>
+    const SCHEDULE_API_CANDIDATES = [
+      '/api/schedule',
+      'https://api.flyingwithjoel.co.uk/api/schedule.php',
+    ];
+
+    const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
+
+    function sanitizeApiUrl(raw) {
+      const s = (raw || '').trim();
+      if (!s) return null;
+      if (/^https?:\/\//i.test(s)) return s.replace(/\s+/g, '');
+      if (s.startsWith('/')) return s;
+      return null;
+    }
+
+    function getScheduleApiOverride() {
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const qp = sanitizeApiUrl(params.get('scheduleApi'));
+        if (qp) {
+          localStorage.setItem(SCHEDULE_API_LOCALSTORAGE_KEY, qp);
+          return qp;
+        }
+      } catch {
+        // ignore
+      }
+
+      try {
+        const fromLs = sanitizeApiUrl(localStorage.getItem(SCHEDULE_API_LOCALSTORAGE_KEY));
+        if (fromLs) return fromLs;
+      } catch {
+        // ignore
+      }
+
+      const meta = document.querySelector('meta[name="schedule-api"]');
+      const metaVal = sanitizeApiUrl(meta ? meta.getAttribute('content') : '');
+      return metaVal;
+    }
+
+    function getScheduleApiCandidates() {
+      const override = getScheduleApiOverride();
+      const all = [override, ...SCHEDULE_API_CANDIDATES].filter(Boolean);
+      return Array.from(new Set(all));
+    }
+
+    async function fetchFirstOkJson(urls, init) {
+      for (const u of urls) {
+        try {
+          const resp = await fetch(u, init);
+          if (!resp.ok) continue;
+          return { url: u, data: await resp.json() };
+        } catch {
+          // try next
+        }
+      }
+      return null;
+    }
+
+    function renderWeeklySchedule(items) {
+      const container = document.getElementById('weekly-schedule');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      items.forEach((item) => {
+        const card = document.createElement('div');
+        card.classList.add('day-card');
+
+        const status = (item && item.status ? String(item.status) : '').toLowerCase();
+        const hasStream = status === 'scheduled' || status === 'completed' || status === 'cancelled' || status === 'delayed';
+        if (hasStream) card.classList.add('has-stream');
+        if (status === 'completed') card.classList.add('completed');
+        if (status === 'cancelled') card.classList.add('cancelled');
+        if (status === 'delayed') card.classList.add('delayed');
+
+        const pill = document.createElement('div');
+        pill.className = 'status-pill';
+        if (status === 'completed') {
+          pill.textContent = 'COMPLETED';
+          pill.classList.add('completed');
+        } else if (status === 'cancelled') {
+          pill.textContent = 'CANCELLED';
+          pill.classList.add('cancelled');
+        } else if (status === 'delayed') {
+          pill.textContent = 'DELAYED';
+          pill.classList.add('delayed');
+        } else if (status === 'scheduled') {
+          pill.textContent = 'SCHEDULED';
+          pill.classList.add('scheduled');
+        } else {
+          pill.textContent = '';
+        }
+        if (pill.textContent) card.appendChild(pill);
+
+        if (item && item.dateKey) card.setAttribute('data-date', String(item.dateKey));
+
+        const dayNameEl = document.createElement('div');
+        dayNameEl.className = 'day-name';
+        dayNameEl.textContent = item && item.dayName ? String(item.dayName) : '-';
+
+        const dateEl = document.createElement('div');
+        dateEl.className = 'day-date';
+        dateEl.setAttribute('style', 'font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;');
+        dateEl.textContent = item && item.dateText ? String(item.dateText) : '';
+
+        const gameLogoEl = document.createElement('div');
+        gameLogoEl.className = 'game-logo';
+        gameLogoEl.textContent = item && item.gameLogo ? String(item.gameLogo) : '-';
+
+        const streamTimeEl = document.createElement('div');
+        streamTimeEl.className = 'stream-time';
+        const zuluTime = item && item.zuluTime ? String(item.zuluTime) : '';
+        if (zuluTime) streamTimeEl.setAttribute('data-zulu-time', zuluTime);
+        streamTimeEl.textContent = item && item.timeText ? String(item.timeText) : (zuluTime || '');
+
+        const streamTitleEl = document.createElement('div');
+        streamTitleEl.className = 'stream-title';
+        streamTitleEl.textContent = item && item.streamTitle ? String(item.streamTitle) : '-';
+
+        card.appendChild(dayNameEl);
+        card.appendChild(dateEl);
+        card.appendChild(gameLogoEl);
+        card.appendChild(streamTimeEl);
+        card.appendChild(streamTitleEl);
+
+        if (status === 'completed' && item && item.vodUrl) {
+          const vodLink = document.createElement('a');
+          vodLink.href = String(item.vodUrl);
+          vodLink.target = '_blank';
+          vodLink.rel = 'noopener noreferrer';
+          vodLink.setAttribute('style', 'font-size: 0.8rem; color: #66BB6A; margin-top: 0.5rem; font-weight: 600; text-decoration: none; display: block; cursor: pointer; transition: color 0.2s;');
+          vodLink.textContent = '✓ Completed - Watch VOD';
+          card.appendChild(vodLink);
+        }
+
+        if (status === 'cancelled') {
+          const cancelledEl = document.createElement('div');
+          cancelledEl.setAttribute('style', 'font-size: 0.8rem; color: #ff6666; margin-top: 0.5rem; font-weight: 600;');
+          cancelledEl.textContent = '✖️ Cancelled';
+          card.appendChild(cancelledEl);
+        }
+
+        if (status === 'delayed') {
+          const delayedEl = document.createElement('div');
+          delayedEl.setAttribute('style', 'font-size: 0.8rem; color: #FFB74D; margin-top: 0.5rem; font-weight: 700;');
+          delayedEl.textContent = '⏰ Delayed';
+          card.appendChild(delayedEl);
+        }
+
+        container.appendChild(card);
+      });
+    }
+
+    function highlightToday() {
+      const today = new Date();
+      const month = today.getMonth() + 1;
+      const date = today.getDate();
+      const dateString = `${month}-${date}`;
+
+      const dayCards = document.querySelectorAll('[data-date]');
+      dayCards.forEach(card => {
+        if (card.getAttribute('data-date') === dateString) {
+          const dateDiv = card.querySelector('.day-date') || card.querySelector('div[style*="font-size: 0.8rem"]');
+          if (dateDiv && !dateDiv.textContent.includes('(Today)')) {
+            dateDiv.textContent += ' (Today)';
+          }
+        }
+      });
+    }
+
+    function ensureStatusPill(card) {
+      let pill = card.querySelector('.status-pill');
+      if (pill) return pill;
+      pill = document.createElement('div');
+      pill.className = 'status-pill';
+      card.insertBefore(pill, card.firstChild);
+      return pill;
+    }
+
+    function applyPillForCard(card, forcedText) {
+      const pill = ensureStatusPill(card);
+
+      if (forcedText === 'LIVE') {
+        pill.textContent = 'LIVE';
+        pill.className = 'status-pill live';
+        return;
+      }
+
+      if (card.classList.contains('completed')) {
+        pill.textContent = 'COMPLETED';
+        pill.className = 'status-pill completed';
+        return;
+      }
+
+      if (card.classList.contains('cancelled')) {
+        pill.textContent = 'CANCELLED';
+        pill.className = 'status-pill cancelled';
+        return;
+      }
+
+      if (card.classList.contains('delayed')) {
+        pill.textContent = 'DELAYED';
+        pill.className = 'status-pill delayed';
+        return;
+      }
+
+      if (card.classList.contains('has-stream')) {
+        pill.textContent = 'SCHEDULED';
+        pill.className = 'status-pill scheduled';
+        return;
+      }
+
+      pill.textContent = '';
+      pill.className = 'status-pill';
+    }
+
+    function updateLiveStatus() {
+      const now = new Date();
+      const currentUTCHours = now.getUTCHours();
+      const currentUTCMinutes = now.getUTCMinutes();
+      const currentUTCTime = currentUTCHours * 60 + currentUTCMinutes;
+
+      const dayCards = document.querySelectorAll('.day-card');
+      dayCards.forEach(card => {
+        const streamTimeEl = card.querySelector('.stream-time');
+        if (!streamTimeEl) return;
+
+        const zuluTimeStr = streamTimeEl.getAttribute('data-zulu-time');
+        if (!zuluTimeStr) {
+          card.classList.remove('live');
+          applyPillForCard(card);
+          return;
+        }
+
+        const timeMatch = zuluTimeStr.match(/(\d{1,2}):(\d{2})(?:\s(AM|PM))?\s+Zulu/i);
+        if (!timeMatch) {
+          card.classList.remove('live');
+          applyPillForCard(card);
+          return;
+        }
+
+        let streamHours = parseInt(timeMatch[1], 10);
+        const streamMinutes = parseInt(timeMatch[2], 10);
+        const period = timeMatch[3];
+
+        if (period) {
+          if (period.toUpperCase() === 'PM' && streamHours !== 12) streamHours += 12;
+          else if (period.toUpperCase() === 'AM' && streamHours === 12) streamHours = 0;
+        }
+
+        const streamUTCTime = streamHours * 60 + streamMinutes;
+        const streamDuration = 600;
+        const timeUntilStream = streamUTCTime - currentUTCTime;
+        const isLive = timeUntilStream >= -streamDuration && timeUntilStream < 0;
+
+        const cardDate = card.getAttribute('data-date');
+        const today = new Date();
+        const month = today.getMonth() + 1;
+        const date = today.getDate();
+        const dateString = `${month}-${date}`;
+        const isToday = cardDate === dateString;
+
+        const isBlockedByStatus = card.classList.contains('cancelled') || card.classList.contains('completed');
+
+        if (isLive && isToday && !isBlockedByStatus) {
+          card.classList.add('live');
+          card.style.cursor = 'pointer';
+          applyPillForCard(card, 'LIVE');
+        } else {
+          card.classList.remove('live');
+          card.style.cursor = 'default';
+          applyPillForCard(card);
+        }
+      });
+    }
+
+    function addLiveCardClickHandler() {
+      const dayCards = document.querySelectorAll('.day-card');
+      dayCards.forEach(card => {
+        if (card.dataset.liveClickBound === '1') return;
+        card.dataset.liveClickBound = '1';
+        card.addEventListener('click', function() {
+          if (this.classList.contains('live')) {
+            window.open('https://www.twitch.tv/Flyingwithjoel', '_blank');
+          }
+        });
+      });
+    }
+
+    async function run() {
+      const container = document.getElementById('weekly-schedule');
+      const note = document.getElementById('schedule-note');
+
+      try {
+        const result = await fetchFirstOkJson(getScheduleApiCandidates(), { cache: 'no-store' });
+        const items = result && result.data;
+
+        if (!Array.isArray(items) || items.length === 0) {
+          if (note) note.textContent = 'Using fallback schedule (API unavailable).';
+        } else {
+          renderWeeklySchedule(items);
+          if (note) note.textContent = result ? `Loaded from ${result.url}` : '';
+        }
+
+        highlightToday();
+        updateLiveStatus();
+        addLiveCardClickHandler();
+      } catch {
+        if (note) note.textContent = 'Could not load schedule (using fallback).';
+        highlightToday();
+        updateLiveStatus();
+        addLiveCardClickHandler();
+      } finally {
+        if (container) container.classList.remove('is-hydrating');
+      }
+    }
+
+    window.addEventListener('load', run);
+    window.addEventListener('load', highlightToday);
+    window.addEventListener('load', updateLiveStatus);
+    setInterval(updateLiveStatus, 60000);
+    window.addEventListener('load', function() {
+      addLiveCardClickHandler();
+      setInterval(addLiveCardClickHandler, 60000);
+    });
+  </script>
+</body>
+</html>
