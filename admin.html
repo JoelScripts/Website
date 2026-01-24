@@ -215,6 +215,8 @@
 
     <p class="muted">🔐 Sign in to edit the schedule. This page saves to <code>/api/schedule</code> (Cloudflare Worker + KV).</p>
 
+    <div id="status-bar" class="admin-msg" style="margin: 0.75rem 0 0;"></div>
+
     <div id="login-card" class="admin-card">
       <div class="admin-grid">
         <h2 style="margin: 0;">🔑 Admin Login</h2>
@@ -280,6 +282,7 @@
 
   <script>
     const statusEl = document.getElementById('status');
+    const statusBarEl = document.getElementById('status-bar');
     const userEl = document.getElementById('admin-user');
     const passEl = document.getElementById('admin-pass');
     const jsonEl = document.getElementById('schedule-json');
@@ -744,8 +747,16 @@
     }
 
     function setStatus(text, kind) {
-      statusEl.textContent = text;
-      statusEl.className = 'admin-msg' + (kind ? ` ${kind}` : '');
+      const cls = 'admin-msg' + (kind ? ` ${kind}` : '');
+
+      if (statusEl) {
+        statusEl.textContent = text;
+        statusEl.className = cls;
+      }
+      if (statusBarEl) {
+        statusBarEl.textContent = text;
+        statusBarEl.className = cls;
+      }
     }
 
     function getAuthHeader() {
