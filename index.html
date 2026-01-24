@@ -992,6 +992,55 @@
         // Update live status and check every minute
         setInterval(updateLiveStatus, 60000);
 
+        function ensureStatusPill(card) {
+            let pill = card.querySelector('.status-pill');
+            if (pill) return pill;
+
+            pill = document.createElement('div');
+            pill.className = 'status-pill';
+            // Put it at the top of the card (matches the hydrated schedule layout)
+            card.insertBefore(pill, card.firstChild);
+            return pill;
+        }
+
+        function applyPillForCard(card, forcedText) {
+            const pill = ensureStatusPill(card);
+
+            if (forcedText === 'LIVE') {
+                pill.textContent = 'LIVE';
+                pill.className = 'status-pill live';
+                return;
+            }
+
+            if (card.classList.contains('completed')) {
+                pill.textContent = 'COMPLETED';
+                pill.className = 'status-pill completed';
+                return;
+            }
+
+            if (card.classList.contains('cancelled')) {
+                pill.textContent = 'CANCELLED';
+                pill.className = 'status-pill cancelled';
+                return;
+            }
+
+            if (card.classList.contains('delayed')) {
+                pill.textContent = 'DELAYED';
+                pill.className = 'status-pill delayed';
+                return;
+            }
+
+            if (card.classList.contains('has-stream')) {
+                pill.textContent = 'SCHEDULED';
+                pill.className = 'status-pill scheduled';
+                return;
+            }
+
+            // No status to show
+            pill.textContent = '';
+            pill.className = 'status-pill';
+        }
+
         function updateLiveStatus() {
             // Use UTC/Zulu time for accurate comparison across all timezones
             const now = new Date();
@@ -1051,33 +1100,13 @@
                     card.classList.add('live');
                     card.style.cursor = 'pointer';
 
-                    const pill = card.querySelector('.status-pill');
-                    if (pill) {
-                        pill.textContent = 'LIVE';
-                        pill.className = 'status-pill live';
-                    }
+                    applyPillForCard(card, 'LIVE');
                 } else {
                     card.classList.remove('live');
                     card.style.cursor = 'default';
 
-                    const pill = card.querySelector('.status-pill');
-                    if (pill) {
-                        if (card.classList.contains('completed')) {
-                            pill.textContent = 'COMPLETED';
-                            pill.className = 'status-pill completed';
-                        } else if (card.classList.contains('cancelled')) {
-                            pill.textContent = 'CANCELLED';
-                            pill.className = 'status-pill cancelled';
-                        } else if (card.classList.contains('delayed')) {
-                            pill.textContent = 'DELAYED';
-                            pill.className = 'status-pill delayed';
-                        } else if (card.classList.contains('has-stream')) {
-                            pill.textContent = 'SCHEDULED';
-                            pill.className = 'status-pill scheduled';
-                        } else {
-                            pill.textContent = '';
-                        }
-                    }
+                    // Ensure pill is restored for non-live state too
+                    applyPillForCard(card);
                 }
             });
         }

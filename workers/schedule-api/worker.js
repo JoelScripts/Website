@@ -91,32 +91,55 @@ function isAuthorized(request, env) {
   return Boolean(userOk && passOk);
 }
 
-function isValidScheduleArray(value) {
-  if (!Array.isArray(value)) return false;
-  if (value.length < 1 || value.length > 14) return false; // allow a bit of flexibility
+function validateScheduleArray(value) {
+  if (!Array.isArray(value)) return { ok: false, reason: 'Body is not an array.' };
+  if (value.length < 1 || value.length > 14) return { ok: false, reason: 'Array length must be between 1 and 14.' };
 
-  for (const item of value) {
-    if (!item || typeof item !== 'object') return false;
+  for (let i = 0; i < value.length; i += 1) {
+    const item = value[i];
+    if (!item || typeof item !== 'object') return { ok: false, index: i, reason: 'Item is not an object.' };
 
     // Required-ish fields used by index/admin
-    if (typeof item.dateKey !== 'string' || !/^\d{1,2}-\d{1,2}$/.test(item.dateKey)) return false;
-    if (typeof item.dayName !== 'string') return false;
-    if (typeof item.dateText !== 'string') return false;
+    if (typeof item.dateKey !== 'string' || !/^\d{1,2}-\d{1,2}$/.test(item.dateKey)) {
+      return { ok: false, index: i, field: 'dateKey', reason: 'dateKey must look like M-D (e.g. 1-24).' };
+    }
+    if (typeof item.dayName !== 'string') {
+      return { ok: false, index: i, field: 'dayName', reason: 'dayName must be a string.' };
+    }
+    if (typeof item.dateText !== 'string') {
+      return { ok: false, index: i, field: 'dateText', reason: 'dateText must be a string.' };
+    }
 
-    if (typeof item.status !== 'string') return false;
+    if (typeof item.status !== 'string') {
+      return { ok: false, index: i, field: 'status', reason: 'status must be a string.' };
+    }
     const status = item.status.toLowerCase();
-    if (!['none', 'scheduled', 'completed', 'cancelled', 'delayed'].includes(status)) return false;
+    if (!['none', 'scheduled', 'completed', 'cancelled', 'delayed'].includes(status)) {
+      return { ok: false, index: i, field: 'status', reason: `Unsupported status: ${status}` };
+    }
 
     // Optional fields
-    if (item.zuluTime !== null && item.zuluTime !== undefined && typeof item.zuluTime !== 'string') return false;
-    if (item.originalZuluTime !== null && item.originalZuluTime !== undefined && typeof item.originalZuluTime !== 'string') return false;
-    if (item.timeText !== null && item.timeText !== undefined && typeof item.timeText !== 'string') return false;
-    if (item.streamTitle !== null && item.streamTitle !== undefined && typeof item.streamTitle !== 'string') return false;
-    if (item.vodUrl !== null && item.vodUrl !== undefined && typeof item.vodUrl !== 'string') return false;
-    if (item.gameLogo !== null && item.gameLogo !== undefined && typeof item.gameLogo !== 'string') return false;
+    if (item.zuluTime !== null && item.zuluTime !== undefined && typeof item.zuluTime !== 'string') {
+      return { ok: false, index: i, field: 'zuluTime', reason: 'zuluTime must be a string or null.' };
+    }
+    if (item.originalZuluTime !== null && item.originalZuluTime !== undefined && typeof item.originalZuluTime !== 'string') {
+      return { ok: false, index: i, field: 'originalZuluTime', reason: 'originalZuluTime must be a string or null.' };
+    }
+    if (item.timeText !== null && item.timeText !== undefined && typeof item.timeText !== 'string') {
+      return { ok: false, index: i, field: 'timeText', reason: 'timeText must be a string or null.' };
+    }
+    if (item.streamTitle !== null && item.streamTitle !== undefined && typeof item.streamTitle !== 'string') {
+      return { ok: false, index: i, field: 'streamTitle', reason: 'streamTitle must be a string or null.' };
+    }
+    if (item.vodUrl !== null && item.vodUrl !== undefined && typeof item.vodUrl !== 'string') {
+      return { ok: false, index: i, field: 'vodUrl', reason: 'vodUrl must be a string or null.' };
+    }
+    if (item.gameLogo !== null && item.gameLogo !== undefined && typeof item.gameLogo !== 'string') {
+      return { ok: false, index: i, field: 'gameLogo', reason: 'gameLogo must be a string or null.' };
+    }
   }
 
-  return true;
+  return { ok: true };
 }
 
 export default {
@@ -222,9 +245,10 @@ export default {
         );
       }
 
-      if (!isValidScheduleArray(body)) {
+      const validation = validateScheduleArray(body);
+      if (!validation.ok) {
         return jsonResponse(
-          { error: 'Schedule must be a valid array of schedule items.' },
+          { error: 'Schedule must be a valid array of schedule items.', details: validation },
           { status: 400, headers: corsHeadersFor(request) }
         );
       }
