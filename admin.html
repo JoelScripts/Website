@@ -591,11 +591,18 @@
 
     function setDetailsOpenByViewport() {
       // Only auto-expand on desktop. Wide phones should stay collapsed.
-      const shouldOpen = window.matchMedia && window.matchMedia('(min-width: 981px)').matches;
+      const shouldOpen = DETAILS_DESKTOP_MQL ? DETAILS_DESKTOP_MQL.matches : false;
+      if (lastDetailsAutoOpen === shouldOpen) return;
+      lastDetailsAutoOpen = shouldOpen;
       document.querySelectorAll('.schedule-day').forEach((d) => {
         d.open = shouldOpen;
       });
     }
+
+    // Use a media-query listener instead of window resize.
+    // Mobile browsers can fire resize events while scrolling (URL bar show/hide), which can cause scroll jumps.
+    const DETAILS_DESKTOP_MQL = window.matchMedia ? window.matchMedia('(min-width: 981px)') : null;
+    let lastDetailsAutoOpen = null;
 
     function updateRowDerived(row) {
       const month = parseInt(row.querySelector('.month').value, 10);
@@ -918,9 +925,13 @@
       lockUi();
     }
 
-    window.addEventListener('resize', () => {
-      setDetailsOpenByViewport();
-    });
+    if (DETAILS_DESKTOP_MQL) {
+      if (typeof DETAILS_DESKTOP_MQL.addEventListener === 'function') {
+        DETAILS_DESKTOP_MQL.addEventListener('change', setDetailsOpenByViewport);
+      } else if (typeof DETAILS_DESKTOP_MQL.addListener === 'function') {
+        DETAILS_DESKTOP_MQL.addListener(setDetailsOpenByViewport);
+      }
+    }
   </script>
 </body>
 </html>
