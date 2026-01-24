@@ -178,7 +178,13 @@
       .schedule-item .field.field-delayed { grid-column: 1 / -1; }
 
       /* Delayed/completed can have extra inputs; give them room */
-      .schedule-item.is-delayed .field-title { grid-column: 1 / -1; }
+      .schedule-item.is-delayed { grid-template-columns: 1fr; }
+      .schedule-item.is-delayed .field-day,
+      .schedule-item.is-delayed .field-date,
+      .schedule-item.is-delayed .field-time,
+      .schedule-item.is-delayed .field-delayed,
+      .schedule-item.is-delayed .field-title,
+      .schedule-item.is-delayed .field-status { grid-column: 1 / -1; }
     }
 
     @media (max-width: 520px) {
