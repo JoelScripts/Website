@@ -252,6 +252,24 @@
           <div id="signed-in-pill" class="muted">You’re signed in.</div>
         </div>
 
+        <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; background: rgba(0,0,0,0.12); padding: 1rem;">
+          <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <div>
+              <h3 style="margin: 0;">🧯 Site Mode</h3>
+              <p class="admin-msg" style="margin-top: 0.2rem;">Switch the public site between Live and Maintenance (<code>/pages/maintenance.html</code>).</p>
+            </div>
+            <div id="site-mode-pill" class="muted">Mode: …</div>
+          </div>
+
+          <div class="admin-actions" style="margin-top: 0.7rem;">
+            <button id="btn-site-refresh" class="secondary" type="button">↻ Refresh mode</button>
+            <button id="btn-site-live" class="secondary" type="button">✅ Set Live</button>
+            <button id="btn-site-maint" class="danger" type="button">🔧 Set Maintenance</button>
+            <span class="spacer"></span>
+            <span id="site-mode-status" class="admin-msg"></span>
+          </div>
+        </div>
+
         <div>
           <div class="schedule-header-row" aria-hidden="true">
             <div>Day</div>
@@ -293,6 +311,12 @@
     const editorCardEl = document.getElementById('editor-card');
     const signedInPillEl = document.getElementById('signed-in-pill');
 
+    const siteModePillEl = document.getElementById('site-mode-pill');
+    const siteModeStatusEl = document.getElementById('site-mode-status');
+    const btnSiteRefreshEl = document.getElementById('btn-site-refresh');
+    const btnSiteLiveEl = document.getElementById('btn-site-live');
+    const btnSiteMaintEl = document.getElementById('btn-site-maint');
+
     const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DEFAULT_DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
 
@@ -305,6 +329,7 @@
     ];
 
     const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
+    const SITE_MODE_API_LOCALSTORAGE_KEY = 'fwj_site_mode_api';
 
     function sanitizeApiUrl(raw) {
       const s = (raw || '').trim();
@@ -354,6 +379,143 @@
     }
 
     let authHeader = null;
+
+    function getSiteModeApiOverride() {
+      // Query param wins and is persisted.
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const qp = sanitizeApiUrl(params.get('siteModeApi'));
+        if (qp) {
+          localStorage.setItem(SITE_MODE_API_LOCALSTORAGE_KEY, qp);
+          return qp;
+        }
+      } catch {
+        // ignore
+      }
+
+      try {
+        const fromLs = sanitizeApiUrl(localStorage.getItem(SITE_MODE_API_LOCALSTORAGE_KEY));
+        if (fromLs) return fromLs;
+      } catch {
+        // ignore
+      }
+
+      // Optional meta override.
+      const meta = document.querySelector('meta[name="site-mode-api"]');
+      const metaVal = sanitizeApiUrl(meta ? meta.getAttribute('content') : '');
+      return metaVal;
+    }
+
+    function getSiteModeApiCandidates() {
+      const override = getSiteModeApiOverride();
+      const candidates = [
+        override,
+        '/api/site-mode',
+        'https://api.flyingwithjoel.co.uk/api/site_mode.php',
+      ].filter(Boolean);
+      return Array.from(new Set(candidates));
+    }
+
+    function setSiteModeStatus(text, kind) {
+      if (!siteModeStatusEl) return;
+      const cls = 'admin-msg' + (kind ? ` ${kind}` : '');
+      siteModeStatusEl.textContent = text || '';
+      siteModeStatusEl.className = cls;
+    }
+
+    function renderSiteMode(mode, updatedAtUtc) {
+      if (!siteModePillEl) return;
+      const m = (mode || 'live').toLowerCase();
+      const label = m === 'maintenance' ? '🔧 Maintenance' : '✅ Live';
+      const when = updatedAtUtc ? ` (updated ${updatedAtUtc})` : '';
+      siteModePillEl.textContent = `Mode: ${label}${when}`;
+    }
+
+    async function loadSiteMode() {
+      setSiteModeStatus('Loading…', null);
+      try {
+        const result = await fetchFirstOkJson(getSiteModeApiCandidates(), { cache: 'no-store' });
+        if (!result) throw new Error('No site-mode API responded.');
+        const data = result.data || {};
+        renderSiteMode(data.mode || 'live', data.updatedAtUtc || null);
+        setSiteModeStatus(`Loaded from ${result.url}`, 'ok');
+      } catch (e) {
+        console.error(e);
+        renderSiteMode('live', null);
+        setSiteModeStatus('Failed to load site mode (defaulting to Live).', 'err');
+      }
+    }
+
+    async function saveSiteMode(mode) {
+      if (isPreviewMode()) {
+        setSiteModeStatus('Preview mode: changes are disabled.', 'err');
+        return;
+      }
+
+      const auth = authHeader;
+      if (!auth) {
+        setSiteModeStatus('Locked. Click Unlock first.', 'err');
+        return;
+      }
+
+      const m = (mode || '').toLowerCase();
+      if (m !== 'live' && m !== 'maintenance') {
+        setSiteModeStatus('Invalid mode.', 'err');
+        return;
+      }
+
+      setSiteModeStatus('Saving…', null);
+      try {
+        const targets = getSiteModeApiCandidates();
+        let savedUrl = null;
+        let lastStatus = null;
+        let lastBody = null;
+
+        for (const u of targets) {
+          try {
+            const resp = await fetch(u, {
+              method: 'PUT',
+              headers: {
+                'content-type': 'application/json',
+                'authorization': auth,
+              },
+              body: JSON.stringify({ mode: m }),
+            });
+
+            lastStatus = resp.status;
+            if (resp.status === 401) {
+              setSiteModeStatus('Unauthorized (wrong username/password).', 'err');
+              return;
+            }
+
+            if (!resp.ok) {
+              try {
+                lastBody = await resp.text();
+              } catch {
+                lastBody = null;
+              }
+              continue;
+            }
+
+            savedUrl = u;
+            break;
+          } catch {
+            // try next
+          }
+        }
+
+        if (!savedUrl) {
+          const extra = lastBody ? ` — ${String(lastBody).slice(0, 220)}` : '';
+          throw new Error(`Save failed to ${targets[0] || '/api/site-mode'} (last status: ${lastStatus ?? 'n/a'})${extra}`);
+        }
+
+        setSiteModeStatus(`Saved to ${savedUrl}.`, 'ok');
+        await loadSiteMode();
+      } catch (e) {
+        console.error(e);
+        setSiteModeStatus(String(e && e.message ? e.message : 'Save failed.'), 'err');
+      }
+    }
 
     function isPreviewMode() {
       try {
@@ -797,6 +959,8 @@
       editorCardEl.classList.add('hidden');
       loginCardEl.classList.remove('hidden');
       setStatus('', null);
+      renderSiteMode('live', null);
+      setSiteModeStatus('', null);
     }
 
     async function unlock() {
@@ -816,6 +980,7 @@
         unlockUi();
         setStatus('Unlocked.', 'ok');
         await loadCurrent();
+        await loadSiteMode();
       } catch (e) {
         console.error(e);
         setStatus('Login failed (could not reach auth endpoint).', 'err');
@@ -998,6 +1163,10 @@
     document.getElementById('btn-save').addEventListener('click', saveSchedule);
     document.getElementById('btn-lock').addEventListener('click', lockUi);
 
+    if (btnSiteRefreshEl) btnSiteRefreshEl.addEventListener('click', loadSiteMode);
+    if (btnSiteLiveEl) btnSiteLiveEl.addEventListener('click', () => saveSiteMode('live'));
+    if (btnSiteMaintEl) btnSiteMaintEl.addEventListener('click', () => saveSiteMode('maintenance'));
+
     // Default locked view
     if (isPreviewMode()) {
       authHeader = null;
@@ -1012,6 +1181,7 @@
 
       setStatus('Preview mode enabled.', 'ok');
       loadCurrent();
+      loadSiteMode();
     } else {
       lockUi();
     }
