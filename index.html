@@ -25,58 +25,7 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <!-- Twitch Embed SDK - Loaded after consent check -->
 
-    <script>
-        // Best-effort site mode gate (Live vs Maintenance).
-        // If the API says maintenance, redirect to /pages/maintenance.html.
-        (function () {
-            try {
-                const path = (window.location.pathname || '').toLowerCase();
-                if (path.includes('/pages/maintenance.html')) return;
-            } catch {
-                // ignore
-            }
-
-            const MAINTENANCE_URL = 'pages/maintenance.html';
-            const API_CANDIDATES = [
-                '/api/site-mode',
-                'https://api.flyingwithjoel.co.uk/api/site_mode.php'
-            ];
-
-            function withTimeout(ms) {
-                const controller = new AbortController();
-                const t = setTimeout(() => controller.abort(), ms);
-                return { controller, clear: () => clearTimeout(t) };
-            }
-
-            async function fetchFirstOkJson(urls, init) {
-                for (const u of urls) {
-                    try {
-                        const resp = await fetch(u, init);
-                        if (!resp.ok) continue;
-                        return await resp.json();
-                    } catch {
-                        // try next
-                    }
-                }
-                return null;
-            }
-
-            (async function () {
-                const timeout = withTimeout(1200);
-                try {
-                    const data = await fetchFirstOkJson(API_CANDIDATES, { cache: 'no-store', signal: timeout.controller.signal });
-                    const mode = (data && typeof data.mode === 'string' ? data.mode : 'live').toLowerCase();
-                    if (mode === 'maintenance') {
-                        window.location.replace(MAINTENANCE_URL);
-                    }
-                } catch {
-                    // Default to live if API is unreachable.
-                } finally {
-                    timeout.clear();
-                }
-            })();
-        })();
-    </script>
+    <script src="assets/js/site-mode.js"></script>
 
 </head>
 <body>
