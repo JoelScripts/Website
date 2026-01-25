@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - Flying With Joel</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
     <script src="../assets/js/site-mode.js"></script>
     <!-- Google Fonts intentionally not loaded by default for privacy -->
     <style>
@@ -549,6 +550,16 @@
                 </div>
             </div>
 
+            <!-- Card 4b: Giphy (Secret Page Media) -->
+            <div class="card">
+                <h3>🎞️ Giphy (Optional Media)</h3>
+                <p>Our site includes an optional, consent-gated animated image on a hidden/bonus page. If you choose to enable optional third-party embeds, your browser may request media from Giphy, which may process technical data such as your IP address and user agent.</p>
+                <p><a href="https://support.giphy.com/hc/en-us/articles/360032872931" target="_blank">View Giphy Privacy Information →</a></p>
+                <div class="card-note">
+                    <strong>Data Shared:</strong> Technical request data (e.g., IP address, browser info) when media is loaded.
+                </div>
+            </div>
+
             <!-- Card 5: Discord Suggestions -->
             <div class="card">
                 <h3>💬 Discord (Flight Suggestions)</h3>
@@ -559,6 +570,16 @@
                 </div>
             </div>
 
+            <!-- Card 5b: Cloudflare Turnstile (Anti-spam) -->
+            <div class="card">
+                <h3>🧩 Cloudflare Turnstile (Anti-Spam Verification)</h3>
+                <p>To protect our Suggestions form from automated spam, we may enable Cloudflare Turnstile. If enabled, your browser will load Turnstile from Cloudflare and Cloudflare will process technical request data and a verification token to determine whether the request appears automated.</p>
+                <p><a href="https://www.cloudflare.com/privacypolicy/" target="_blank">View Cloudflare Privacy Policy →</a></p>
+                <div class="card-note">
+                    <strong>Data Processed:</strong> Technical request data and verification signals/token (when Turnstile is enabled).
+                </div>
+            </div>
+
             <!-- Card 6: Cloudflare (Edge APIs) -->
             <div class="card">
                 <h3>☁️ Cloudflare (Edge APIs)</h3>
@@ -566,6 +587,15 @@
                 <p><a href="https://www.cloudflare.com/privacypolicy/" target="_blank">View Cloudflare Privacy Policy →</a></p>
                 <div class="card-note">
                     <strong>Data Processed:</strong> Request metadata (and potentially short-lived abuse-prevention signals) when you interact with site API endpoints.
+                </div>
+            </div>
+
+            <!-- Card 6b: FastHosts (Legacy API Hosting) -->
+            <div class="card">
+                <h3>🖥️ FastHosts (Legacy API Endpoints)</h3>
+                <p>In some situations (for example, as a fallback if our edge API is unavailable), certain schedule/site-mode API requests may be served from our own subdomain hosted with FastHosts. As with most web hosting providers, FastHosts may process basic technical request data (such as IP address and request metadata) to operate the service securely.</p>
+                <div class="card-note">
+                    <strong>Data Processed:</strong> Technical request data when legacy API endpoints are used.
                 </div>
             </div>
         </div>
@@ -704,8 +734,22 @@
             <a href="privacy.html">Privacy Policy</a> •
             <a href="terms.html">Terms of Service</a> •
             <a href="cookies.html">Cookie Policy</a> •
-            <a href="security.html">Security & Hosting</a>
+            <a href="security.html">Security & Hosting</a> •
+            <a href="#" id="cookie-settings-link">Cookie Settings</a>
         </p>
     </div>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-consent-banner" class="cookie-consent-banner">
+        <div class="cookie-consent-content">
+            <p>We use local storage (localStorage) to remember your choices (such as your consent preference for optional third-party embeds/resources). <a href="privacy.html">Learn more about our privacy practices</a>.</p>
+        </div>
+        <div class="cookie-consent-buttons">
+            <button id="cookie-accept-btn" class="cookie-consent-btn accept">Accept</button>
+            <button id="cookie-reject-btn" class="cookie-consent-btn decline">Decline</button>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

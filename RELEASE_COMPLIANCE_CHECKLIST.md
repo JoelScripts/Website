@@ -4,7 +4,7 @@ Use this **before every deploy** (or when you change embeds, scripts, forms, or 
 
 ## A) Changes & data map (5 minutes)
 - [ ] List what changed in this release (pages, scripts, embeds, third parties).
-- [ ] If you added/removed any third party (YouTube/Twitch/Giphy/fonts/analytics): update relevant policy text to match reality.
+- [ ] If you added/removed any third party (YouTube/Twitch/Giphy/fonts/Turnstile/FastHosts/analytics): update relevant policy text to match reality.
 
 ## B) Consent + PECR/ePrivacy checks (10 minutes)
 **Goal:** no non-essential third-party requests before consent.
@@ -25,6 +25,7 @@ Use this **before every deploy** (or when you change embeds, scripts, forms, or 
 
 ## E) Security hygiene (5 minutes)
 - [ ] No secrets in the repo (search for “webhook”, “token”, “secret”, “api_key”).
+- [ ] DSAR packets are not in the deployed site (confirm `data_requests/` is empty/absent in production; keep DSAR packets local only).
 - [ ] Suggestions submissions do not expose a Discord webhook in client code.
 - [ ] Worker/proxy secrets are stored only in the platform secret store.
 - [ ] Admin accounts (email/Discord/Cloudflare/GitHub) have 2FA enabled.

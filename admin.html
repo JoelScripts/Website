@@ -24,7 +24,77 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
     .admin-card textarea { min-height: 360px; resize: vertical; }
-    .schedule-grid { display: grid; grid-template-columns: 1fr; gap: 1.05rem; }
+    .admin-weekly-schedule { margin-top: 1rem; }
+
+    /* Admin schedule cards (match public schedule.html) */
+    .admin-day-card { text-align: center; }
+    .admin-day-card:hover { transform: none; }
+    .admin-day-card .day-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+    .admin-day-card .status-pill.none { display: none; }
+
+    .admin-day-card .admin-extra {
+      font-size: 0.8rem;
+      margin-top: 0.35rem;
+      font-weight: 600;
+    }
+    .admin-day-card .admin-extra a {
+      color: #66BB6A;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .admin-day-card .admin-extra a:hover { text-decoration: underline; }
+    .admin-day-card .admin-extra.cancelled { color: #ff6666; }
+    .admin-day-card .admin-extra.delayed { color: #FFB74D; }
+
+    .admin-day-card details.admin-edit {
+      margin-top: 0.5rem;
+      text-align: left;
+      border-top: 1px solid rgba(255,255,255,0.10);
+      padding-top: 0.75rem;
+    }
+    .admin-day-card details.admin-edit summary {
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.92);
+    }
+    .admin-day-card details.admin-edit summary::-webkit-details-marker { display: none; }
+    .admin-day-card details.admin-edit[open] summary { background: rgba(255,255,255,0.10); }
+
+    .admin-day-card .admin-edit-content {
+      margin-top: 0.9rem;
+      background: rgba(0,0,0,0.16);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 0.8rem;
+      padding: 1rem;
+    }
+    .admin-day-card .schedule-item {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+      padding: 0;
+    }
+    @media (min-width: 840px) {
+      .admin-day-card .schedule-item { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .admin-day-card .schedule-item .field.field-status,
+      .admin-day-card .schedule-item .field.field-title,
+      .admin-day-card .schedule-item .field.field-delayed { grid-column: 1 / -1; }
+    }
 
     /* Mobile-friendly day cards */
     .schedule-day {
@@ -198,7 +268,6 @@
       .schedule-item .field-title,
       .schedule-item .field-status,
       .schedule-item .field-delayed { grid-column: 1 / -1; }
-      .schedule-day .summary-title { max-width: 26ch; }
     }
   </style>
 </head>
@@ -271,14 +340,7 @@
         </div>
 
         <div>
-          <div class="schedule-header-row" aria-hidden="true">
-            <div>Day</div>
-            <div>Date</div>
-            <div>Time</div>
-            <div>Title</div>
-            <div>Stream?</div>
-          </div>
-          <div id="schedule-grid" class="schedule-grid"></div>
+          <div id="schedule-grid" class="weekly-schedule admin-weekly-schedule"></div>
 
           <div class="advanced">
             <details>
@@ -592,26 +654,43 @@
         const zuluForDelayedTo = status === 'delayed' ? (item && item.zuluTime ? String(item.zuluTime) : '') : '';
         const vodUrl = (item && item.vodUrl ? String(item.vodUrl) : '');
 
-        const wrapper = document.createElement('details');
-        wrapper.className = 'schedule-day';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'day-card admin-day-card';
 
-        const summary = document.createElement('summary');
-        summary.innerHTML = `
-          <div class="summary-left">
-            <div class="summary-top">
-              <span class="summary-day"></span>
-              <span class="summary-date"></span>
-            </div>
-            <div class="summary-sub">
-              <span class="summary-time"></span>
-              <span class="summary-title"></span>
-            </div>
-          </div>
-          <div class="summary-right">
-            <span class="status-pill"></span>
-            <span class="chev">›</span>
-          </div>
-        `;
+        const pill = document.createElement('span');
+        pill.className = 'status-pill none';
+        wrapper.appendChild(pill);
+
+        const dayNameEl = document.createElement('div');
+        dayNameEl.className = 'day-name';
+        wrapper.appendChild(dayNameEl);
+
+        const dateEl = document.createElement('div');
+        dateEl.className = 'day-date';
+        wrapper.appendChild(dateEl);
+
+        const gameLogoEl = document.createElement('div');
+        gameLogoEl.className = 'game-logo';
+        wrapper.appendChild(gameLogoEl);
+
+        const timeDisplayEl = document.createElement('div');
+        timeDisplayEl.className = 'stream-time';
+        wrapper.appendChild(timeDisplayEl);
+
+        const titleDisplayEl = document.createElement('div');
+        titleDisplayEl.className = 'stream-title';
+        wrapper.appendChild(titleDisplayEl);
+
+        const extraEl = document.createElement('div');
+        extraEl.className = 'admin-extra';
+        wrapper.appendChild(extraEl);
+
+        const editorDetails = document.createElement('details');
+        editorDetails.className = 'admin-edit';
+        editorDetails.innerHTML = '<summary>✏️ Edit</summary>';
+
+        const editorContent = document.createElement('div');
+        editorContent.className = 'admin-edit-content';
 
         const row = document.createElement('div');
         row.className = 'schedule-item';
@@ -661,8 +740,9 @@
           </div>
         `;
 
-        wrapper.appendChild(summary);
-        wrapper.appendChild(row);
+        editorContent.appendChild(row);
+        editorDetails.appendChild(editorContent);
+        wrapper.appendChild(editorDetails);
         scheduleGridEl.appendChild(wrapper);
 
         // Initialize previews
@@ -688,9 +768,6 @@
 
       // Ensure JSON reflects UI
       syncJsonFromEditor(true);
-
-      // Desktop: expand all cards for faster editing
-      setDetailsOpenByViewport();
     }
 
     function statusLabel(status) {
@@ -726,51 +803,82 @@
       const time = (row.querySelector('.time')?.value || '').trim();
       const delayedTo = (row.querySelector('.delayedTo')?.value || '').trim();
 
-      const dayEl = wrapper.querySelector('.summary-day');
-      const dateEl = wrapper.querySelector('.summary-date');
+      const vodUrl = (row.querySelector('.vodUrl')?.value || '').trim();
+
+      const normalizeZulu = (raw) => {
+        const r = (raw || '').trim();
+        if (!r) return '';
+        return r.toLowerCase().includes('zulu') ? r : `${r} Zulu`;
+      };
+
+      const dayEl = wrapper.querySelector('.day-name');
+      const dateEl = wrapper.querySelector('.day-date');
       const pill = wrapper.querySelector('.status-pill');
-      const timeEl = wrapper.querySelector('.summary-time');
-      const titleEl = wrapper.querySelector('.summary-title');
+      const timeEl = wrapper.querySelector('.stream-time');
+      const titleEl = wrapper.querySelector('.stream-title');
+      const gameEl = wrapper.querySelector('.game-logo');
+      const extraEl = wrapper.querySelector('.admin-extra');
 
       if (dayEl) dayEl.textContent = day;
       if (dateEl) dateEl.textContent = dateText;
 
+      // Card-level classes match the public schedule page
+      wrapper.classList.toggle('has-stream', status !== 'none');
+      wrapper.classList.toggle('cancelled', status === 'cancelled');
+      wrapper.classList.toggle('delayed', status === 'delayed');
+      wrapper.classList.toggle('completed', status === 'completed');
+
+      if (pill) {
+        pill.className = `status-pill ${status}`;
+        pill.textContent = status === 'none' ? '' : status.toUpperCase();
+      }
+
+      if (gameEl) gameEl.textContent = status === 'none' ? '-' : '✈️';
+
       if (timeEl) {
         if (status === 'none') {
-          timeEl.textContent = '🚫 No stream';
+          timeEl.textContent = 'No Stream Planned';
+          timeEl.removeAttribute('data-zulu-time');
         } else if (status === 'delayed') {
-          const from = time ? (time.toLowerCase().includes('zulu') ? time : `${time} Zulu`) : 'TBC';
-          const to = delayedTo ? (delayedTo.toLowerCase().includes('zulu') ? delayedTo : `${delayedTo} Zulu`) : 'TBC';
-          timeEl.textContent = `⏰ ${from} → ${to}`;
+          const to = normalizeZulu(delayedTo);
+          timeEl.textContent = to ? `Delayed to ${to}` : 'Delayed (new time TBC)';
+          if (to) timeEl.setAttribute('data-zulu-time', to);
+          else timeEl.removeAttribute('data-zulu-time');
         } else {
-          const t = time ? (time.toLowerCase().includes('zulu') ? time : `${time} Zulu`) : 'TBC';
-          timeEl.textContent = `⏰ ${t}`;
+          const t = normalizeZulu(time);
+          timeEl.textContent = t || 'TBC';
+          if (t) timeEl.setAttribute('data-zulu-time', t);
+          else timeEl.removeAttribute('data-zulu-time');
         }
       }
 
       if (titleEl) {
-        titleEl.textContent = status === 'none' ? '' : `🎮 ${title}`;
+        titleEl.textContent = status === 'none' ? '-' : (title || 'Stream');
       }
 
-      if (pill) {
-        pill.className = `status-pill ${status}`;
-        pill.textContent = status === 'none' ? '' : `${statusEmoji(status)} ${status}`;
+      if (extraEl) {
+        extraEl.className = 'admin-extra';
+        extraEl.innerHTML = '';
+        if (status === 'cancelled') {
+          extraEl.classList.add('cancelled');
+          extraEl.textContent = '✖️ Cancelled';
+        } else if (status === 'completed') {
+          if (vodUrl) {
+            extraEl.innerHTML = `<a href="${vodUrl.replace(/"/g, '&quot;')}" target="_blank" rel="noopener noreferrer">✓ Completed - Watch VOD</a>`;
+          } else {
+            extraEl.textContent = '✓ Completed';
+          }
+        } else if (status === 'delayed') {
+          extraEl.classList.add('delayed');
+          const from = normalizeZulu(time);
+          const to = normalizeZulu(delayedTo);
+          extraEl.textContent = from && to ? `⏳ ${from} → ${to}` : '⏳ Delayed';
+        }
       }
     }
 
-    function setDetailsOpenByViewport() {
-      // Only auto-expand on desktop. Wide phones should stay collapsed.
-      const shouldOpen = DETAILS_DESKTOP_MQL ? DETAILS_DESKTOP_MQL.matches : false;
-      if (lastDetailsAutoOpen === shouldOpen) return;
-      lastDetailsAutoOpen = shouldOpen;
-      document.querySelectorAll('.schedule-day').forEach((d) => {
-        d.open = shouldOpen;
-      });
-    }
-
-    // Use a media-query listener instead of window resize.
-    // Mobile browsers can fire resize events while scrolling (URL bar show/hide), which can cause scroll jumps.
-    const DETAILS_DESKTOP_MQL = window.matchMedia ? window.matchMedia('(min-width: 981px)') : null;
+    // Keep cards collapsed by default; edit panels are opened manually.
+    const DETAILS_DESKTOP_MQL = null;
     let lastDetailsAutoOpen = null;
 
     function updateRowDerived(row) {
@@ -1191,13 +1299,6 @@
       lockUi();
     }
 
-    if (DETAILS_DESKTOP_MQL) {
-      if (typeof DETAILS_DESKTOP_MQL.addEventListener === 'function') {
-        DETAILS_DESKTOP_MQL.addEventListener('change', setDetailsOpenByViewport);
-      } else if (typeof DETAILS_DESKTOP_MQL.addListener === 'function') {
-        DETAILS_DESKTOP_MQL.addListener(setDetailsOpenByViewport);
-      }
-    }
   </script>
 </body>
 </html>

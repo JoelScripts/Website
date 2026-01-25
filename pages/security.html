@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security & Hosting - Flying With Joel</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <script src="../assets/js/site-mode.js"></script>
     <!-- Google Fonts intentionally not loaded by default for privacy -->
     <style>
         * {
@@ -1029,8 +1031,22 @@
             <a href="privacy.html">Privacy Policy</a> •
             <a href="terms.html">Terms of Service</a> •
             <a href="cookies.html">Cookie Policy</a> •
-            <a href="security.html">Security & Hosting</a>
+            <a href="security.html">Security & Hosting</a> •
+            <a href="#" id="cookie-settings-link">Cookie Settings</a>
         </p>
     </div>
+
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-consent-banner" class="cookie-consent-banner">
+        <div class="cookie-consent-content">
+            <p>We use local storage (localStorage) to remember your choices (such as your consent preference for optional third-party embeds/resources). <a href="privacy.html">Learn more about our privacy practices</a>.</p>
+        </div>
+        <div class="cookie-consent-buttons">
+            <button id="cookie-accept-btn" class="cookie-consent-btn accept">Accept</button>
+            <button id="cookie-reject-btn" class="cookie-consent-btn decline">Decline</button>
+        </div>
+    </div>
+
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>

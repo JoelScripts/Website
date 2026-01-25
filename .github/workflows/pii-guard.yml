@@ -1,0 +1,33 @@
+name: Prevent DSAR/PII commits
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pii-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Block DSAR/PII folders
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [ -d "data_requests" ]; then
+            echo "ERROR: data_requests/ exists in the repository checkout."
+            echo "This folder may contain DSAR packets / personal data and must not be committed to a public repo."
+            echo "Remove it from git history and keep it local-only (.gitignore already covers it)."
+            exit 1
+          fi
+
+          # Also fail if DSAR patterns are present in tracked files (defense-in-depth)
+          if git ls-files | grep -Eiq '(^|/)data_requests/|DSAR-[0-9]{8}-|REQUEST\.json$|DATA_SUMMARY\.md$'; then
+            echo "ERROR: Potential DSAR/PII files detected in tracked files."
+            git ls-files | grep -Ei '(^|/)data_requests/|DSAR-[0-9]{8}-|REQUEST\.json$|DATA_SUMMARY\.md$' || true
+            exit 1
+          fi
+
+          echo "OK: No DSAR/PII folders detected."
