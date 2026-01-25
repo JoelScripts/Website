@@ -84,6 +84,57 @@
       padding: 1rem;
       cursor: default;
     }
+
+    .admin-day-card .schedule-item .field { gap: 0.45rem; }
+    .admin-day-card .schedule-item .field label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.78);
+    }
+    .admin-day-card .schedule-item .field small {
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: rgba(255,255,255,0.62);
+    }
+    .admin-day-card .schedule-item input,
+    .admin-day-card .schedule-item select,
+    .admin-day-card .schedule-item textarea {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 0.95rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 0.75rem;
+      background: rgba(0,0,0,0.26);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.95);
+    }
+    .admin-day-card .schedule-item input:focus,
+    .admin-day-card .schedule-item select:focus,
+    .admin-day-card .schedule-item textarea:focus {
+      outline: 2px solid rgba(255, 140, 66, 0.35);
+      outline-offset: 2px;
+      border-color: rgba(255, 140, 66, 0.55);
+    }
+    .admin-day-card .schedule-item input[disabled],
+    .admin-day-card .schedule-item select[disabled],
+    .admin-day-card .schedule-item textarea[disabled] {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .admin-day-card .date-row {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 0.6rem;
+      align-items: center;
+    }
+    .admin-day-card .vod-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.78);
+      margin-top: 0.2rem;
+    }
     .admin-day-card .schedule-item {
       display: grid;
       grid-template-columns: 1fr;
@@ -719,7 +770,7 @@
 
           <div class="field field-date">
             <label>Date</label>
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 0.6rem;">
+            <div class="date-row">
               <select class="month">${monthOptionsHtml(monthIdx)}</select>
               <input type="number" class="day" min="1" max="31" value="${parsed.day}" />
             </div>
@@ -742,7 +793,7 @@
             <input type="text" class="title" placeholder="Microsoft Flight Simulator" value="${(item.streamTitle || '').replace(/"/g,'&quot;')}" />
 
             <div class="vodWrap" style="margin-top: 0.6rem;">
-              <label style="font-size: 0.85rem; font-weight: 700;">Twitch VOD link (optional)</label>
+              <label class="vod-label">Twitch VOD link (optional)</label>
               <input type="url" class="vodUrl" placeholder="https://www.twitch.tv/videos/..." value="${(vodUrl || '').replace(/"/g,'&quot;')}" />
               <small class="vodHint"></small>
             </div>
