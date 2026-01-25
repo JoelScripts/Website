@@ -14,16 +14,6 @@
     }
   })();
 
-  // Allow automated rendering (e.g. Discord webhook screenshots) to bypass maintenance redirect.
-  // Use: /pages/schedule.html?render=1
-  try {
-    const params = new URLSearchParams(window.location.search || '');
-    const render = (params.get('render') || '').trim();
-    if (render === '1') return;
-  } catch {
-    // ignore
-  }
-
   // Don't redirect the maintenance page itself.
   if (pathname.endsWith('/pages/maintenance.html')) return;
 

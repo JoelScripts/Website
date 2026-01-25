@@ -85,7 +85,7 @@
                 <div class="stat-box">
                     <span class="stat-icon">👥</span>
                     <div>
-                        <span class="stat-number">478</span>
+                        <span class="stat-number" id="twitch-follower-count">478</span>
                         <span class="stat-label">Twitch Followers</span>
                     </div>
                 </div>
@@ -723,6 +723,25 @@
 
         // Load highlights on page load
         window.addEventListener('load', loadHighlights);
+
+        // Hydrate Twitch follower count via the Cloudflare Worker (keeps credentials server-side).
+        async function hydrateFollowerCount() {
+            const el = document.getElementById('twitch-follower-count');
+            if (!el) return;
+
+            try {
+                const resp = await fetch('/api/schedule/followers', { cache: 'no-store' });
+                if (!resp.ok) return;
+                const json = await resp.json();
+                const n = json && typeof json.followers === 'number' ? json.followers : null;
+                if (!Number.isFinite(n)) return;
+                el.textContent = n.toLocaleString();
+            } catch {
+                // Keep the hardcoded fallback.
+            }
+        }
+
+        window.addEventListener('load', hydrateFollowerCount);
 
         // Re-load gated embeds after consent is granted (emitted by assets/js/main.js)
         window.addEventListener('fwj:consent:granted', () => {

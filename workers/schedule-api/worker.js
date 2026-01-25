@@ -13,6 +13,7 @@
 const SCHEDULE_KEY = 'schedule_v1';
 const TWITCH_TOKEN_KEY = 'twitch_token_v1';
 const SITE_MODE_KEY = 'site_mode_v1';
+const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
 
 const DEFAULT_SITE_MODE = 'live';
 
@@ -51,471 +52,6 @@ function jsonResponse(data, init = {}) {
   headers.set('content-type', 'application/json; charset=utf-8');
   headers.set('cache-control', 'no-store');
   return new Response(JSON.stringify(data), { ...init, headers });
-}
-
-function statusMeta(status) {
-  const s = (status || 'none').toString().trim().toLowerCase();
-  if (s === 'scheduled') return { emoji: '🗓️', label: 'Scheduled' };
-  if (s === 'completed') return { emoji: '✅', label: 'Completed' };
-  if (s === 'cancelled') return { emoji: '❌', label: 'Cancelled' };
-  if (s === 'delayed') return { emoji: '⏳', label: 'Delayed' };
-  return { emoji: '🚫', label: 'No stream' };
-}
-
-function parseDateKey(dateKey) {
-  const m = (dateKey || '').toString().trim().match(/^(\d{1,2})-(\d{1,2})$/);
-  if (!m) return null;
-  const month = parseInt(m[1], 10);
-  const day = parseInt(m[2], 10);
-  if (!Number.isFinite(month) || !Number.isFinite(day)) return null;
-  if (month < 1 || month > 12) return null;
-  if (day < 1 || day > 31) return null;
-  return { month, day };
-}
-
-function parseZuluClock(zuluTimeStr) {
-  const s = (zuluTimeStr || '').toString().trim();
-  if (!s) return null;
-
-  // Examples we accept:
-  //  - 18:00 Zulu
-  //  - 11:00 AM Zulu
-  //  - 11:00AM Zulu
-  const m = s.match(/(\d{1,2}):(\d{2})(?:\s*(AM|PM))?\s+Zulu/i);
-  if (!m) return null;
-  let hour = parseInt(m[1], 10);
-  const minute = parseInt(m[2], 10);
-  const ampm = (m[3] || '').toUpperCase();
-  if (!Number.isFinite(hour) || !Number.isFinite(minute)) return null;
-  if (hour < 0 || hour > 12 && ampm) return null;
-  if (hour < 0 || hour > 23) return null;
-  if (minute < 0 || minute > 59) return null;
-
-  if (ampm) {
-    // 12-hour to 24-hour conversion
-    const h = hour % 12;
-    hour = ampm === 'PM' ? h + 12 : h;
-  }
-
-  return { hour, minute };
-}
-
-function inferYearForMonthDay(month, day) {
-  const now = new Date();
-  const nowY = now.getUTCFullYear();
-  const startOfTodayUtc = Date.UTC(nowY, now.getUTCMonth(), now.getUTCDate());
-  const candidateUtc = Date.UTC(nowY, month - 1, day);
-  const diffDays = (candidateUtc - startOfTodayUtc) / 86400000;
-
-  // Schedules are typically within the next ~14 days. If month/day is far in the past,
-  // assume it's next year (e.g. editing Jan dates while it's late December).
-  if (diffDays < -30) return nowY + 1;
-  return nowY;
-}
-
-function toUtcDateFromDateKeyAndZuluClock(dateKey, zuluTimeStr) {
-  const md = parseDateKey(dateKey);
-  const hm = parseZuluClock(zuluTimeStr);
-  if (!md || !hm) return null;
-  const year = inferYearForMonthDay(md.month, md.day);
-  return new Date(Date.UTC(year, md.month - 1, md.day, hm.hour, hm.minute, 0));
-}
-
-function formatZonedTime(date, timeZone) {
-  try {
-    return new Intl.DateTimeFormat('en-GB', {
-      timeZone,
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false,
-      timeZoneName: 'short',
-    }).format(date);
-  } catch {
-    return null;
-  }
-}
-
-function formatZuluAndUkTimeLine(dateKey, zuluTimeStr, originalZuluTimeStr) {
-  const d1 = originalZuluTimeStr ? toUtcDateFromDateKeyAndZuluClock(dateKey, originalZuluTimeStr) : null;
-  const d2 = zuluTimeStr ? toUtcDateFromDateKeyAndZuluClock(dateKey, zuluTimeStr) : null;
-
-  const fmtUtc = (d) => (d ? formatZonedTime(d, 'UTC') : null);
-  const fmtUk = (d) => (d ? formatZonedTime(d, 'Europe/London') : null);
-
-  if (d1 && d2) {
-    const z1 = fmtUtc(d1);
-    const z2 = fmtUtc(d2);
-    const u1 = fmtUk(d1);
-    const u2 = fmtUk(d2);
-    if (z1 && z2 && u1 && u2) {
-      return {
-        zulu: `${z1} → ${z2}`,
-        uk: `${u1} → ${u2}`,
-      };
-    }
-  }
-
-  if (d2) {
-    const z = fmtUtc(d2);
-    const u = fmtUk(d2);
-    if (z && u) return { zulu: z, uk: u };
-  }
-
-  // Fallback: only show the raw Zulu string if we can't parse/format.
-  if (zuluTimeStr) return { zulu: zuluTimeStr, uk: null };
-  return { zulu: null, uk: null };
-}
-
-function dayNameLong(dayName) {
-  const d = (dayName || '').toString().trim().toUpperCase();
-  if (d === 'MON' || d === 'MONDAY') return 'Monday';
-  if (d === 'TUE' || d === 'TUESDAY') return 'Tuesday';
-  if (d === 'WED' || d === 'WEDNESDAY') return 'Wednesday';
-  if (d === 'THU' || d === 'THURSDAY') return 'Thursday';
-  if (d === 'FRI' || d === 'FRIDAY') return 'Friday';
-  if (d === 'SAT' || d === 'SATURDAY') return 'Saturday';
-  if (d === 'SUN' || d === 'SUNDAY') return 'Sunday';
-  return (dayName || '').toString().trim() || 'Day';
-}
-
-function ordinalSuffix(n) {
-  const x = Number(n);
-  if (!Number.isFinite(x)) return '';
-  const v = x % 100;
-  if (v >= 11 && v <= 13) return 'th';
-  const last = x % 10;
-  if (last === 1) return 'st';
-  if (last === 2) return 'nd';
-  if (last === 3) return 'rd';
-  return 'th';
-}
-
-function monthLongFromAbbrev(abbrev) {
-  const m = (abbrev || '').toString().trim().slice(0, 3).toLowerCase();
-  if (m === 'jan') return 'January';
-  if (m === 'feb') return 'February';
-  if (m === 'mar') return 'March';
-  if (m === 'apr') return 'April';
-  if (m === 'may') return 'May';
-  if (m === 'jun') return 'June';
-  if (m === 'jul') return 'July';
-  if (m === 'aug') return 'August';
-  if (m === 'sep') return 'September';
-  if (m === 'oct') return 'October';
-  if (m === 'nov') return 'November';
-  if (m === 'dec') return 'December';
-  return null;
-}
-
-function formatDateTextLong(dateText) {
-  // Expected: "Jan 19" (from admin) — convert to "19th January"
-  const s = (dateText || '').toString().trim();
-  if (!s) return '';
-  const m = s.match(/^([A-Za-z]{3,})\s+(\d{1,2})$/);
-  if (!m) return s;
-  const month = monthLongFromAbbrev(m[1]);
-  const day = parseInt(m[2], 10);
-  if (!month || !Number.isFinite(day)) return s;
-  return `${day}${ordinalSuffix(day)} ${month}`;
-}
-
-function scheduleLineText(item) {
-  const day = dayNameLong(item && item.dayName);
-  const date = formatDateTextLong(item && item.dateText);
-  const status = (item && typeof item.status === 'string' ? item.status.trim().toLowerCase() : 'none') || 'none';
-
-  const zuluTime = item && typeof item.zuluTime === 'string' ? item.zuluTime.trim() : '';
-  const originalZulu = item && typeof item.originalZuluTime === 'string' ? item.originalZuluTime.trim() : '';
-  const dateKey = (item && typeof item.dateKey === 'string' ? item.dateKey.trim() : '') || '';
-
-  const labelPrefix = `${day}${date ? ` ${date}` : ''}`.trim();
-
-  if (status === 'none') return `🛑 ${labelPrefix}  -  No Stream`;
-
-  if (status === 'cancelled') {
-    return `❌ ${labelPrefix}  -  Cancelled`;
-  }
-
-  if (status === 'completed') {
-    const tp = formatZuluAndUkTimeLine(dateKey, zuluTime, null);
-    const timePart = tp.zulu ? ` @ ${tp.zulu}` : '';
-    const ukPart = tp.uk ? ` (UK ${tp.uk})` : '';
-    return `✅ ${labelPrefix}  -  Completed${timePart}${ukPart}`;
-  }
-
-  if (status === 'delayed') {
-    const tp = formatZuluAndUkTimeLine(dateKey, zuluTime, originalZulu);
-    const timePart = tp.zulu ? ` @ ${tp.zulu}` : '';
-    const ukPart = tp.uk ? ` (UK ${tp.uk})` : '';
-    return `⏳ ${labelPrefix}  -  Delayed${timePart}${ukPart}`;
-  }
-
-  // scheduled
-  const tp = formatZuluAndUkTimeLine(dateKey, zuluTime, null);
-  const timePart = tp.zulu ? ` @ ${tp.zulu}` : '';
-  const ukPart = tp.uk ? ` (UK ${tp.uk})` : '';
-  return `📺 ${labelPrefix}  -  Stream${timePart}${ukPart}`;
-}
-
-function buildDiscordScheduleText(schedule) {
-  const items = Array.isArray(schedule) ? schedule.slice(0, 7) : [];
-  if (items.length === 0) return 'Schedule updated.';
-
-  const first = items[0];
-  const last = items[items.length - 1];
-  const from = formatDateTextLong(first && first.dateText);
-  const to = formatDateTextLong(last && last.dateText);
-  const headerRange = (from && to) ? `${from}  -->  ${to}` : 'Next 7 days';
-
-  const lines = items.map(scheduleLineText);
-
-  return [
-    '---------------------------------------------',
-    headerRange,
-    '---------------------------------------------',
-    '',
-    ...lines.map((l) => `  ${l}`),
-  ].join('\n');
-}
-
-function buildDiscordScheduleFields(schedule) {
-  const items = Array.isArray(schedule) ? schedule.slice(0, 7) : [];
-
-  return items.map((item) => {
-    const dateKey = (item && typeof item.dateKey === 'string' ? item.dateKey.trim() : '') || '';
-    const day = (item && typeof item.dayName === 'string' ? item.dayName.trim() : '') || '—';
-    const date = (item && typeof item.dateText === 'string' ? item.dateText.trim() : '') || '—';
-    const status = (item && typeof item.status === 'string' ? item.status.trim().toLowerCase() : 'none') || 'none';
-    const title = (item && typeof item.streamTitle === 'string' ? item.streamTitle.trim() : '') || '';
-    const vodUrl = (item && typeof item.vodUrl === 'string' ? item.vodUrl.trim() : '') || '';
-
-    const zuluTime = item && typeof item.zuluTime === 'string' ? item.zuluTime.trim() : '';
-    const originalZulu = item && typeof item.originalZuluTime === 'string' ? item.originalZuluTime.trim() : '';
-    const timeText = (item && typeof item.timeText === 'string' ? item.timeText.trim() : '') || '';
-
-    const meta = statusMeta(status);
-
-    const lines = [];
-    lines.push(`**${meta.label}**`);
-
-    if (status === 'none') {
-      // Keep it short.
-    } else {
-      const timePair = formatZuluAndUkTimeLine(dateKey, zuluTime, status === 'delayed' ? originalZulu : null);
-      if (timePair.zulu) lines.push(`**Zulu:** ${timePair.zulu}`);
-      if (timePair.uk) lines.push(`**UK:** ${timePair.uk}`);
-
-      // If we couldn't parse Zulu into a UK conversion, fall back to the human text.
-      if (!timePair.zulu && timeText) lines.push(`**Time:** ${timeText}`);
-      if (!timePair.zulu && !timeText && status !== 'cancelled') lines.push('**Time:** TBC');
-    }
-
-    if (status !== 'none') {
-      if (title) lines.push(`**Title:** ${title}`);
-      if (status === 'completed' && vodUrl) lines.push(`**VOD:** ${vodUrl}`);
-    }
-
-    return {
-      name: `${meta.emoji} ${day} ${date}`,
-      value: lines.join('\n'),
-      inline: false,
-    };
-  });
-}
-
-function buildDiscordScheduleCardFields(schedule) {
-  const items = Array.isArray(schedule) ? schedule.slice(0, 7) : [];
-
-  return items.map((item) => {
-    const day = (item && typeof item.dayName === 'string' ? item.dayName.trim().toUpperCase() : '') || 'DAY';
-    const date = (item && typeof item.dateText === 'string' ? item.dateText.trim() : '') || '';
-    const status = (item && typeof item.status === 'string' ? item.status.trim().toLowerCase() : 'none') || 'none';
-    const gameLogo = (item && typeof item.gameLogo === 'string' ? item.gameLogo.trim() : '') || '';
-    const zuluTime = item && typeof item.zuluTime === 'string' ? item.zuluTime.trim() : '';
-    const timeText = (item && typeof item.timeText === 'string' ? item.timeText.trim() : '') || '';
-    const streamTitle = (item && typeof item.streamTitle === 'string' ? item.streamTitle.trim() : '') || '';
-    const vodUrl = (item && typeof item.vodUrl === 'string' ? item.vodUrl.trim() : '') || '';
-
-    const statusLabel =
-      status === 'completed' ? 'COMPLETED'
-        : status === 'cancelled' ? 'CANCELLED'
-          : status === 'delayed' ? 'DELAYED'
-            : status === 'scheduled' ? 'SCHEDULED'
-              : '';
-
-    const lines = [];
-
-    if (status === 'none') {
-      // Website uses a simple card with dashes.
-      lines.push('—');
-      lines.push('**No Stream Planned**');
-      lines.push('—');
-    } else {
-      // Website vibe: icon, big main line, small title.
-      if (gameLogo && gameLogo !== '-') lines.push(gameLogo);
-
-      const rawMain = (timeText || zuluTime || '').trim();
-      let mainLine = rawMain;
-
-      if (status === 'completed') {
-        const looksLikeCompleted = !rawMain || /^completed$/i.test(rawMain) || rawMain.toLowerCase().includes('completed');
-        mainLine = looksLikeCompleted ? 'Completed' : rawMain;
-      }
-
-      if (status === 'cancelled') {
-        const looksLikeTime = /\bZulu\b/i.test(rawMain) || /(\d{1,2}:\d{2})(?:\s*(AM|PM))?/i.test(rawMain);
-        mainLine = looksLikeTime && rawMain ? `~~${rawMain}~~` : 'Cancelled';
-      }
-
-      if (!mainLine) mainLine = 'TBC';
-      lines.push(`**${mainLine}**`);
-
-      const title = (streamTitle || 'Stream').trim();
-      if (title) {
-        const safe = title.length > 42 ? `${title.slice(0, 42)}…` : title;
-        lines.push(`_${safe}_`);
-      }
-
-      if (status === 'completed' && vodUrl) {
-        lines.push(`[✓ Completed - Watch VOD](${vodUrl})`);
-      }
-
-      if (status === 'cancelled') {
-        lines.push('✖️ Cancelled');
-      }
-
-      if (status === 'delayed') {
-        lines.push('⏰ Delayed');
-      }
-    }
-
-    return {
-      name: `${statusLabel ? `${statusLabel}\n` : ''}${day}${date ? `\n${date}` : ''}`,
-      value: lines.length ? lines.join('\n') : '\u200B',
-      inline: true,
-    };
-  });
-}
-
-function buildScheduleScreenshotUrl(env, pageUrl) {
-  const template = env && typeof env.SCREENSHOT_URL_TEMPLATE === 'string' ? env.SCREENSHOT_URL_TEMPLATE.trim() : '';
-  if (template && template.includes('{url}')) {
-    return template.replace('{url}', encodeURIComponent(pageUrl));
-  }
-
-  // Default: WordPress mShots (free, no key). Uses the target URL as an encoded path segment.
-  // Docs/examples: https://s.wordpress.com/mshots/v1/<encoded_url>?w=1200
-  return `https://s.wordpress.com/mshots/v1/${encodeURIComponent(pageUrl)}?w=1200`;
-}
-
-function buildDiscordScheduleScreenshotPayload(env) {
-  const siteUrl = env && env.SITE_URL;
-  const base = (siteUrl || 'https://flyingwithjoel.co.uk').replace(/\/$/, '');
-
-  // Normal clickable link.
-  const scheduleUrl = `${base}/pages/schedule.html`;
-
-  // Render URL (used by screenshot service). Cache-bust so screenshots refresh.
-  // `render=1` is used by the maintenance gate to avoid redirect.
-  const renderUrl = `${scheduleUrl}?render=1&v=${Date.now()}`;
-  const screenshotUrl = buildScheduleScreenshotUrl(env, renderUrl);
-
-  return {
-    content: '',
-    allowed_mentions: { parse: [] },
-    embeds: [
-      {
-        title: '🗓️ 7 Day Schedule',
-        url: scheduleUrl,
-        description: 'Schedule updated. Screenshot below.',
-        image: { url: screenshotUrl },
-        color: 0xff8c42,
-        footer: { text: 'Flying With Joel' },
-        timestamp: new Date().toISOString(),
-      },
-    ],
-  };
-}
-
-function buildDiscordSchedulePayload(env, schedule) {
-  const siteUrl = env && env.SITE_URL;
-  const scheduleUrl = `${(siteUrl || 'https://flyingwithjoel.co.uk').replace(/\/$/, '')}/pages/schedule.html`;
-
-  const styleRaw = env && env.DISCORD_SCHEDULE_STYLE;
-  // Default: screenshot of the schedule page.
-  const style = (styleRaw || 'screenshot').toString().trim().toLowerCase();
-
-  if (style === 'screenshot' || style === 'screen' || style === 'image') {
-    return buildDiscordScheduleScreenshotPayload(env);
-  }
-
-  if (style === 'cards') {
-    const fields = buildDiscordScheduleCardFields(schedule);
-    return {
-      content: '',
-      allowed_mentions: { parse: [] },
-      embeds: [
-        {
-          title: '🗓️ 7 Day Schedule',
-          url: scheduleUrl,
-          description: 'Live badge auto-applies when the stream is live (Zulu time).',
-          fields,
-          color: 0xff8c42,
-          footer: { text: 'Flying With Joel' },
-          timestamp: new Date().toISOString(),
-        },
-      ],
-    };
-  }
-
-  if (style === 'embed') {
-    const fields = buildDiscordScheduleFields(schedule);
-    return {
-      content: '',
-      allowed_mentions: { parse: [] },
-      embeds: [
-        {
-          title: '📅 Stream schedule updated',
-          url: scheduleUrl,
-          description: 'Latest 7-day schedule (Zulu + UK time).',
-          fields,
-          color: 0xff8c42,
-          footer: { text: 'Flying With Joel' },
-          timestamp: new Date().toISOString(),
-        },
-      ],
-    };
-  }
-
-  // Default: text-style message similar to the screenshot.
-  const text = buildDiscordScheduleText(schedule);
-  return {
-    content: `${text}\n\n${scheduleUrl}`,
-    allowed_mentions: { parse: [] },
-  };
-}
-
-async function postDiscordWebhook(env, schedule) {
-  const webhookUrl = env.DISCORD_SCHEDULE_WEBHOOK_URL;
-  if (!webhookUrl || typeof webhookUrl !== 'string') return;
-
-  const mention = env.DISCORD_SCHEDULE_MENTION;
-
-  const payload = buildDiscordSchedulePayload(env, schedule);
-  if (mention && typeof mention === 'string' && mention.trim()) {
-    const m = mention.trim();
-    // Never allow @everyone/@here pings or text.
-    if (!/^@everyone$/i.test(m) && !/^@here$/i.test(m) && !m.toLowerCase().includes('@everyone') && !m.toLowerCase().includes('@here')) {
-      payload.content = payload.content ? `${m}\n${payload.content}` : m;
-    }
-  }
-
-  // Discord expects JSON; webhook responds 204 on success.
-  await fetch(webhookUrl, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
 }
 
 async function getCachedTwitchToken(env) {
@@ -591,6 +127,138 @@ async function isTwitchChannelLive(env) {
   const json = await resp.json();
   const data = json && Array.isArray(json.data) ? json.data : [];
   return data.length > 0;
+}
+
+function parseDecapiFollowerCount(text) {
+  const s = (text || '').toString().trim();
+  const m = s.match(/\d+/);
+  if (!m) return null;
+  const n = parseInt(m[0], 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+async function getCachedFollowerCount(env) {
+  if (!env.SCHEDULE_KV) return null;
+  const raw = await env.SCHEDULE_KV.get(TWITCH_FOLLOWERS_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    const followers = parsed && typeof parsed.followers === 'number' ? parsed.followers : null;
+    const fetchedAtUtc = parsed && typeof parsed.fetchedAtUtc === 'string' ? parsed.fetchedAtUtc : null;
+    if (!Number.isFinite(followers) || !fetchedAtUtc) return null;
+    return { followers, fetchedAtUtc };
+  } catch {
+    return null;
+  }
+}
+
+async function setCachedFollowerCount(env, followers) {
+  if (!env.SCHEDULE_KV) return;
+  const fetchedAtUtc = new Date().toISOString();
+  await env.SCHEDULE_KV.put(TWITCH_FOLLOWERS_KEY, JSON.stringify({ followers, fetchedAtUtc }));
+  return fetchedAtUtc;
+}
+
+async function fetchTwitchUserId(env) {
+  const clientId = env.TWITCH_CLIENT_ID;
+  if (!clientId) return null;
+
+  const token = await getTwitchAccessToken(env);
+  if (!token) return null;
+
+  const login = (env.TWITCH_CHANNEL_LOGIN || DEFAULT_TWITCH_LOGIN).toString().trim().toLowerCase();
+  const url = new URL('https://api.twitch.tv/helix/users');
+  url.searchParams.set('login', login);
+
+  const resp = await fetch(url.toString(), {
+    headers: {
+      'Client-ID': clientId,
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  if (!resp.ok) return null;
+  const json = await resp.json();
+  const data = json && Array.isArray(json.data) ? json.data : [];
+  const id = data[0] && typeof data[0].id === 'string' ? data[0].id : null;
+  return id || null;
+}
+
+async function fetchFollowerCountFromTwitch(env) {
+  const clientId = env.TWITCH_CLIENT_ID;
+  if (!clientId) return { ok: false };
+
+  const userId = await fetchTwitchUserId(env);
+  if (!userId) return { ok: false };
+
+  // For follower count, Twitch may require a user access token with additional scopes.
+  // If TWITCH_FOLLOWERS_ACCESS_TOKEN is not provided, we try with the app token and
+  // fall back to a public provider if Twitch rejects it.
+  const token =
+    (env.TWITCH_FOLLOWERS_ACCESS_TOKEN && env.TWITCH_FOLLOWERS_ACCESS_TOKEN.toString().trim())
+      || (await getTwitchAccessToken(env));
+  if (!token) return { ok: false };
+
+  const url = new URL('https://api.twitch.tv/helix/channels/followers');
+  url.searchParams.set('broadcaster_id', userId);
+  url.searchParams.set('first', '1');
+
+  const resp = await fetch(url.toString(), {
+    headers: {
+      'Client-ID': clientId,
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!resp.ok) return { ok: false, status: resp.status };
+
+  const json = await resp.json();
+  const total = json && typeof json.total === 'number' ? json.total : null;
+  if (!Number.isFinite(total)) return { ok: false };
+  return { ok: true, followers: total };
+}
+
+async function fetchFollowerCountFromDecapi(env) {
+  const login = (env.TWITCH_CHANNEL_LOGIN || DEFAULT_TWITCH_LOGIN).toString().trim().toLowerCase();
+  const url = `https://decapi.me/twitch/followcount/${encodeURIComponent(login)}`;
+  try {
+    const resp = await fetch(url, { headers: { 'user-agent': 'FlyingWithJoelWorker/1.0 (+https://flyingwithjoel.co.uk)' } });
+    if (!resp.ok) return { ok: false };
+    const text = await resp.text();
+    const n = parseDecapiFollowerCount(text);
+    if (!Number.isFinite(n)) return { ok: false };
+    return { ok: true, followers: n };
+  } catch {
+    return { ok: false };
+  }
+}
+
+async function getTwitchFollowerCount(env) {
+  const cached = await getCachedFollowerCount(env);
+  if (cached && cached.fetchedAtUtc) {
+    const ageMs = Date.now() - Date.parse(cached.fetchedAtUtc);
+    // Cache for 10 minutes.
+    if (Number.isFinite(ageMs) && ageMs >= 0 && ageMs < 10 * 60 * 1000) {
+      return { ok: true, followers: cached.followers, fetchedAtUtc: cached.fetchedAtUtc, source: 'cache' };
+    }
+  }
+
+  const fromTwitch = await fetchFollowerCountFromTwitch(env);
+  if (fromTwitch.ok) {
+    const fetchedAtUtc = await setCachedFollowerCount(env, fromTwitch.followers);
+    return { ok: true, followers: fromTwitch.followers, fetchedAtUtc, source: 'twitch' };
+  }
+
+  const fromDecapi = await fetchFollowerCountFromDecapi(env);
+  if (fromDecapi.ok) {
+    const fetchedAtUtc = await setCachedFollowerCount(env, fromDecapi.followers);
+    return { ok: true, followers: fromDecapi.followers, fetchedAtUtc, source: 'decapi' };
+  }
+
+  if (cached) {
+    return { ok: true, followers: cached.followers, fetchedAtUtc: cached.fetchedAtUtc, source: 'stale-cache' };
+  }
+
+  return { ok: false };
 }
 
 function unauthorizedResponse() {
@@ -902,6 +570,45 @@ export default {
       return jsonResponse({ ok: true, live }, { headers: corsHeadersFor(request) });
     }
 
+    // Twitch follower count endpoint for the homepage.
+    // Uses Worker-held secrets and caches results in KV.
+    if (path === '/api/schedule/followers') {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
+      }
+
+      if (!env.SCHEDULE_KV) {
+        return jsonResponse(
+          { ok: false, error: 'Missing KV binding SCHEDULE_KV.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      const result = await getTwitchFollowerCount(env);
+      if (!result.ok) {
+        return jsonResponse(
+          { ok: false, error: 'Follower count unavailable.' },
+          { status: 200, headers: corsHeadersFor(request) }
+        );
+      }
+
+      return jsonResponse(
+        {
+          ok: true,
+          followers: result.followers,
+          fetchedAtUtc: result.fetchedAtUtc || null,
+          source: result.source || 'unknown',
+        },
+        { headers: corsHeadersFor(request) }
+      );
+    }
+
     if (!env.SCHEDULE_KV) {
       return jsonResponse(
         { error: 'Missing KV binding SCHEDULE_KV.' },
@@ -956,26 +663,8 @@ export default {
         );
       }
 
-      // Only notify Discord if the schedule actually changed.
-      const nextRaw = JSON.stringify(body);
-      let prevRaw = null;
-      try {
-        prevRaw = await env.SCHEDULE_KV.get(SCHEDULE_KEY);
-      } catch {
-        prevRaw = null;
-      }
-
-      await env.SCHEDULE_KV.put(SCHEDULE_KEY, nextRaw);
-
-      if (prevRaw !== nextRaw) {
-        try {
-          await postDiscordWebhook(env, body);
-        } catch {
-          // Don't fail the save if Discord is down/misconfigured.
-        }
-      }
-
-      return jsonResponse({ ok: true, notified: prevRaw !== nextRaw }, { headers: corsHeadersFor(request) });
+      await env.SCHEDULE_KV.put(SCHEDULE_KEY, JSON.stringify(body));
+      return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
     }
 
     return new Response('Method Not Allowed', {

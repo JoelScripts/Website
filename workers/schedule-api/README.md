@@ -9,6 +9,7 @@ This Worker provides a simple backend for your GitHub Pages site so `admin.html`
 - `GET /api/site-mode` → returns `{ ok?: true, mode: "live"|"maintenance", updatedAtUtc: string|null }`
 - `PUT /api/site-mode` → saves `{ mode: "live"|"maintenance" }` (requires HTTP Basic Auth)
 - `GET /api/schedule/live` → returns `{ ok: true, live: boolean }` based on the channel’s actual Twitch live status (requires Twitch API secrets)
+- `GET /api/schedule/followers` → returns `{ ok: true, followers: number }` for the homepage follower card (uses Worker secrets; cached in KV)
 
 Your frontend already calls `/api/schedule` as its first choice.
 
@@ -39,21 +40,19 @@ Your frontend already calls `/api/schedule` as its first choice.
      - `ADMIN_USERNAME` (your chosen username)
      - `ADMIN_PASSWORD` (your chosen password)
 
-6. **(Optional) Discord notifications on schedule updates**
-    - Create a Discord webhook in the channel you want (Server Settings → Integrations → Webhooks)
-    - Worker → **Settings** → **Variables** → add **secret**:
-       - `DISCORD_SCHEDULE_WEBHOOK_URL`
-    - Optional plain-text vars:
-       - `DISCORD_SCHEDULE_MENTION` (optional prefix text; `@everyone` / `@here` are blocked)
-       - `SITE_URL` (defaults to `https://flyingwithjoel.co.uk`)
-
-7. **(Optional, for LIVE badge) Add Twitch API secrets**
+6. **(Optional, for LIVE badge) Add Twitch API secrets**
     - Create a Twitch Developer application and grab the Client ID/Secret
     - Worker → **Settings** → **Variables** → add **secrets**:
        - `TWITCH_CLIENT_ID`
        - `TWITCH_CLIENT_SECRET`
     - Optional variable (secret or plain text):
        - `TWITCH_CHANNEL_LOGIN` (defaults to `flyingwithjoel`)
+
+   **Follower count note**
+   - The Worker will try to read follower count from Twitch first.
+   - Twitch may require a user access token with additional scopes; if you have one, store it as a Worker secret:
+     - `TWITCH_FOLLOWERS_ACCESS_TOKEN`
+   - If Twitch rejects the request, the Worker falls back to a public provider and still caches results in KV.
 
 8. **Add the route**
    - Worker → **Triggers** → **Routes** → Add route
@@ -73,9 +72,9 @@ Your frontend already calls `/api/schedule` as its first choice.
 - Visit `https://flyingwithjoel.co.uk/api/schedule` → should show `[]` initially.
 - Visit `https://flyingwithjoel.co.uk/api/site-mode` → should show `{ "mode": "live", "updatedAtUtc": null }` initially.
 - (If Twitch secrets set) Visit `https://flyingwithjoel.co.uk/api/schedule/live` → should show `{ ok: true, live: false }` when offline.
+- Visit `https://flyingwithjoel.co.uk/api/schedule/followers` → should show `{ ok: true, followers: <number> }`.
 - Visit `https://flyingwithjoel.co.uk/admin.html`
   - Enter username/password matching the secrets
   - Click **Save schedule**
-   - If `DISCORD_SCHEDULE_WEBHOOK_URL` is set, Discord should receive a “Schedule updated” message
    - Use **Site Mode** → **Set Maintenance** and refresh `index.html` to confirm redirect
   - Then refresh `/api/schedule` — you should see your saved JSON array.
