@@ -307,6 +307,53 @@
       user-select: none;
     }
     .admin-day-card .mini-btn:hover { background: rgba(255,255,255,0.06); }
+
+    /* Desktop-only two-pane layout: cards left, editor right */
+    .admin-schedule-shell { display: block; }
+    .desktop-editor { display: none; }
+    .admin-schedule-controls { margin-top: 0.8rem; }
+
+    .desktop-editor-card {
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.16);
+      border-radius: 1rem;
+      padding: 1rem;
+      position: sticky;
+      top: 1rem;
+      max-height: calc(100vh - 2rem);
+      overflow: auto;
+      box-shadow: 0 0 30px rgba(0,0,0,0.35);
+    }
+    .desktop-editor-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 0.9rem;
+    }
+    .desktop-editor-title { margin: 0; font-size: 1.1rem; }
+    .desktop-editor-sub { margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.9rem; }
+    .desktop-editor-empty { color: var(--text-muted); line-height: 1.6; }
+    .admin-day-card.is-selected {
+      outline: 2px solid rgba(255, 140, 66, 0.35);
+      outline-offset: 2px;
+    }
+
+    @media (min-width: 1100px) {
+      .admin-schedule-shell {
+        display: grid;
+        grid-template-columns: 1fr 430px;
+        gap: 1.5rem;
+        align-items: start;
+      }
+      .desktop-editor { display: block; }
+      /* Hide embedded editors on desktop; use right panel instead */
+      .admin-day-card details.admin-edit { display: none !important; }
+      /* Controls are still useful but take less visual weight */
+      .admin-schedule-controls .admin-msg { display: none; }
+    }
     .admin-day-card .schedule-item {
       display: grid;
       grid-template-columns: 1fr;
@@ -593,13 +640,37 @@
         </div>
 
         <div>
-          <div id="schedule-grid" class="weekly-schedule admin-weekly-schedule"></div>
+          <div class="admin-schedule-shell">
+            <div class="admin-schedule-left">
+              <div id="schedule-grid" class="weekly-schedule admin-weekly-schedule"></div>
 
-          <div class="admin-actions" style="margin-top: 0.8rem;">
-            <button id="btn-expand-all" class="secondary" type="button">▾ Expand all</button>
-            <button id="btn-collapse-all" class="secondary" type="button">▸ Collapse all</button>
-            <span class="spacer"></span>
-            <span class="admin-msg">Tip: click a card to open its editor.</span>
+              <div class="admin-actions admin-schedule-controls">
+                <button id="btn-expand-all" class="secondary" type="button">▾ Expand all</button>
+                <button id="btn-collapse-all" class="secondary" type="button">▸ Collapse all</button>
+                <span class="spacer"></span>
+                <span class="admin-msg">Tip: click a card to open its editor.</span>
+              </div>
+            </div>
+
+            <aside class="desktop-editor" aria-label="Desktop editor panel">
+              <div class="desktop-editor-card">
+                <div class="desktop-editor-head">
+                  <div>
+                    <h3 id="desktop-editor-title" class="desktop-editor-title">✏️ Edit day</h3>
+                    <p id="desktop-editor-sub" class="desktop-editor-sub">Select a day card to edit.</p>
+                  </div>
+                  <div class="admin-actions" style="gap: 0.5rem;">
+                    <button id="btn-editor-prev" class="secondary" type="button">← Prev</button>
+                    <button id="btn-editor-next" class="secondary" type="button">Next →</button>
+                    <button id="btn-editor-close" class="danger" type="button">✕ Close</button>
+                  </div>
+                </div>
+
+                <div id="desktop-editor-body" class="desktop-editor-body">
+                  <p class="desktop-editor-empty">Pick a day card on the left to load its editor here. This keeps the grid stable while you edit.</p>
+                </div>
+              </div>
+            </aside>
           </div>
 
           <div class="advanced">
@@ -638,6 +709,13 @@
     const btnSiteRefreshEl = document.getElementById('btn-site-refresh');
     const btnSiteLiveEl = document.getElementById('btn-site-live');
     const btnSiteMaintEl = document.getElementById('btn-site-maint');
+
+    const desktopEditorBodyEl = document.getElementById('desktop-editor-body');
+    const desktopEditorTitleEl = document.getElementById('desktop-editor-title');
+    const desktopEditorSubEl = document.getElementById('desktop-editor-sub');
+    const btnEditorPrevEl = document.getElementById('btn-editor-prev');
+    const btnEditorNextEl = document.getElementById('btn-editor-next');
+    const btnEditorCloseEl = document.getElementById('btn-editor-close');
 
     const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DEFAULT_DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'];
@@ -902,8 +980,67 @@
       return { month: Math.max(1, Math.min(12, parseInt(m[1], 10))), day: Math.max(1, Math.min(31, parseInt(m[2], 10))) };
     }
 
+    const DESKTOP_EDITOR_MQL = window.matchMedia ? window.matchMedia('(min-width: 1100px)') : null;
+    let activeDesktopIndex = null;
+    let activeDesktopDetailsEl = null;
+
+    function isDesktopLayout() {
+      return DESKTOP_EDITOR_MQL ? DESKTOP_EDITOR_MQL.matches : false;
+    }
+
+    function clearDesktopSelection() {
+      activeDesktopIndex = null;
+      if (activeDesktopDetailsEl) {
+        const homeIdx = activeDesktopDetailsEl.getAttribute('data-home-index');
+        const home = homeIdx != null ? document.querySelector(`.admin-day-card[data-index="${homeIdx}"]`) : null;
+        if (home) home.appendChild(activeDesktopDetailsEl);
+      }
+      activeDesktopDetailsEl = null;
+      document.querySelectorAll('.admin-day-card.is-selected').forEach((c) => c.classList.remove('is-selected'));
+      if (desktopEditorTitleEl) desktopEditorTitleEl.textContent = '✏️ Edit day';
+      if (desktopEditorSubEl) desktopEditorSubEl.textContent = 'Select a day card to edit.';
+      if (desktopEditorBodyEl) {
+        desktopEditorBodyEl.innerHTML = '<p class="desktop-editor-empty">Pick a day card on the left to load its editor here. This keeps the grid stable while you edit.</p>';
+      }
+    }
+
+    function selectDayDesktop(index) {
+      if (!isDesktopLayout()) return;
+
+      const idx = Math.max(0, Math.min(6, parseInt(String(index), 10)));
+      const card = document.querySelector(`.admin-day-card[data-index="${idx}"]`);
+      if (!card) return;
+
+      if (activeDesktopDetailsEl && activeDesktopIndex !== null) {
+        const prevHome = document.querySelector(`.admin-day-card[data-index="${activeDesktopIndex}"]`);
+        if (prevHome) prevHome.appendChild(activeDesktopDetailsEl);
+      }
+
+      document.querySelectorAll('.admin-day-card.is-selected').forEach((c) => c.classList.remove('is-selected'));
+      card.classList.add('is-selected');
+
+      const details = card.querySelector('details.admin-edit');
+      if (!details || !desktopEditorBodyEl) return;
+      details.setAttribute('data-home-index', String(idx));
+      details.open = true;
+
+      desktopEditorBodyEl.innerHTML = '';
+      desktopEditorBodyEl.appendChild(details);
+
+      const dayText = (card.querySelector('.day-name')?.textContent || '').trim();
+      const dateText = (card.querySelector('.day-date')?.textContent || '').trim();
+      if (desktopEditorTitleEl) desktopEditorTitleEl.textContent = `✏️ Edit ${dayText || 'day'}`;
+      if (desktopEditorSubEl) desktopEditorSubEl.textContent = dateText || '—';
+
+      activeDesktopIndex = idx;
+      activeDesktopDetailsEl = details;
+    }
+
     function renderEditor(items) {
       scheduleGridEl.innerHTML = '';
+
+      // Reset desktop panel when re-rendering
+      if (desktopEditorBodyEl) clearDesktopSelection();
 
       let prevRowEl = null;
 
@@ -918,6 +1055,7 @@
 
         const wrapper = document.createElement('div');
         wrapper.className = 'day-card admin-day-card';
+        wrapper.dataset.index = String(idx);
 
         const pill = document.createElement('span');
         pill.className = 'status-pill none';
@@ -1021,15 +1159,19 @@
         wrapper.appendChild(editorDetails);
         scheduleGridEl.appendChild(wrapper);
 
-        // UX: clicking the card toggles the edit panel.
-        // Ignore clicks on interactive controls/links or inside the edit panel content.
+        // UX: mobile = toggle embedded editor. Desktop = open right-side editor.
         wrapper.addEventListener('click', (e) => {
           const target = e.target;
           if (!(target instanceof Element)) return;
-          if (target.closest('summary')) return;
           if (target.closest('a, button, input, select, textarea, label')) return;
-          if (target.closest('.admin-edit-content')) return;
 
+          if (isDesktopLayout()) {
+            selectDayDesktop(idx);
+            return;
+          }
+
+          if (target.closest('summary')) return;
+          if (target.closest('.admin-edit-content')) return;
           const d = wrapper.querySelector('details.admin-edit');
           if (!d) return;
           d.open = !d.open;
@@ -1293,7 +1435,7 @@
     }
 
     function scheduleFromEditor() {
-      const rows = Array.from(scheduleGridEl.querySelectorAll('.schedule-item'));
+      const rows = Array.from(document.querySelectorAll('.schedule-item'));
       return rows.map((row, idx) => {
         const dayName = (row.querySelector('.dayName').value || DEFAULT_DAYS[idx] || '-').trim();
         const month = Math.max(1, Math.min(12, parseInt(row.querySelector('.month').value, 10)));
@@ -1646,6 +1788,55 @@
       collapseAllBtn.addEventListener('click', () => {
         document.querySelectorAll('details.admin-edit').forEach((d) => { d.open = false; });
       });
+    }
+
+    if (btnEditorPrevEl) {
+      btnEditorPrevEl.addEventListener('click', () => {
+        if (!isDesktopLayout()) return;
+        const next = activeDesktopIndex == null ? 0 : (activeDesktopIndex + 6) % 7;
+        selectDayDesktop(next);
+      });
+    }
+    if (btnEditorNextEl) {
+      btnEditorNextEl.addEventListener('click', () => {
+        if (!isDesktopLayout()) return;
+        const next = activeDesktopIndex == null ? 0 : (activeDesktopIndex + 1) % 7;
+        selectDayDesktop(next);
+      });
+    }
+    if (btnEditorCloseEl) {
+      btnEditorCloseEl.addEventListener('click', () => {
+        if (!isDesktopLayout()) return;
+        clearDesktopSelection();
+      });
+    }
+
+    if (DESKTOP_EDITOR_MQL) {
+      // When switching between desktop/mobile, ensure editors return to their cards.
+      const onLayoutChange = () => {
+        if (!isDesktopLayout()) {
+          // Move any active editor back into its card.
+          if (activeDesktopDetailsEl) {
+            const homeIdx = activeDesktopDetailsEl.getAttribute('data-home-index');
+            const home = homeIdx != null ? document.querySelector(`.admin-day-card[data-index="${homeIdx}"]`) : null;
+            if (home) home.appendChild(activeDesktopDetailsEl);
+          }
+          activeDesktopIndex = null;
+          activeDesktopDetailsEl = null;
+          document.querySelectorAll('.admin-day-card.is-selected').forEach((c) => c.classList.remove('is-selected'));
+          if (desktopEditorBodyEl) {
+            desktopEditorBodyEl.innerHTML = '<p class="desktop-editor-empty">Pick a day card on the left to load its editor here. This keeps the grid stable while you edit.</p>';
+          }
+          if (desktopEditorTitleEl) desktopEditorTitleEl.textContent = '✏️ Edit day';
+          if (desktopEditorSubEl) desktopEditorSubEl.textContent = 'Select a day card to edit.';
+        }
+      };
+
+      if (typeof DESKTOP_EDITOR_MQL.addEventListener === 'function') {
+        DESKTOP_EDITOR_MQL.addEventListener('change', onLayoutChange);
+      } else if (typeof DESKTOP_EDITOR_MQL.addListener === 'function') {
+        DESKTOP_EDITOR_MQL.addListener(onLayoutChange);
+      }
     }
 
     if (btnSiteRefreshEl) btnSiteRefreshEl.addEventListener('click', loadSiteMode);
