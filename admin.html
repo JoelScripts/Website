@@ -174,7 +174,28 @@
       border-top: 1px solid rgba(255,255,255,0.10);
       padding-top: 0.75rem;
     }
+    /* When the editor is moved into the desktop panel, it is no longer inside .admin-day-card */
+    .admin-edit {
+      text-align: left;
+    }
     .admin-day-card details.admin-edit summary {
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      padding: 0.45rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.92);
+    }
+    .admin-edit summary {
       cursor: pointer;
       list-style: none;
       user-select: none;
@@ -193,6 +214,8 @@
     }
     .admin-day-card details.admin-edit summary::-webkit-details-marker { display: none; }
     .admin-day-card details.admin-edit[open] summary { background: rgba(255,255,255,0.10); }
+    .admin-edit summary::-webkit-details-marker { display: none; }
+    .admin-edit[open] summary { background: rgba(255,255,255,0.10); }
 
     .admin-day-card .admin-edit-content {
       margin-top: 0.9rem;
@@ -202,15 +225,35 @@
       padding: 1rem;
       cursor: default;
     }
+    .admin-edit .admin-edit-content {
+      margin-top: 0.9rem;
+      background: rgba(0,0,0,0.16);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 0.8rem;
+      padding: 1rem;
+      cursor: default;
+    }
 
     .admin-day-card .schedule-item .field { gap: 0.45rem; }
+    .admin-edit .schedule-item .field { gap: 0.45rem; }
     .admin-day-card .schedule-item .field label {
       font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 1px;
       color: rgba(255,255,255,0.78);
     }
+    .admin-edit .schedule-item .field label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.78);
+    }
     .admin-day-card .schedule-item .field small {
+      font-size: 0.82rem;
+      line-height: 1.35;
+      color: rgba(255,255,255,0.62);
+    }
+    .admin-edit .schedule-item .field small {
       font-size: 0.82rem;
       line-height: 1.35;
       color: rgba(255,255,255,0.62);
@@ -226,9 +269,27 @@
       border: 1px solid rgba(255,255,255,0.14);
       color: rgba(255,255,255,0.95);
     }
+    .admin-edit .schedule-item input,
+    .admin-edit .schedule-item select,
+    .admin-edit .schedule-item textarea {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-size: 0.95rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 0.75rem;
+      background: rgba(0,0,0,0.26);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.95);
+    }
     .admin-day-card .schedule-item input:focus,
     .admin-day-card .schedule-item select:focus,
     .admin-day-card .schedule-item textarea:focus {
+      outline: 2px solid rgba(255, 140, 66, 0.35);
+      outline-offset: 2px;
+      border-color: rgba(255, 140, 66, 0.55);
+    }
+    .admin-edit .schedule-item input:focus,
+    .admin-edit .schedule-item select:focus,
+    .admin-edit .schedule-item textarea:focus {
       outline: 2px solid rgba(255, 140, 66, 0.35);
       outline-offset: 2px;
       border-color: rgba(255, 140, 66, 0.55);
@@ -239,6 +300,12 @@
       opacity: 0.65;
       cursor: not-allowed;
     }
+    .admin-edit .schedule-item input[disabled],
+    .admin-edit .schedule-item select[disabled],
+    .admin-edit .schedule-item textarea[disabled] {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
 
     .admin-day-card .date-row {
       display: grid;
@@ -246,7 +313,20 @@
       gap: 0.6rem;
       align-items: center;
     }
+    .admin-edit .date-row {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 0.6rem;
+      align-items: center;
+    }
     .admin-day-card .vod-label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.78);
+      margin-top: 0.2rem;
+    }
+    .admin-edit .vod-label {
       font-size: 0.78rem;
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -262,8 +342,21 @@
       margin-bottom: 0.9rem;
       flex-wrap: wrap;
     }
+    .admin-edit .editor-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.7rem;
+      margin-bottom: 0.9rem;
+      flex-wrap: wrap;
+    }
 
     .admin-day-card .status-chips {
+      display: flex;
+      gap: 0.45rem;
+      flex-wrap: wrap;
+    }
+    .admin-edit .status-chips {
       display: flex;
       gap: 0.45rem;
       flex-wrap: wrap;
@@ -289,7 +382,33 @@
     .admin-day-card .chip.ok.active { border-color: rgba(76, 175, 80, 0.55); background: rgba(76, 175, 80, 0.14); }
     .admin-day-card .chip.warn.active { border-color: rgba(255, 183, 77, 0.65); background: rgba(255, 183, 77, 0.16); }
 
+    .admin-edit .chip {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.92);
+      border-radius: 999px;
+      padding: 0.4rem 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .admin-edit .chip:hover { background: rgba(255,255,255,0.10); }
+    .admin-edit .chip.active { border-color: rgba(255, 140, 66, 0.55); background: rgba(255, 140, 66, 0.14); }
+    .admin-edit .chip.danger.active { border-color: rgba(255, 68, 68, 0.65); background: rgba(255, 68, 68, 0.14); }
+    .admin-edit .chip.ok.active { border-color: rgba(76, 175, 80, 0.55); background: rgba(76, 175, 80, 0.14); }
+    .admin-edit .chip.warn.active { border-color: rgba(255, 183, 77, 0.65); background: rgba(255, 183, 77, 0.16); }
+    .admin-edit .chip[disabled] { opacity: 0.55; cursor: not-allowed; }
+
     .admin-day-card .editor-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .admin-edit .editor-actions {
       display: flex;
       gap: 0.5rem;
       flex-wrap: wrap;
@@ -307,6 +426,21 @@
       user-select: none;
     }
     .admin-day-card .mini-btn:hover { background: rgba(255,255,255,0.06); }
+
+    .admin-edit .mini-btn {
+      appearance: none;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(0,0,0,0.18);
+      color: rgba(255,255,255,0.92);
+      border-radius: 0.75rem;
+      padding: 0.45rem 0.7rem;
+      font-weight: 800;
+      font-size: 0.78rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .admin-edit .mini-btn:hover { background: rgba(255,255,255,0.06); }
+    .admin-edit .mini-btn[disabled] { opacity: 0.55; cursor: not-allowed; }
 
     /* Desktop-only two-pane layout: cards left, editor right */
     .admin-schedule-shell { display: block; }
@@ -351,10 +485,21 @@
       .desktop-editor { display: block; }
       /* Hide embedded editors on desktop; use right panel instead */
       .admin-day-card details.admin-edit { display: none !important; }
+
+      /* When editor is rendered in the desktop panel */
+      .desktop-editor-body details.admin-edit { margin-top: 0; border-top: none; padding-top: 0; }
+      .desktop-editor-body details.admin-edit > summary { display: none; }
+      .desktop-editor-body .admin-edit-content { margin-top: 0; }
       /* Controls are still useful but take less visual weight */
       .admin-schedule-controls .admin-msg { display: none; }
     }
     .admin-day-card .schedule-item {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.9rem;
+      padding: 0;
+    }
+    .admin-edit .schedule-item {
       display: grid;
       grid-template-columns: 1fr;
       gap: 0.9rem;
@@ -371,14 +516,30 @@
     .admin-day-card .schedule-item .field-delayed {
       grid-column: auto;
     }
+    .admin-edit .schedule-item .field,
+    .admin-edit .schedule-item .field-day,
+    .admin-edit .schedule-item .field-date,
+    .admin-edit .schedule-item .field-time,
+    .admin-edit .schedule-item .field-title,
+    .admin-edit .schedule-item .field-status,
+    .admin-edit .schedule-item .field-delayed {
+      grid-column: auto;
+    }
     @media (min-width: 840px) {
       .admin-day-card .schedule-item { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .admin-edit .schedule-item { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .admin-day-card .schedule-item .field-day,
       .admin-day-card .schedule-item .field-date,
       .admin-day-card .schedule-item .field-time { grid-column: auto; }
+      .admin-edit .schedule-item .field-day,
+      .admin-edit .schedule-item .field-date,
+      .admin-edit .schedule-item .field-time { grid-column: auto; }
       .admin-day-card .schedule-item .field.field-status,
       .admin-day-card .schedule-item .field.field-title,
       .admin-day-card .schedule-item .field.field-delayed { grid-column: 1 / -1; }
+      .admin-edit .schedule-item .field.field-status,
+      .admin-edit .schedule-item .field.field-title,
+      .admin-edit .schedule-item .field.field-delayed { grid-column: 1 / -1; }
     }
 
     /* Mobile-friendly day cards */
