@@ -27,7 +27,7 @@
     .admin-weekly-schedule { margin-top: 1rem; }
 
     /* Admin schedule cards (match public schedule.html) */
-    .admin-day-card { text-align: center; }
+    .admin-day-card { text-align: center; cursor: pointer; }
     .admin-day-card:hover { transform: none; }
     .admin-day-card .day-date {
       font-size: 0.8rem;
@@ -82,6 +82,7 @@
       border: 1px solid rgba(255,255,255,0.10);
       border-radius: 0.8rem;
       padding: 1rem;
+      cursor: default;
     }
     .admin-day-card .schedule-item {
       display: grid;
@@ -744,6 +745,20 @@
         editorDetails.appendChild(editorContent);
         wrapper.appendChild(editorDetails);
         scheduleGridEl.appendChild(wrapper);
+
+        // UX: clicking the card toggles the edit panel.
+        // Ignore clicks on interactive controls/links or inside the edit panel content.
+        wrapper.addEventListener('click', (e) => {
+          const target = e.target;
+          if (!(target instanceof Element)) return;
+          if (target.closest('summary')) return;
+          if (target.closest('a, button, input, select, textarea, label')) return;
+          if (target.closest('.admin-edit-content')) return;
+
+          const d = wrapper.querySelector('details.admin-edit');
+          if (!d) return;
+          d.open = !d.open;
+        });
 
         // Initialize previews
         updateRowDerived(row);
