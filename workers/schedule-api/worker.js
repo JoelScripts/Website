@@ -14,6 +14,7 @@ const SCHEDULE_KEY = 'schedule_v1';
 const TWITCH_TOKEN_KEY = 'twitch_token_v1';
 const SITE_MODE_KEY = 'site_mode_v1';
 const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
+const TWITCH_CLIPS_KEY = 'twitch_clips_v1';
 
 const DEFAULT_SITE_MODE = 'live';
 
@@ -127,6 +128,143 @@ async function isTwitchChannelLive(env) {
   const json = await resp.json();
   const data = json && Array.isArray(json.data) ? json.data : [];
   return data.length > 0;
+}
+
+function clampInt(n, min, max) {
+  if (!Number.isFinite(n)) return min;
+  return Math.max(min, Math.min(max, Math.trunc(n)));
+}
+
+function getRandomSample(array, count) {
+  if (!Array.isArray(array) || array.length === 0) return [];
+  const copy = array.slice();
+  // Fisher–Yates shuffle (partial)
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const tmp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = tmp;
+  }
+  return copy.slice(0, Math.min(count, copy.length));
+}
+
+async function getCachedClips(env) {
+  if (!env.SCHEDULE_KV) return null;
+  const raw = await env.SCHEDULE_KV.get(TWITCH_CLIPS_KEY);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    const clips = parsed && Array.isArray(parsed.clips) ? parsed.clips : null;
+    const fetchedAtUtc = parsed && typeof parsed.fetchedAtUtc === 'string' ? parsed.fetchedAtUtc : null;
+    if (!clips || !fetchedAtUtc) return null;
+    return { clips, fetchedAtUtc };
+  } catch {
+    return null;
+  }
+}
+
+async function setCachedClips(env, clips) {
+  if (!env.SCHEDULE_KV) return null;
+  const fetchedAtUtc = new Date().toISOString();
+  await env.SCHEDULE_KV.put(TWITCH_CLIPS_KEY, JSON.stringify({ clips, fetchedAtUtc }));
+  return fetchedAtUtc;
+}
+
+function buildTwitchClipEmbedUrl(clipId) {
+  const id = (clipId || '').toString().trim();
+  if (!id) return null;
+  const u = new URL('https://clips.twitch.tv/embed');
+  u.searchParams.set('clip', id);
+  u.searchParams.append('parent', 'flyingwithjoel.co.uk');
+  u.searchParams.append('parent', 'www.flyingwithjoel.co.uk');
+  u.searchParams.set('autoplay', 'false');
+  return u.toString();
+}
+
+async function fetchClipsFromTwitch(env, count) {
+  const clientId = env.TWITCH_CLIENT_ID;
+  if (!clientId) return { ok: false };
+
+  const token = await getTwitchAccessToken(env);
+  if (!token) return { ok: false };
+
+  const userId = await fetchTwitchUserId(env);
+  if (!userId) return { ok: false };
+
+  // Fetch clips from the last 30 days, then randomize client-side.
+  const now = new Date();
+  const startedAt = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  const url = new URL('https://api.twitch.tv/helix/clips');
+  url.searchParams.set('broadcaster_id', userId);
+  url.searchParams.set('first', '100');
+  url.searchParams.set('started_at', startedAt.toISOString());
+  url.searchParams.set('ended_at', now.toISOString());
+
+  const resp = await fetch(url.toString(), {
+    headers: {
+      'Client-ID': clientId,
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!resp.ok) return { ok: false, status: resp.status };
+  const json = await resp.json();
+  const data = json && Array.isArray(json.data) ? json.data : [];
+
+  const normalized = data
+    .map((c) => {
+      const id = c && typeof c.id === 'string' ? c.id : null;
+      if (!id) return null;
+      const title = c && typeof c.title === 'string' ? c.title : 'Twitch Clip';
+      const urlVal = c && typeof c.url === 'string' ? c.url : null;
+      const thumbnailUrl = c && typeof c.thumbnail_url === 'string' ? c.thumbnail_url : null;
+      const viewCount = c && typeof c.view_count === 'number' ? c.view_count : null;
+      const createdAtUtc = c && typeof c.created_at === 'string' ? c.created_at : null;
+      const embedUrl = buildTwitchClipEmbedUrl(id);
+      return {
+        id,
+        title,
+        url: urlVal,
+        embedUrl,
+        thumbnailUrl,
+        viewCount: Number.isFinite(viewCount) ? viewCount : null,
+        createdAtUtc,
+      };
+    })
+    .filter(Boolean);
+
+  const clips = getRandomSample(normalized, count);
+  if (!clips.length) return { ok: false };
+  return { ok: true, clips };
+}
+
+async function getRandomTwitchClips(env, count) {
+  const cached = await getCachedClips(env);
+  if (cached && cached.fetchedAtUtc) {
+    const ageMs = Date.now() - Date.parse(cached.fetchedAtUtc);
+    // Cache the *pool result* for 30 minutes.
+    if (Number.isFinite(ageMs) && ageMs >= 0 && ageMs < 30 * 60 * 1000) {
+      const sample = getRandomSample(cached.clips, count);
+      if (sample.length) {
+        return { ok: true, clips: sample, fetchedAtUtc: cached.fetchedAtUtc, source: 'cache' };
+      }
+    }
+  }
+
+  const fromTwitch = await fetchClipsFromTwitch(env, 20);
+  if (fromTwitch.ok) {
+    const fetchedAtUtc = await setCachedClips(env, fromTwitch.clips);
+    const sample = getRandomSample(fromTwitch.clips, count);
+    return { ok: true, clips: sample, fetchedAtUtc, source: 'twitch' };
+  }
+
+  if (cached && Array.isArray(cached.clips) && cached.clips.length) {
+    const sample = getRandomSample(cached.clips, count);
+    return { ok: true, clips: sample, fetchedAtUtc: cached.fetchedAtUtc, source: 'stale-cache' };
+  }
+
+  return { ok: false };
 }
 
 function parseDecapiFollowerCount(text) {
@@ -602,6 +740,46 @@ export default {
         {
           ok: true,
           followers: result.followers,
+          fetchedAtUtc: result.fetchedAtUtc || null,
+          source: result.source || 'unknown',
+        },
+        { headers: corsHeadersFor(request) }
+      );
+    }
+
+    // Twitch clips endpoint for the homepage highlights.
+    // Uses Worker-held secrets and caches a pool of clips in KV.
+    if (path === '/api/schedule/clips') {
+      if (request.method !== 'GET') {
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
+      }
+
+      if (!env.SCHEDULE_KV) {
+        return jsonResponse(
+          { ok: false, error: 'Missing KV binding SCHEDULE_KV.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      const requestedCount = clampInt(parseInt(url.searchParams.get('count') || '2', 10), 1, 6);
+      const result = await getRandomTwitchClips(env, requestedCount);
+      if (!result.ok) {
+        return jsonResponse(
+          { ok: false, error: 'Clips unavailable.' },
+          { status: 200, headers: corsHeadersFor(request) }
+        );
+      }
+
+      return jsonResponse(
+        {
+          ok: true,
+          clips: Array.isArray(result.clips) ? result.clips : [],
           fetchedAtUtc: result.fetchedAtUtc || null,
           source: result.source || 'unknown',
         },

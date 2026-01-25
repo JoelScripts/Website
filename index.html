@@ -684,24 +684,60 @@
                 }
 
                 const TWITCH_CHANNEL_NAME = 'Flyingwithjoel';
-                const clips = [
+                const fallbackClips = [
                     { slug: 'MagnificentAverageLobsterOMGScoots-Ko6Vkp-DxaBMqKJO', title: 'Well that happened', views: 2 },
                     { slug: 'HotOddGalagoPJSalt-VOO8JQkss9I0bVjJ', title: 'Smooth Landing into Singapore after 18 Hours 20 Minutes From New York', views: 9 }
                 ];
+
+                let clipsFromApi = null;
+                try {
+                    const resp = await fetch('/api/schedule/clips?count=2', { cache: 'no-store' });
+                    if (resp.ok) {
+                        const json = await resp.json();
+                        if (json && Array.isArray(json.clips) && json.clips.length) {
+                            clipsFromApi = json.clips;
+                        }
+                    }
+                } catch {
+                    // ignore
+                }
                 
                 let highlightsHTML = '';
                 
                 // Add embedded clips
-                for (let clip of clips) {
+                if (clipsFromApi && clipsFromApi.length) {
+                    for (let clip of clipsFromApi) {
+                        const title = (clip && typeof clip.title === 'string') ? clip.title : 'Twitch Clip';
+                        const embedUrl = (clip && typeof clip.embedUrl === 'string') ? clip.embedUrl : null;
+                        const views = (clip && typeof clip.viewCount === 'number') ? clip.viewCount : null;
+                        const url = (clip && typeof clip.url === 'string') ? clip.url : null;
+
+                        highlightsHTML += `
+                            <div class="highlight-card">
+                                <div class="highlight-thumbnail" style="position: relative; padding: 0; overflow: hidden;">
+                                    ${embedUrl
+                                        ? `<iframe src="${embedUrl}" style="width: 100%; height: 100%; border: none; display: block; position: absolute; top: 0; left: 0;" allowfullscreen></iframe>`
+                                        : `<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.03);color:var(--text-muted);">Clip unavailable</div>`
+                                    }
+                                </div>
+                                <h4>${title}</h4>
+                                <span class="view-count">👁️ ${(Number.isFinite(views) ? views : 0).toLocaleString()} views</span>
+                                ${url ? `<a href="${url}" target="_blank" rel="noopener" style="display:inline-block;margin-top:0.35rem;color:var(--primary);text-decoration:none;font-weight:600;font-size:0.85rem;">Open on Twitch ↗</a>` : ''}
+                            </div>
+                        `;
+                    }
+                } else {
+                    for (let clip of fallbackClips) {
                     highlightsHTML += `
                         <div class="highlight-card">
                             <div class="highlight-thumbnail" style="position: relative; padding: 0; overflow: hidden;">
-                                <iframe src="https://clips.twitch.tv/embed?clip=${clip.slug}&parent=flyingwithjoel.co.uk" style="width: 100%; height: 100%; border: none; display: block; position: absolute; top: 0; left: 0;" allowfullscreen></iframe>
+                                <iframe src="https://clips.twitch.tv/embed?clip=${clip.slug}&parent=flyingwithjoel.co.uk&parent=www.flyingwithjoel.co.uk&autoplay=false" style="width: 100%; height: 100%; border: none; display: block; position: absolute; top: 0; left: 0;" allowfullscreen></iframe>
                             </div>
                             <h4>${clip.title}</h4>
                             <span class="view-count">👁️ ${clip.views.toLocaleString()} views</span>
                         </div>
                     `;
+                    }
                 }
                 
                 // Add Follow on Twitch card

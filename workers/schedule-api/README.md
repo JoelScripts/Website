@@ -10,6 +10,7 @@ This Worker provides a simple backend for your GitHub Pages site so `admin.html`
 - `PUT /api/site-mode` → saves `{ mode: "live"|"maintenance" }` (requires HTTP Basic Auth)
 - `GET /api/schedule/live` → returns `{ ok: true, live: boolean }` based on the channel’s actual Twitch live status (requires Twitch API secrets)
 - `GET /api/schedule/followers` → returns `{ ok: true, followers: number }` for the homepage follower card (uses Worker secrets; cached in KV)
+- `GET /api/schedule/clips` → returns `{ ok: true, clips: [...] }` for the homepage highlights section (uses Worker secrets; cached in KV)
 
 Your frontend already calls `/api/schedule` as its first choice.
 
@@ -73,6 +74,7 @@ Your frontend already calls `/api/schedule` as its first choice.
 - Visit `https://flyingwithjoel.co.uk/api/site-mode` → should show `{ "mode": "live", "updatedAtUtc": null }` initially.
 - (If Twitch secrets set) Visit `https://flyingwithjoel.co.uk/api/schedule/live` → should show `{ ok: true, live: false }` when offline.
 - Visit `https://flyingwithjoel.co.uk/api/schedule/followers` → should show `{ ok: true, followers: <number> }`.
+- Visit `https://flyingwithjoel.co.uk/api/schedule/clips?count=2` → should show `{ ok: true, clips: [...] }`.
 - Visit `https://flyingwithjoel.co.uk/admin.html`
   - Enter username/password matching the secrets
   - Click **Save schedule**
