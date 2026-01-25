@@ -6,6 +6,8 @@ This Worker provides a simple backend for your GitHub Pages site so `admin.html`
 
 - `GET /api/schedule` → returns the saved schedule JSON array (or `[]` if empty)
 - `PUT /api/schedule` → saves the schedule JSON array (requires HTTP Basic Auth)
+- `GET /api/site-mode` → returns `{ ok?: true, mode: "live"|"maintenance", updatedAtUtc: string|null }`
+- `PUT /api/site-mode` → saves `{ mode: "live"|"maintenance" }` (requires HTTP Basic Auth)
 - `GET /api/schedule/live` → returns `{ ok: true, live: boolean }` based on the channel’s actual Twitch live status (requires Twitch API secrets)
 
 Your frontend already calls `/api/schedule` as its first choice.
@@ -50,14 +52,21 @@ Your frontend already calls `/api/schedule` as its first choice.
    - Route: `flyingwithjoel.co.uk/api/schedule*`
    - Zone: `flyingwithjoel.co.uk`
 
+8. **Add the site-mode route**
+   - Worker → **Triggers** → **Routes** → Add route
+   - Route: `flyingwithjoel.co.uk/api/site-mode*`
+   - Zone: `flyingwithjoel.co.uk`
+
 8. **Make sure traffic goes through Cloudflare**
    - Cloudflare DNS: your `@` and `www` records should be **Proxied** (orange cloud)
 
 ## Testing
 
 - Visit `https://flyingwithjoel.co.uk/api/schedule` → should show `[]` initially.
+- Visit `https://flyingwithjoel.co.uk/api/site-mode` → should show `{ "mode": "live", "updatedAtUtc": null }` initially.
 - (If Twitch secrets set) Visit `https://flyingwithjoel.co.uk/api/schedule/live` → should show `{ ok: true, live: false }` when offline.
 - Visit `https://flyingwithjoel.co.uk/admin.html`
   - Enter username/password matching the secrets
   - Click **Save schedule**
+   - Use **Site Mode** → **Set Maintenance** and refresh `index.html` to confirm redirect
   - Then refresh `/api/schedule` — you should see your saved JSON array.

@@ -12,6 +12,9 @@
 
 const SCHEDULE_KEY = 'schedule_v1';
 const TWITCH_TOKEN_KEY = 'twitch_token_v1';
+const SITE_MODE_KEY = 'site_mode_v1';
+
+const DEFAULT_SITE_MODE = 'live';
 
 const DEFAULT_TWITCH_LOGIN = 'flyingwithjoel';
 
@@ -220,6 +223,15 @@ function validateScheduleArray(value) {
   return { ok: true };
 }
 
+function validateSiteModeBody(value) {
+  if (!value || typeof value !== 'object') return { ok: false, reason: 'Body is not an object.' };
+  const mode = typeof value.mode === 'string' ? value.mode.trim().toLowerCase() : '';
+  if (mode !== 'live' && mode !== 'maintenance') {
+    return { ok: false, reason: 'mode must be "live" or "maintenance".' };
+  }
+  return { ok: true, mode };
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -236,10 +248,127 @@ export default {
       });
     }
 
-    // Only handle the schedule endpoints (route usually limits this already)
-    if (!path.startsWith('/api/schedule')) {
+    const isSchedule = path.startsWith('/api/schedule');
+    const isSiteMode = path.startsWith('/api/site-mode');
+    if (!isSchedule && !isSiteMode) {
       return new Response('Not Found', {
         status: 404,
+        headers: {
+          ...corsHeadersFor(request),
+          'cache-control': 'no-store',
+        },
+      });
+    }
+
+    // ===== Site mode endpoints =====
+    // Routes:
+    //  - GET /api/site-mode -> { mode: 'live'|'maintenance', updatedAtUtc: string|null }
+    //  - PUT /api/site-mode -> saves { mode }
+    //  - GET /api/site-mode/auth -> verifies Basic Auth (for debugging)
+    if (isSiteMode) {
+      if (path === '/api/site-mode/auth') {
+        if (request.method !== 'GET') {
+          return new Response('Method Not Allowed', {
+            status: 405,
+            headers: {
+              ...corsHeadersFor(request),
+              'cache-control': 'no-store',
+            },
+          });
+        }
+
+        if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+          return jsonResponse(
+            { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        if (!isAuthorized(request, env)) {
+          const resp = unauthorizedResponse();
+          const headers = new Headers(resp.headers);
+          const cors = corsHeadersFor(request);
+          for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+          return new Response(resp.body, { status: resp.status, headers });
+        }
+
+        return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
+      }
+
+      if (!env.SCHEDULE_KV) {
+        return jsonResponse(
+          { error: 'Missing KV binding SCHEDULE_KV.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (request.method === 'GET') {
+        const raw = await env.SCHEDULE_KV.get(SITE_MODE_KEY);
+        if (!raw) {
+          return jsonResponse(
+            { mode: DEFAULT_SITE_MODE, updatedAtUtc: null },
+            { headers: corsHeadersFor(request) }
+          );
+        }
+
+        try {
+          const parsed = JSON.parse(raw);
+          const mode = parsed && typeof parsed.mode === 'string' ? parsed.mode.trim().toLowerCase() : DEFAULT_SITE_MODE;
+          const safeMode = mode === 'maintenance' ? 'maintenance' : 'live';
+          const updatedAtUtc = parsed && typeof parsed.updatedAtUtc === 'string' ? parsed.updatedAtUtc : null;
+          return jsonResponse(
+            { mode: safeMode, updatedAtUtc: updatedAtUtc || null },
+            { headers: corsHeadersFor(request) }
+          );
+        } catch {
+          return jsonResponse(
+            { mode: DEFAULT_SITE_MODE, updatedAtUtc: null },
+            { headers: corsHeadersFor(request) }
+          );
+        }
+      }
+
+      if (request.method === 'PUT') {
+        if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+          return jsonResponse(
+            { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        if (!isAuthorized(request, env)) {
+          const resp = unauthorizedResponse();
+          const headers = new Headers(resp.headers);
+          const cors = corsHeadersFor(request);
+          for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+          return new Response(resp.body, { status: resp.status, headers });
+        }
+
+        let body;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse(
+            { error: 'Invalid JSON body.' },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const validation = validateSiteModeBody(body);
+        if (!validation.ok) {
+          return jsonResponse(
+            { error: 'Invalid site mode.', details: validation },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const updatedAtUtc = new Date().toISOString();
+        await env.SCHEDULE_KV.put(SITE_MODE_KEY, JSON.stringify({ mode: validation.mode, updatedAtUtc }));
+        return jsonResponse({ ok: true, mode: validation.mode, updatedAtUtc }, { headers: corsHeadersFor(request) });
+      }
+
+      return new Response('Method Not Allowed', {
+        status: 405,
         headers: {
           ...corsHeadersFor(request),
           'cache-control': 'no-store',

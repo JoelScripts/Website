@@ -470,6 +470,7 @@
         let savedUrl = null;
         let lastStatus = null;
         let lastBody = null;
+        let lastUrl = null;
 
         for (const u of targets) {
           try {
@@ -482,6 +483,7 @@
               body: JSON.stringify({ mode: m }),
             });
 
+            lastUrl = u;
             lastStatus = resp.status;
             if (resp.status === 401) {
               setSiteModeStatus('Unauthorized (wrong username/password).', 'err');
@@ -506,7 +508,10 @@
 
         if (!savedUrl) {
           const extra = lastBody ? ` — ${String(lastBody).slice(0, 220)}` : '';
-          throw new Error(`Save failed to ${targets[0] || '/api/site-mode'} (last status: ${lastStatus ?? 'n/a'})${extra}`);
+          const hint = (lastUrl && lastUrl === '/api/site-mode' && (lastStatus === 404 || lastStatus === 405))
+            ? ' Hint: /api/site-mode is not configured. Ensure your Cloudflare Worker has a route for /api/site-mode* (or pass ?siteModeApi=https://api.flyingwithjoel.co.uk/api/site_mode.php)'
+            : '';
+          throw new Error(`Save failed (last: ${lastUrl || (targets[0] || '/api/site-mode')} status: ${lastStatus ?? 'n/a'})${extra}${hint}`);
         }
 
         setSiteModeStatus(`Saved to ${savedUrl}.`, 'ok');
