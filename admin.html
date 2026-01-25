@@ -309,15 +309,40 @@
 
     .admin-day-card .date-row {
       display: grid;
-      grid-template-columns: 1.35fr 0.65fr;
+      grid-template-columns: minmax(8.5rem, 1fr) minmax(4.25rem, 0.55fr);
       gap: 0.6rem;
       align-items: center;
     }
     .admin-edit .date-row {
       display: grid;
-      grid-template-columns: 1.35fr 0.65fr;
+      grid-template-columns: minmax(8.5rem, 1fr) minmax(4.25rem, 0.55fr);
       gap: 0.6rem;
       align-items: center;
+    }
+
+    .admin-day-card .date-row .month,
+    .admin-edit .date-row .month {
+      min-width: 8.5rem;
+    }
+
+    .admin-day-card .date-row .day,
+    .admin-edit .date-row .day {
+      min-width: 4.25rem;
+      text-align: center;
+      padding-right: 0.6rem;
+    }
+
+    /* Number spinners steal horizontal room; remove for consistent sizing */
+    .admin-day-card .date-row .day::-webkit-outer-spin-button,
+    .admin-day-card .date-row .day::-webkit-inner-spin-button,
+    .admin-edit .date-row .day::-webkit-outer-spin-button,
+    .admin-edit .date-row .day::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .admin-day-card .date-row .day,
+    .admin-edit .date-row .day {
+      appearance: textfield;
     }
     /* Add breathing room between Date/Time and the next section */
     .admin-edit .schedule-item .field.field-date,
