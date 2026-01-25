@@ -39,7 +39,15 @@ Your frontend already calls `/api/schedule` as its first choice.
      - `ADMIN_USERNAME` (your chosen username)
      - `ADMIN_PASSWORD` (your chosen password)
 
-6. **(Optional, for LIVE badge) Add Twitch API secrets**
+6. **(Optional) Discord notifications on schedule updates**
+    - Create a Discord webhook in the channel you want (Server Settings → Integrations → Webhooks)
+    - Worker → **Settings** → **Variables** → add **secret**:
+       - `DISCORD_SCHEDULE_WEBHOOK_URL`
+    - Optional plain-text vars:
+       - `DISCORD_SCHEDULE_MENTION` (optional prefix text; `@everyone` / `@here` are blocked)
+       - `SITE_URL` (defaults to `https://flyingwithjoel.co.uk`)
+
+7. **(Optional, for LIVE badge) Add Twitch API secrets**
     - Create a Twitch Developer application and grab the Client ID/Secret
     - Worker → **Settings** → **Variables** → add **secrets**:
        - `TWITCH_CLIENT_ID`
@@ -47,12 +55,12 @@ Your frontend already calls `/api/schedule` as its first choice.
     - Optional variable (secret or plain text):
        - `TWITCH_CHANNEL_LOGIN` (defaults to `flyingwithjoel`)
 
-7. **Add the route**
+8. **Add the route**
    - Worker → **Triggers** → **Routes** → Add route
    - Route: `flyingwithjoel.co.uk/api/schedule*`
    - Zone: `flyingwithjoel.co.uk`
 
-8. **Add the site-mode route**
+9. **Add the site-mode route**
    - Worker → **Triggers** → **Routes** → Add route
    - Route: `flyingwithjoel.co.uk/api/site-mode*`
    - Zone: `flyingwithjoel.co.uk`
@@ -68,5 +76,6 @@ Your frontend already calls `/api/schedule` as its first choice.
 - Visit `https://flyingwithjoel.co.uk/admin.html`
   - Enter username/password matching the secrets
   - Click **Save schedule**
+   - If `DISCORD_SCHEDULE_WEBHOOK_URL` is set, Discord should receive a “Schedule updated” message
    - Use **Site Mode** → **Set Maintenance** and refresh `index.html` to confirm redirect
   - Then refresh `/api/schedule` — you should see your saved JSON array.

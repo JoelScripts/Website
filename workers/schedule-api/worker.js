@@ -53,6 +53,75 @@ function jsonResponse(data, init = {}) {
   return new Response(JSON.stringify(data), { ...init, headers });
 }
 
+function formatScheduleLine(item) {
+  const day = (item && typeof item.dayName === 'string' ? item.dayName.trim() : '') || '';
+  const date = (item && typeof item.dateText === 'string' ? item.dateText.trim() : '') || '';
+  const status = (item && typeof item.status === 'string' ? item.status.trim().toLowerCase() : 'none') || 'none';
+  const title = (item && typeof item.streamTitle === 'string' ? item.streamTitle.trim() : '') || '';
+
+  const zuluTime = item && typeof item.zuluTime === 'string' ? item.zuluTime.trim() : '';
+  const originalZulu = item && typeof item.originalZuluTime === 'string' ? item.originalZuluTime.trim() : '';
+  const timeText = (item && typeof item.timeText === 'string' ? item.timeText.trim() : '') || '';
+
+  const when = (status === 'delayed')
+    ? (originalZulu && zuluTime ? `${originalZulu} → ${zuluTime}` : (timeText || zuluTime || originalZulu || 'TBC'))
+    : (zuluTime || timeText || 'TBC');
+
+  if (status === 'none') return `• ${day} ${date} — 🚫 No stream`;
+  if (status === 'scheduled') return `• ${day} ${date} — 🗓️ ${when} — ${title || 'Stream'}`;
+  if (status === 'completed') return `• ${day} ${date} — ✅ Completed — ${title || 'Stream'}`;
+  if (status === 'cancelled') return `• ${day} ${date} — ❌ Cancelled — ${title || 'Stream'}`;
+  if (status === 'delayed') return `• ${day} ${date} — ⏳ Delayed — ${when} — ${title || 'Stream'}`;
+  return `• ${day} ${date} — ${when} — ${title || 'Stream'}`;
+}
+
+function buildDiscordSchedulePayload(schedule, siteUrl) {
+  const items = Array.isArray(schedule) ? schedule.slice(0, 7) : [];
+  const lines = items.map(formatScheduleLine).join('\n');
+
+  const description = lines || 'Schedule updated.';
+  const scheduleUrl = `${(siteUrl || 'https://flyingwithjoel.co.uk').replace(/\/$/, '')}/pages/schedule.html`;
+
+  return {
+    content: '',
+    allowed_mentions: { parse: [] },
+    embeds: [
+      {
+        title: '📅 Schedule updated',
+        url: scheduleUrl,
+        description: description.length > 3800 ? (description.slice(0, 3800) + '…') : description,
+        color: 0xff8c42,
+        footer: { text: 'Flying With Joel' },
+        timestamp: new Date().toISOString(),
+      },
+    ],
+  };
+}
+
+async function postDiscordWebhook(env, schedule) {
+  const webhookUrl = env.DISCORD_SCHEDULE_WEBHOOK_URL;
+  if (!webhookUrl || typeof webhookUrl !== 'string') return;
+
+  const mention = env.DISCORD_SCHEDULE_MENTION;
+  const siteUrl = env.SITE_URL;
+
+  const payload = buildDiscordSchedulePayload(schedule, siteUrl);
+  if (mention && typeof mention === 'string' && mention.trim()) {
+    const m = mention.trim();
+    // Never allow @everyone/@here pings or text.
+    if (!/^@everyone$/i.test(m) && !/^@here$/i.test(m) && !m.toLowerCase().includes('@everyone') && !m.toLowerCase().includes('@here')) {
+      payload.content = m;
+    }
+  }
+
+  // Discord expects JSON; webhook responds 204 on success.
+  await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+}
+
 async function getCachedTwitchToken(env) {
   if (!env.SCHEDULE_KV) return null;
   const raw = await env.SCHEDULE_KV.get(TWITCH_TOKEN_KEY);
@@ -491,8 +560,26 @@ export default {
         );
       }
 
-      await env.SCHEDULE_KV.put(SCHEDULE_KEY, JSON.stringify(body));
-      return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
+      // Only notify Discord if the schedule actually changed.
+      const nextRaw = JSON.stringify(body);
+      let prevRaw = null;
+      try {
+        prevRaw = await env.SCHEDULE_KV.get(SCHEDULE_KEY);
+      } catch {
+        prevRaw = null;
+      }
+
+      await env.SCHEDULE_KV.put(SCHEDULE_KEY, nextRaw);
+
+      if (prevRaw !== nextRaw) {
+        try {
+          await postDiscordWebhook(env, body);
+        } catch {
+          // Don't fail the save if Discord is down/misconfigured.
+        }
+      }
+
+      return jsonResponse({ ok: true, notified: prevRaw !== nextRaw }, { headers: corsHeadersFor(request) });
     }
 
     return new Response('Method Not Allowed', {
