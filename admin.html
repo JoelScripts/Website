@@ -90,8 +90,22 @@
       gap: 0.9rem;
       padding: 0;
     }
+
+    /* Reset legacy 12-col positioning rules within admin card editor */
+    .admin-day-card .schedule-item .field,
+    .admin-day-card .schedule-item .field-day,
+    .admin-day-card .schedule-item .field-date,
+    .admin-day-card .schedule-item .field-time,
+    .admin-day-card .schedule-item .field-title,
+    .admin-day-card .schedule-item .field-status,
+    .admin-day-card .schedule-item .field-delayed {
+      grid-column: auto;
+    }
     @media (min-width: 840px) {
       .admin-day-card .schedule-item { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .admin-day-card .schedule-item .field-day,
+      .admin-day-card .schedule-item .field-date,
+      .admin-day-card .schedule-item .field-time { grid-column: auto; }
       .admin-day-card .schedule-item .field.field-status,
       .admin-day-card .schedule-item .field.field-title,
       .admin-day-card .schedule-item .field.field-delayed { grid-column: 1 / -1; }
