@@ -13,6 +13,7 @@
 const SCHEDULE_KEY = 'schedule_v1';
 const TWITCH_TOKEN_KEY = 'twitch_token_v1';
 const SITE_MODE_KEY = 'site_mode_v1';
+const CURRENT_FLIGHT_KEY = 'current_flight_v1';
 const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
 const TWITCH_CLIPS_KEY = 'twitch_clips_v1';
 
@@ -133,6 +134,12 @@ async function isTwitchChannelLive(env) {
 function clampInt(n, min, max) {
   if (!Number.isFinite(n)) return min;
   return Math.max(min, Math.min(max, Math.trunc(n)));
+}
+
+function clampString(value, maxLen) {
+  if (typeof value !== 'string') return '';
+  const trimmed = value.trim();
+  return trimmed.length > maxLen ? trimmed.slice(0, maxLen) : trimmed;
 }
 
 function getRandomSample(array, count) {
@@ -503,6 +510,43 @@ function validateSiteModeBody(value) {
   return { ok: true, mode };
 }
 
+function validateCurrentFlightBody(value) {
+  if (!value || typeof value !== 'object') return { ok: false, reason: 'Body is not an object.' };
+
+  const statusRaw = typeof value.status === 'string' ? value.status.trim().toLowerCase() : 'offline';
+  const status = statusRaw === 'live' ? 'live' : 'offline';
+
+  const tracking = value.tracking && typeof value.tracking === 'object' ? value.tracking : {};
+  const provider = clampString(tracking.provider, 24) || 'custom';
+  const url = clampString(tracking.url, 800);
+
+  if (url) {
+    try {
+      const u = new URL(url);
+      const proto = (u.protocol || '').toLowerCase();
+      if (proto !== 'https:' && proto !== 'http:') {
+        return { ok: false, reason: 'tracking.url must be http(s).' };
+      }
+    } catch {
+      return { ok: false, reason: 'tracking.url must be a valid URL.' };
+    }
+  }
+
+  return {
+    ok: true,
+    data: {
+      status,
+      title: clampString(value.title, 140),
+      flightNumber: clampString(value.flightNumber, 40),
+      callsign: clampString(value.callsign, 40),
+      aircraft: clampString(value.aircraft, 80),
+      departure: clampString(value.departure, 80),
+      arrival: clampString(value.arrival, 80),
+      tracking: { provider, url },
+    },
+  };
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -521,9 +565,159 @@ export default {
 
     const isSchedule = path.startsWith('/api/schedule');
     const isSiteMode = path.startsWith('/api/site-mode');
-    if (!isSchedule && !isSiteMode) {
+    const isCurrentFlight = path.startsWith('/api/current-flight');
+    if (!isSchedule && !isSiteMode && !isCurrentFlight) {
       return new Response('Not Found', {
         status: 404,
+        headers: {
+          ...corsHeadersFor(request),
+          'cache-control': 'no-store',
+        },
+      });
+    }
+
+    // ===== Current flight endpoints =====
+    // Routes:
+    //  - GET /api/current-flight -> returns current flight JSON
+    //  - PUT /api/current-flight -> saves current flight JSON (Basic Auth)
+    //  - GET /api/current-flight/auth -> verifies Basic Auth (for debugging)
+    if (isCurrentFlight) {
+      if (path === '/api/current-flight/auth') {
+        if (request.method !== 'GET') {
+          return new Response('Method Not Allowed', {
+            status: 405,
+            headers: {
+              ...corsHeadersFor(request),
+              'cache-control': 'no-store',
+            },
+          });
+        }
+
+        if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+          return jsonResponse(
+            { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        if (!isAuthorized(request, env)) {
+          const resp = unauthorizedResponse();
+          const headers = new Headers(resp.headers);
+          const cors = corsHeadersFor(request);
+          for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+          return new Response(resp.body, { status: resp.status, headers });
+        }
+
+        return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
+      }
+
+      if (!env.SCHEDULE_KV) {
+        return jsonResponse(
+          { error: 'Missing KV binding SCHEDULE_KV.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (request.method === 'GET') {
+        const raw = await env.SCHEDULE_KV.get(CURRENT_FLIGHT_KEY);
+        if (!raw) {
+          return jsonResponse(
+            {
+              status: 'offline',
+              title: 'Not flying right now',
+              flightNumber: '',
+              callsign: '',
+              aircraft: '',
+              departure: '',
+              arrival: '',
+              tracking: { provider: 'custom', url: '' },
+              lastUpdated: null,
+            },
+            { headers: corsHeadersFor(request) }
+          );
+        }
+
+        try {
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== 'object') throw new Error('bad');
+
+          return jsonResponse(
+            {
+              status: clampString(parsed.status, 12).toLowerCase() === 'live' ? 'live' : 'offline',
+              title: clampString(parsed.title, 140),
+              flightNumber: clampString(parsed.flightNumber, 40),
+              callsign: clampString(parsed.callsign, 40),
+              aircraft: clampString(parsed.aircraft, 80),
+              departure: clampString(parsed.departure, 80),
+              arrival: clampString(parsed.arrival, 80),
+              tracking: {
+                provider: clampString(parsed?.tracking?.provider, 24) || 'custom',
+                url: clampString(parsed?.tracking?.url, 800),
+              },
+              lastUpdated: typeof parsed.lastUpdated === 'string' ? parsed.lastUpdated : null,
+            },
+            { headers: corsHeadersFor(request) }
+          );
+        } catch {
+          return jsonResponse(
+            {
+              status: 'offline',
+              title: 'Not flying right now',
+              flightNumber: '',
+              callsign: '',
+              aircraft: '',
+              departure: '',
+              arrival: '',
+              tracking: { provider: 'custom', url: '' },
+              lastUpdated: null,
+            },
+            { headers: corsHeadersFor(request) }
+          );
+        }
+      }
+
+      if (request.method === 'PUT') {
+        if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+          return jsonResponse(
+            { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        if (!isAuthorized(request, env)) {
+          const resp = unauthorizedResponse();
+          const headers = new Headers(resp.headers);
+          const cors = corsHeadersFor(request);
+          for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+          return new Response(resp.body, { status: resp.status, headers });
+        }
+
+        let body;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse(
+            { error: 'Invalid JSON body.' },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const validation = validateCurrentFlightBody(body);
+        if (!validation.ok) {
+          return jsonResponse(
+            { error: 'Invalid current flight payload.', details: validation },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const lastUpdated = new Date().toISOString();
+        const toStore = { ...validation.data, lastUpdated };
+        await env.SCHEDULE_KV.put(CURRENT_FLIGHT_KEY, JSON.stringify(toStore));
+        return jsonResponse({ ok: true, data: toStore }, { headers: corsHeadersFor(request) });
+      }
+
+      return new Response('Method Not Allowed', {
+        status: 405,
         headers: {
           ...corsHeadersFor(request),
           'cache-control': 'no-store',

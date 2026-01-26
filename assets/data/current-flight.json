@@ -1,0 +1,14 @@
+{
+  "status": "offline",
+  "title": "Not flying right now",
+  "flightNumber": "",
+  "callsign": "",
+  "aircraft": "",
+  "departure": "",
+  "arrival": "",
+  "tracking": {
+    "provider": "custom",
+    "url": ""
+  },
+  "lastUpdated": "2026-01-26T00:00:00Z"
+}
