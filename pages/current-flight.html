@@ -41,22 +41,43 @@
       color: #fff;
     }
 
-    .embedWrap {
-      margin-top: 1.25rem;
+    .flightInfo {
+      margin-top: 1.15rem;
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 0.9rem;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.25);
+      background: rgba(0,0,0,0.18);
+      padding: 1rem;
+    }
+    .flightGrid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.8rem;
+    }
+    @media (max-width: 760px) {
+      .flightGrid { grid-template-columns: 1fr; }
+    }
+    .field {
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      border-radius: 0.75rem;
+      padding: 0.85rem 0.95rem;
+    }
+    .fieldLabel {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.65);
+      font-weight: 800;
+    }
+    .fieldValue {
+      margin-top: 0.35rem;
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: #fff;
+      word-break: break-word;
     }
 
-    .embedFrame {
-      width: 100%;
-      height: 74vh;
-      min-height: 520px;
-      border: 0;
-      display: block;
-      background: #000;
-    }
+    .bad { border-color: rgba(255,68,68,0.6); background: rgba(255,68,68,0.12); color: #FFB3B3; }
 
     .error {
       display:none;
@@ -104,19 +125,28 @@
 
       <div id="errorBox" class="error"></div>
 
-      <div id="trackingLinkWrap" style="margin-top: 1rem; display:none;">
-        <a id="trackingLink" class="btn btnPrimary" href="#" target="_blank" rel="noopener noreferrer">Open tracking</a>
-        <div class="muted" id="embedNote" style="margin-top: 0.65rem; line-height: 1.6;"></div>
-      </div>
+      <div class="flightInfo" aria-label="Flight information">
+        <div class="flightGrid">
+          <div class="field">
+            <div class="fieldLabel">Flight Number</div>
+            <div id="flightNumber" class="fieldValue">—</div>
+          </div>
+          <div class="field">
+            <div class="fieldLabel">Callsign</div>
+            <div id="callsign" class="fieldValue">—</div>
+          </div>
+          <div class="field">
+            <div class="fieldLabel">Departure</div>
+            <div id="departure" class="fieldValue">—</div>
+          </div>
+          <div class="field">
+            <div class="fieldLabel">Arrival</div>
+            <div id="arrival" class="fieldValue">—</div>
+          </div>
+        </div>
 
-      <div id="embedWrap" class="embedWrap" style="display:none;">
-        <iframe id="trackingFrame" class="embedFrame" referrerpolicy="no-referrer" loading="lazy"></iframe>
-      </div>
-
-      <div class="muted" style="margin-top: 1.25rem; line-height: 1.7;">
-        Tip: this page tries <code>/api/schedule/current-flight</code> (admin-updated). If the API isn’t routed, it falls back to <code>/assets/data/current-flight.json</code>.
-        <div style="margin-top: 0.5rem;">
-          Data source: <code id="dataSource">Loading…</code>
+        <div id="trackingLinkWrap" style="margin-top: 1rem; display:none;">
+          <a id="trackingLink" class="btn btnPrimary" href="#" target="_blank" rel="noopener noreferrer">Open tracking</a>
         </div>
       </div>
     </div>

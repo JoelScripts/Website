@@ -1,6 +1,5 @@
 (function () {
   const FALLBACK_JSON_URL = '/assets/data/current-flight.json';
-  const CONSENT_KEY = 'gdpr-consent-accepted';
   const CURRENT_FLIGHT_API_LOCALSTORAGE_KEY = 'fwj_current_flight_api';
 
   function $(id) {
@@ -54,7 +53,7 @@
 
   function getApiCandidates() {
     const override = getApiOverride();
-    const candidates = [override, '/api/current-flight', '/api/schedule/current-flight', FALLBACK_JSON_URL].filter(Boolean);
+    const candidates = [override, '/api/schedule/current-flight', '/api/current-flight', FALLBACK_JSON_URL].filter(Boolean);
     return Array.from(new Set(candidates));
   }
 
@@ -71,12 +70,6 @@
     return null;
   }
 
-  function setDataSourceLabel(sourceUrl) {
-    const el = $('dataSource');
-    if (!el) return;
-    el.textContent = safeText(sourceUrl) || 'Unknown';
-  }
-
   function providerLabel(provider) {
     const p = safeText(provider).toLowerCase();
     if (p === 'volanta') return 'Volanta';
@@ -85,49 +78,61 @@
     return 'Tracking';
   }
 
-  function hasConsent() {
-    try {
-      return localStorage.getItem(CONSENT_KEY) === 'true';
-    } catch {
-      return false;
-    }
-  }
-
   function setStatusPill(status) {
     const pill = $('statusPill');
     if (!pill) return;
 
-    const s = safeText(status).toLowerCase();
-    if (s === 'live') {
-      pill.className = 'pill ok';
-      pill.textContent = 'LIVE';
-    } else {
-      pill.className = 'pill warn';
-      pill.textContent = 'OFFLINE';
-    }
+    const raw = safeText(status).toLowerCase();
+    const normalized = raw === 'live' ? 'en_route' : raw;
+    const map = {
+      offline: { cls: 'pill warn', label: 'OFFLINE' },
+      on_time: { cls: 'pill ok', label: 'ON TIME' },
+      delayed: { cls: 'pill warn', label: 'DELAYED' },
+      boarding: { cls: 'pill ok', label: 'BOARDING' },
+      en_route: { cls: 'pill ok', label: 'EN ROUTE' },
+      arrived: { cls: 'pill ok', label: 'ARRIVED' },
+      cancelled: { cls: 'pill bad', label: 'CANCELLED' },
+      diverted: { cls: 'pill warn', label: 'DIVERTED' },
+    };
+
+    const entry = map[normalized] || map.offline;
+    pill.className = entry.cls;
+    pill.textContent = entry.label;
   }
 
   function renderDetails(cfg) {
     const title = $('flightTitle');
     const meta = $('flightMeta');
 
+    const flightNumberEl = $('flightNumber');
+    const callsignEl = $('callsign');
+    const departureEl = $('departure');
+    const arrivalEl = $('arrival');
+
     const status = safeText(cfg.status) || 'offline';
     setStatusPill(status);
 
-    const prettyTitle = safeText(cfg.title) || (status.toLowerCase() === 'live' ? 'Currently flying' : 'Not flying right now');
-    if (title) title.textContent = prettyTitle;
-
-    const bits = [];
     const flightNumber = safeText(cfg.flightNumber);
     const callsign = safeText(cfg.callsign);
     const aircraft = safeText(cfg.aircraft);
     const departure = safeText(cfg.departure);
     const arrival = safeText(cfg.arrival);
 
-    if (flightNumber) bits.push(`Flight: ${flightNumber}`);
-    if (callsign) bits.push(`Callsign: ${callsign}`);
+    if (flightNumberEl) flightNumberEl.textContent = flightNumber || '—';
+    if (callsignEl) callsignEl.textContent = callsign || '—';
+    if (departureEl) departureEl.textContent = departure || '—';
+    if (arrivalEl) arrivalEl.textContent = arrival || '—';
+
+    const titleBits = [];
+    if (flightNumber) titleBits.push(flightNumber);
+    if (callsign) titleBits.push(callsign);
+    if (departure || arrival) titleBits.push(`${departure || '—'} → ${arrival || '—'}`);
+    const fallbackTitle = status.toLowerCase() === 'offline' ? 'Not flying right now' : 'Current flight';
+    const prettyTitle = safeText(cfg.title) || (titleBits.length ? titleBits.join(' • ') : fallbackTitle);
+    if (title) title.textContent = prettyTitle;
+
+    const bits = [];
     if (aircraft) bits.push(`Aircraft: ${aircraft}`);
-    if (departure || arrival) bits.push(`Route: ${departure || '—'} → ${arrival || '—'}`);
 
     const lastUpdated = safeText(cfg.lastUpdated);
     if (lastUpdated) {
@@ -142,7 +147,7 @@
     }
 
     if (meta) {
-      meta.textContent = bits.length ? bits.join(' • ') : 'Update this page by editing /assets/data/current-flight.json';
+      meta.textContent = bits.length ? bits.join(' • ') : ' ';
     }
   }
 
@@ -152,14 +157,9 @@
 
     const linkWrap = $('trackingLinkWrap');
     const link = $('trackingLink');
-    const embedWrap = $('embedWrap');
-    const embedFrame = $('trackingFrame');
-    const embedNote = $('embedNote');
 
     if (!looksLikeUrl(trackingUrl)) {
       if (linkWrap) linkWrap.style.display = 'none';
-      if (embedWrap) embedWrap.style.display = 'none';
-      if (embedNote) embedNote.textContent = 'No tracking link has been set yet.';
       return;
     }
 
@@ -168,42 +168,11 @@
       link.href = trackingUrl;
       link.textContent = `Open ${providerLabel(trackingProvider)} tracking`;
     }
-
-    // Only embed after consent: third-party pages may set cookies.
-    if (!hasConsent()) {
-      if (embedWrap) embedWrap.style.display = 'none';
-      if (embedNote) {
-        embedNote.innerHTML = 'To embed the tracker here, accept optional resources via <a href="#" id="cookie-settings-link-inline">Cookie Settings</a>. You can still open the tracking link above.';
-        const a = document.getElementById('cookie-settings-link-inline');
-        a?.addEventListener('click', (e) => {
-          e.preventDefault();
-          try {
-            localStorage.removeItem(CONSENT_KEY);
-          } catch {
-            // ignore
-          }
-          const banner = document.getElementById('cookie-consent-banner');
-          banner?.classList?.add('show');
-          if (banner) banner.style.display = 'flex';
-        });
-      }
-      return;
-    }
-
-    if (embedWrap) embedWrap.style.display = 'block';
-    if (embedNote) {
-      embedNote.textContent = 'If the embed is blank, the provider may block embedding. Use the button above to open it.';
-    }
-    if (embedFrame) {
-      embedFrame.src = trackingUrl;
-      embedFrame.title = `${providerLabel(trackingProvider)} tracking`;
-    }
   }
 
   async function loadConfig() {
     const result = await fetchFirstOkJson(getApiCandidates());
     if (!result) throw new Error('Failed to load current flight config.');
-    setDataSourceLabel(result.url);
     return result.data;
   }
 
@@ -240,14 +209,6 @@
       renderDetails(cfg);
       renderTracking(cfg);
       if (err) err.style.display = 'none';
-
-      // If we ended up on the static fallback, make the reason obvious.
-      const sourceEl = $('dataSource');
-      const src = safeText(sourceEl ? sourceEl.textContent : '');
-      if (src === FALLBACK_JSON_URL && err) {
-        err.style.display = 'block';
-        err.textContent = 'Using fallback data. The API endpoint is likely not routed to the Worker (or the Worker has not been deployed). Check /pages/status.html.';
-      }
     } catch (e) {
       if (err) {
         err.style.display = 'block';
@@ -264,8 +225,6 @@
       navLinks.classList.toggle('active');
     });
 
-    // Re-render embed after consent changes.
-    window.addEventListener('fwj:consent:granted', () => run());
     run();
   });
 })();

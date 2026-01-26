@@ -835,21 +835,49 @@
           <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
             <div>
               <h3 style="margin: 0;">✈️ Current Flight</h3>
-              <p class="admin-msg" style="margin-top: 0.2rem;">Update the public <code>/pages/current-flight.html</code> page (saves to <code>/api/current-flight</code>).</p>
+              <p class="admin-msg" style="margin-top: 0.2rem;">Update the public <code>/pages/current-flight.html</code> page (saves to <code>/api/schedule/current-flight</code>).</p>
             </div>
             <div id="current-flight-pill" class="muted">Status: …</div>
           </div>
 
           <div class="admin-row" style="margin-top: 0.8rem;">
             <div>
-              <label for="cf-status">Status</label>
+              <label for="cf-status">Flight status</label>
               <select id="cf-status">
                 <option value="offline" selected>Offline</option>
-                <option value="live">Live</option>
+                <option value="boarding">Boarding</option>
+                <option value="en_route">En route</option>
+                <option value="on_time">On time</option>
+                <option value="delayed">Delayed</option>
+                <option value="arrived">Arrived</option>
+                <option value="diverted">Diverted</option>
+                <option value="cancelled">Cancelled</option>
               </select>
             </div>
             <div>
-              <label for="cf-provider">Provider</label>
+              <label for="cf-flight-number">Flight number</label>
+              <input id="cf-flight-number" type="text" placeholder="e.g. ACA861" maxlength="40" />
+            </div>
+          </div>
+
+          <div class="admin-row" style="margin-top: 0.8rem;">
+            <div>
+              <label for="cf-callsign">Callsign</label>
+              <input id="cf-callsign" type="text" placeholder="e.g. Aviationjoel" maxlength="40" />
+            </div>
+            <div>
+              <label for="cf-departure">Departure</label>
+              <input id="cf-departure" type="text" placeholder="e.g. EGLL / London Heathrow" maxlength="80" />
+            </div>
+          </div>
+
+          <div class="admin-row" style="margin-top: 0.8rem;">
+            <div>
+              <label for="cf-arrival">Arrival</label>
+              <input id="cf-arrival" type="text" placeholder="e.g. CYVR / Vancouver" maxlength="80" />
+            </div>
+            <div>
+              <label for="cf-provider">Tracking provider</label>
               <select id="cf-provider">
                 <option value="custom" selected>Custom</option>
                 <option value="volanta">Volanta</option>
@@ -951,6 +979,10 @@
     const currentFlightPillEl = document.getElementById('current-flight-pill');
     const currentFlightStatusEl = document.getElementById('cf-status-msg');
     const cfStatusEl = document.getElementById('cf-status');
+    const cfFlightNumberEl = document.getElementById('cf-flight-number');
+    const cfCallsignEl = document.getElementById('cf-callsign');
+    const cfDepartureEl = document.getElementById('cf-departure');
+    const cfArrivalEl = document.getElementById('cf-arrival');
     const cfProviderEl = document.getElementById('cf-provider');
     const cfUrlEl = document.getElementById('cf-url');
     const cfTitleEl = document.getElementById('cf-title');
@@ -1109,14 +1141,33 @@
 
     function renderCurrentFlightPill(status, lastUpdated) {
       if (!currentFlightPillEl) return;
-      const s = (status || 'offline').toLowerCase() === 'live' ? '🟢 Live' : '⚪ Offline';
+      const raw = String(status || 'offline').toLowerCase();
+      const s = raw === 'live' ? 'en_route' : raw;
+      const labelMap = {
+        offline: '⚪ Offline',
+        boarding: '🟢 Boarding',
+        en_route: '🟢 En route',
+        on_time: '🟢 On time',
+        delayed: '🟡 Delayed',
+        arrived: '🟢 Arrived',
+        diverted: '🟡 Diverted',
+        cancelled: '🔴 Cancelled',
+      };
+      const label = labelMap[s] || labelMap.offline;
       const when = lastUpdated ? ` (updated ${lastUpdated})` : '';
-      currentFlightPillEl.textContent = `Status: ${s}${when}`;
+      currentFlightPillEl.textContent = `Flight status: ${label}${when}`;
     }
 
     function setCurrentFlightInputs(data) {
       if (!data || typeof data !== 'object') return;
-      if (cfStatusEl) cfStatusEl.value = (String(data.status || 'offline').toLowerCase() === 'live') ? 'live' : 'offline';
+      if (cfStatusEl) {
+        const raw = String(data.status || 'offline').toLowerCase();
+        cfStatusEl.value = raw === 'live' ? 'en_route' : raw;
+      }
+      if (cfFlightNumberEl) cfFlightNumberEl.value = String(data.flightNumber || '');
+      if (cfCallsignEl) cfCallsignEl.value = String(data.callsign || '');
+      if (cfDepartureEl) cfDepartureEl.value = String(data.departure || '');
+      if (cfArrivalEl) cfArrivalEl.value = String(data.arrival || '');
       if (cfProviderEl) cfProviderEl.value = String((data.tracking && data.tracking.provider) || 'custom').toLowerCase() || 'custom';
       if (cfUrlEl) cfUrlEl.value = String((data.tracking && data.tracking.url) || '');
       if (cfTitleEl) cfTitleEl.value = String(data.title || '');
@@ -1152,6 +1203,10 @@
       const payload = {
         status: (cfStatusEl && cfStatusEl.value) ? String(cfStatusEl.value) : 'offline',
         title: (cfTitleEl && cfTitleEl.value) ? String(cfTitleEl.value) : '',
+        flightNumber: (cfFlightNumberEl && cfFlightNumberEl.value) ? String(cfFlightNumberEl.value) : '',
+        callsign: (cfCallsignEl && cfCallsignEl.value) ? String(cfCallsignEl.value) : '',
+        departure: (cfDepartureEl && cfDepartureEl.value) ? String(cfDepartureEl.value) : '',
+        arrival: (cfArrivalEl && cfArrivalEl.value) ? String(cfArrivalEl.value) : '',
         tracking: {
           provider: (cfProviderEl && cfProviderEl.value) ? String(cfProviderEl.value) : 'custom',
           url: (cfUrlEl && cfUrlEl.value) ? String(cfUrlEl.value) : '',

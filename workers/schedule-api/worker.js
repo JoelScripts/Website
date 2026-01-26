@@ -510,11 +510,28 @@ function validateSiteModeBody(value) {
   return { ok: true, mode };
 }
 
+function normalizeCurrentFlightStatus(raw) {
+  const statusRaw = typeof raw === 'string' ? raw.trim().toLowerCase() : '';
+  const statusAliases = new Map([
+    ['live', 'en_route'],
+    ['online', 'en_route'],
+    ['enroute', 'en_route'],
+    ['en-route', 'en_route'],
+    ['on time', 'on_time'],
+    ['ontime', 'on_time'],
+  ]);
+  const statusCandidate = statusAliases.get(statusRaw) || statusRaw || 'offline';
+  const allowed = new Set(['offline', 'on_time', 'delayed', 'boarding', 'en_route', 'arrived', 'cancelled', 'diverted']);
+  return allowed.has(statusCandidate) ? statusCandidate : null;
+}
+
 function validateCurrentFlightBody(value) {
   if (!value || typeof value !== 'object') return { ok: false, reason: 'Body is not an object.' };
 
-  const statusRaw = typeof value.status === 'string' ? value.status.trim().toLowerCase() : 'offline';
-  const status = statusRaw === 'live' ? 'live' : 'offline';
+  const status = normalizeCurrentFlightStatus(value.status);
+  if (!status) {
+    return { ok: false, reason: 'status must be one of: offline, on_time, delayed, boarding, en_route, arrived, cancelled, diverted.' };
+  }
 
   const tracking = value.tracking && typeof value.tracking === 'object' ? value.tracking : {};
   const provider = clampString(tracking.provider, 24) || 'custom';
@@ -663,7 +680,7 @@ export default {
 
           return jsonResponse(
             {
-              status: clampString(parsed.status, 12).toLowerCase() === 'live' ? 'live' : 'offline',
+              status: normalizeCurrentFlightStatus(parsed.status) || 'offline',
               title: clampString(parsed.title, 140),
               flightNumber: clampString(parsed.flightNumber, 40),
               callsign: clampString(parsed.callsign, 40),
