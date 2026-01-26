@@ -1094,6 +1094,7 @@
       const override = getCurrentFlightApiOverride();
       const candidates = [
         override,
+        '/api/schedule/current-flight',
         '/api/current-flight',
       ].filter(Boolean);
       return Array.from(new Set(candidates));

@@ -54,7 +54,7 @@
 
   function getApiCandidates() {
     const override = getApiOverride();
-    const candidates = [override, '/api/current-flight', FALLBACK_JSON_URL].filter(Boolean);
+    const candidates = [override, '/api/current-flight', '/api/schedule/current-flight', FALLBACK_JSON_URL].filter(Boolean);
     return Array.from(new Set(candidates));
   }
 

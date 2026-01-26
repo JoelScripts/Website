@@ -565,7 +565,10 @@ export default {
 
     const isSchedule = path.startsWith('/api/schedule');
     const isSiteMode = path.startsWith('/api/site-mode');
-    const isCurrentFlight = path.startsWith('/api/current-flight');
+    // Support both routes:
+    // - /api/current-flight (preferred)
+    // - /api/schedule/current-flight (fallback when only /api/schedule* is routed)
+    const isCurrentFlight = path.startsWith('/api/current-flight') || path.startsWith('/api/schedule/current-flight');
     if (!isSchedule && !isSiteMode && !isCurrentFlight) {
       return new Response('Not Found', {
         status: 404,
@@ -582,7 +585,24 @@ export default {
     //  - PUT /api/current-flight -> saves current flight JSON (Basic Auth)
     //  - GET /api/current-flight/auth -> verifies Basic Auth (for debugging)
     if (isCurrentFlight) {
-      if (path === '/api/current-flight/auth') {
+      const isAuthPath = path === '/api/current-flight/auth' || path === '/api/schedule/current-flight/auth';
+      const isBasePath =
+        path === '/api/current-flight'
+        || path === '/api/current-flight/'
+        || path === '/api/schedule/current-flight'
+        || path === '/api/schedule/current-flight/';
+
+      if (!isAuthPath && !isBasePath) {
+        return new Response('Not Found', {
+          status: 404,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
+      }
+
+      if (isAuthPath) {
         if (request.method !== 'GET') {
           return new Response('Method Not Allowed', {
             status: 405,
