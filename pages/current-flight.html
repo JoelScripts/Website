@@ -114,7 +114,10 @@
       </div>
 
       <div class="muted" style="margin-top: 1.25rem; line-height: 1.7;">
-        Tip: this page reads <code>/api/current-flight</code> (admin-updated). If the API isn’t routed, it falls back to <code>/assets/data/current-flight.json</code>.
+        Tip: this page tries <code>/api/schedule/current-flight</code> (admin-updated). If the API isn’t routed, it falls back to <code>/assets/data/current-flight.json</code>.
+        <div style="margin-top: 0.5rem;">
+          Data source: <code id="dataSource">Loading…</code>
+        </div>
       </div>
     </div>
   </div>

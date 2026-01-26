@@ -71,6 +71,12 @@
     return null;
   }
 
+  function setDataSourceLabel(sourceUrl) {
+    const el = $('dataSource');
+    if (!el) return;
+    el.textContent = safeText(sourceUrl) || 'Unknown';
+  }
+
   function providerLabel(provider) {
     const p = safeText(provider).toLowerCase();
     if (p === 'volanta') return 'Volanta';
@@ -197,6 +203,7 @@
   async function loadConfig() {
     const result = await fetchFirstOkJson(getApiCandidates());
     if (!result) throw new Error('Failed to load current flight config.');
+    setDataSourceLabel(result.url);
     return result.data;
   }
 
@@ -233,6 +240,14 @@
       renderDetails(cfg);
       renderTracking(cfg);
       if (err) err.style.display = 'none';
+
+      // If we ended up on the static fallback, make the reason obvious.
+      const sourceEl = $('dataSource');
+      const src = safeText(sourceEl ? sourceEl.textContent : '');
+      if (src === FALLBACK_JSON_URL && err) {
+        err.style.display = 'block';
+        err.textContent = 'Using fallback data. The API endpoint is likely not routed to the Worker (or the Worker has not been deployed). Check /pages/status.html.';
+      }
     } catch (e) {
       if (err) {
         err.style.display = 'block';
