@@ -108,6 +108,8 @@
     const callsignEl = $('callsign');
     const departureEl = $('departure');
     const arrivalEl = $('arrival');
+    const etaEl = $('eta');
+    const delayEl = $('delay');
 
     const status = safeText(cfg.status) || 'offline';
     setStatusPill(status);
@@ -118,10 +120,26 @@
     const departure = safeText(cfg.departure);
     const arrival = safeText(cfg.arrival);
 
+    const eta = safeText(cfg.eta);
+    const delayMinutesRaw = cfg && Number.isFinite(cfg.delayMinutes) ? cfg.delayMinutes : null;
+    const delayMinutes = Number.isFinite(delayMinutesRaw) ? Math.max(0, Math.trunc(delayMinutesRaw)) : null;
+    const statusNorm = safeText(cfg.status).toLowerCase();
+    const isDelayed = statusNorm === 'delayed' || (delayMinutes !== null && delayMinutes > 0);
+
     if (flightNumberEl) flightNumberEl.textContent = flightNumber || '—';
     if (callsignEl) callsignEl.textContent = callsign || '—';
     if (departureEl) departureEl.textContent = departure || '—';
     if (arrivalEl) arrivalEl.textContent = arrival || '—';
+    if (etaEl) etaEl.textContent = eta || '—';
+    if (delayEl) {
+      if (!isDelayed) {
+        delayEl.textContent = 'No';
+      } else if (Number.isFinite(delayMinutes) && delayMinutes > 0) {
+        delayEl.textContent = `Yes (+${delayMinutes} min)`;
+      } else {
+        delayEl.textContent = 'Yes';
+      }
+    }
 
     const titleBits = [];
     if (flightNumber) titleBits.push(flightNumber);

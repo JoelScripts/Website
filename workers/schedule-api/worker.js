@@ -537,6 +537,17 @@ function validateCurrentFlightBody(value) {
   const provider = clampString(tracking.provider, 24) || 'custom';
   const url = clampString(tracking.url, 800);
 
+  const eta = clampString(value.eta, 40);
+
+  let delayMinutes = null;
+  if (value.delayMinutes !== null && value.delayMinutes !== undefined && value.delayMinutes !== '') {
+    const n = Number(value.delayMinutes);
+    if (!Number.isFinite(n)) {
+      return { ok: false, reason: 'delayMinutes must be a number (minutes) or null.' };
+    }
+    delayMinutes = clampInt(n, 0, 1440);
+  }
+
   if (url) {
     try {
       const u = new URL(url);
@@ -559,6 +570,8 @@ function validateCurrentFlightBody(value) {
       aircraft: clampString(value.aircraft, 80),
       departure: clampString(value.departure, 80),
       arrival: clampString(value.arrival, 80),
+      eta,
+      delayMinutes,
       tracking: { provider, url },
     },
   };
@@ -687,6 +700,8 @@ export default {
               aircraft: clampString(parsed.aircraft, 80),
               departure: clampString(parsed.departure, 80),
               arrival: clampString(parsed.arrival, 80),
+              eta: clampString(parsed.eta, 40),
+              delayMinutes: Number.isFinite(parsed.delayMinutes) ? clampInt(parsed.delayMinutes, 0, 1440) : null,
               tracking: {
                 provider: clampString(parsed?.tracking?.provider, 24) || 'custom',
                 url: clampString(parsed?.tracking?.url, 800),

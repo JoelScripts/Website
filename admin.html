@@ -886,6 +886,18 @@
             </div>
           </div>
 
+          <div class="admin-row" style="margin-top: 0.8rem;">
+            <div>
+              <label for="cf-eta">Estimated arrival (ETA)</label>
+              <input id="cf-eta" type="text" placeholder="e.g. 21:46 UTC" maxlength="40" />
+            </div>
+            <div>
+              <label for="cf-delay">Delay (minutes)</label>
+              <input id="cf-delay" type="number" min="0" max="1440" step="1" placeholder="0" />
+              <small class="admin-msg">Optional. If set, the public page will show “Yes (+X min)”.</small>
+            </div>
+          </div>
+
           <div style="margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem;">
             <label for="cf-url">Tracking link</label>
             <input id="cf-url" type="url" placeholder="https://..." />
@@ -983,6 +995,8 @@
     const cfCallsignEl = document.getElementById('cf-callsign');
     const cfDepartureEl = document.getElementById('cf-departure');
     const cfArrivalEl = document.getElementById('cf-arrival');
+    const cfEtaEl = document.getElementById('cf-eta');
+    const cfDelayEl = document.getElementById('cf-delay');
     const cfProviderEl = document.getElementById('cf-provider');
     const cfUrlEl = document.getElementById('cf-url');
     const cfTitleEl = document.getElementById('cf-title');
@@ -1168,6 +1182,11 @@
       if (cfCallsignEl) cfCallsignEl.value = String(data.callsign || '');
       if (cfDepartureEl) cfDepartureEl.value = String(data.departure || '');
       if (cfArrivalEl) cfArrivalEl.value = String(data.arrival || '');
+      if (cfEtaEl) cfEtaEl.value = String(data.eta || '');
+      if (cfDelayEl) {
+        const n = Number.isFinite(data.delayMinutes) ? data.delayMinutes : '';
+        cfDelayEl.value = String(n);
+      }
       if (cfProviderEl) cfProviderEl.value = String((data.tracking && data.tracking.provider) || 'custom').toLowerCase() || 'custom';
       if (cfUrlEl) cfUrlEl.value = String((data.tracking && data.tracking.url) || '');
       if (cfTitleEl) cfTitleEl.value = String(data.title || '');
@@ -1207,6 +1226,8 @@
         callsign: (cfCallsignEl && cfCallsignEl.value) ? String(cfCallsignEl.value) : '',
         departure: (cfDepartureEl && cfDepartureEl.value) ? String(cfDepartureEl.value) : '',
         arrival: (cfArrivalEl && cfArrivalEl.value) ? String(cfArrivalEl.value) : '',
+        eta: (cfEtaEl && cfEtaEl.value) ? String(cfEtaEl.value) : '',
+        delayMinutes: (cfDelayEl && cfDelayEl.value !== '' && cfDelayEl.value !== null) ? Number(cfDelayEl.value) : null,
         tracking: {
           provider: (cfProviderEl && cfProviderEl.value) ? String(cfProviderEl.value) : 'custom',
           url: (cfUrlEl && cfUrlEl.value) ? String(cfUrlEl.value) : '',
