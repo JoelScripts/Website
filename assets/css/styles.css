@@ -234,26 +234,24 @@ body {
 
 .contact-link {
     display: inline-block;
-    color: #fff !important;
-    background: linear-gradient(90deg, #FF8C42 0%, #FF5A36 100%) !important;
+    color: var(--primary) !important;
+    background: rgba(255, 140, 66, 0.2) !important;
     text-decoration: none;
-    font-weight: 900;
-    padding: 0.9rem 1.5rem;
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 18px rgba(255, 140, 66, 0.25);
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--primary);
+    border-radius: 20px;
+    box-shadow: none;
     transition: all 0.2s ease;
     margin: 0.7rem auto;
-    font-size: 1.15rem;
+    font-size: 0.9rem;
     letter-spacing: 1px;
-    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+    text-shadow: none;
 }
 .contact-link:hover {
-    background: linear-gradient(90deg, #FF5A36 0%, #FF8C42 100%) !important;
-    color: #fff !important;
+    background: rgba(255, 140, 66, 0.32) !important;
+    color: var(--primary) !important;
     transform: scale(1.06);
-    box-shadow: 0 8px 32px rgba(255, 90, 54, 0.28);
-    text-shadow: 0 4px 16px rgba(0,0,0,0.22);
 }
 .stats {
     display: flex;
