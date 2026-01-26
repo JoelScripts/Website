@@ -1,6 +1,8 @@
 (function () {
   const FALLBACK_JSON_URL = '/assets/data/current-flight.json';
   const CURRENT_FLIGHT_API_LOCALSTORAGE_KEY = 'fwj_current_flight_api';
+  const LIVE_POLL_INTERVAL_MS = 45 * 1000;
+  const LIVE_POLL_JITTER_MS = 4 * 1000;
 
   function $(id) {
     return document.getElementById(id);
@@ -57,6 +59,38 @@
     return Array.from(new Set(candidates));
   }
 
+  function toLiveEndpoint(u) {
+    const s = (u || '').toString().trim();
+    if (!s) return null;
+    if (s === FALLBACK_JSON_URL) return null;
+
+    // If override points directly at /current-flight, append /live.
+    if (s.endsWith('/current-flight')) return s + '/live';
+    if (s.endsWith('/current-flight/')) return s + 'live';
+
+    // If override points at /current-flight?x=..., inject /live before query.
+    const qIdx = s.indexOf('?');
+    const base = qIdx >= 0 ? s.slice(0, qIdx) : s;
+    const q = qIdx >= 0 ? s.slice(qIdx) : '';
+    if (base.endsWith('/current-flight')) return base + '/live' + q;
+    if (base.endsWith('/current-flight/')) return base + 'live' + q;
+
+    // If it's already a /live endpoint, keep it.
+    if (base.endsWith('/current-flight/live') || base.endsWith('/current-flight/live/')) return s;
+
+    return null;
+  }
+
+  function getLiveApiCandidates() {
+    const override = getApiOverride();
+    const candidates = [
+      toLiveEndpoint(override),
+      '/api/schedule/current-flight/live',
+      '/api/current-flight/live',
+    ].filter(Boolean);
+    return Array.from(new Set(candidates));
+  }
+
   async function fetchFirstOkJson(urls) {
     for (const u of urls) {
       try {
@@ -68,6 +102,48 @@
       }
     }
     return null;
+  }
+
+  function renderLiveMeta(metaEl, live) {
+    if (!metaEl) return;
+    if (!live || !live.fetchedAtUtc) return;
+    try {
+      const d = new Date(live.fetchedAtUtc);
+      if (!Number.isFinite(d.getTime())) return;
+      const t = d.toLocaleTimeString('en-GB', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' });
+      const src = safeText(live.provider) ? ` • Live ETA (${safeText(live.provider)} @ ${t} UTC)` : ` • Live ETA (@ ${t} UTC)`;
+      const existing = metaEl.textContent || '';
+      const cleaned = existing.replace(/\s+•\s+Live ETA\b[\s\S]*$/i, '').trim();
+      metaEl.textContent = (cleaned ? cleaned : ' ') + src;
+    } catch {
+      // ignore
+    }
+  }
+
+  function applyLiveOverlayToUi(live) {
+    if (!live || !live.ok) return false;
+
+    const etaEl = $('eta');
+    const delayEl = $('delay');
+    const meta = $('flightMeta');
+
+    let changed = false;
+
+    const eta = safeText(live.eta);
+    if (eta && etaEl) {
+      etaEl.textContent = eta;
+      changed = true;
+    }
+
+    const delayMinutes = Number.isFinite(live.delayMinutes) ? Math.max(0, Math.trunc(live.delayMinutes)) : null;
+    if (delayEl && delayMinutes !== null) {
+      if (delayMinutes <= 0) delayEl.textContent = 'No';
+      else delayEl.textContent = `Yes (+${delayMinutes} min)`;
+      changed = true;
+    }
+
+    if (changed) renderLiveMeta(meta, live);
+    return changed;
   }
 
   function providerLabel(provider) {
@@ -194,6 +270,12 @@
     return result.data;
   }
 
+  async function loadLive() {
+    const result = await fetchFirstOkJson(getLiveApiCandidates());
+    if (!result) return null;
+    return result.data;
+  }
+
   function applyQueryParamOverrides(cfg) {
     // Convenience: allow temporary override via URL params.
     // Example: /pages/current-flight.html?trackingUrl=https%3A%2F%2F...
@@ -226,6 +308,24 @@
       const cfg = applyQueryParamOverrides(await loadConfig());
       renderDetails(cfg);
       renderTracking(cfg);
+
+      // Live ETA overlay (best-effort): poll the Worker so it can fetch tracking server-side.
+      const hasTrackingUrl = looksLikeUrl(safeText(cfg?.tracking?.url));
+      if (hasTrackingUrl) {
+        const pollOnce = async () => {
+          try {
+            const live = await loadLive();
+            applyLiveOverlayToUi(live);
+          } catch {
+            // ignore
+          }
+        };
+
+        pollOnce();
+        const jitter = Math.floor(Math.random() * LIVE_POLL_JITTER_MS);
+        window.setInterval(pollOnce, LIVE_POLL_INTERVAL_MS + jitter);
+      }
+
       if (err) err.style.display = 'none';
     } catch (e) {
       if (err) {
