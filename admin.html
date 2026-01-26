@@ -813,7 +813,7 @@
           <div id="signed-in-pill" class="muted">You’re signed in.</div>
         </div>
 
-        <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; background: rgba(0,0,0,0.12); padding: 1rem;">
+        <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; background: rgba(0,0,0,0.12); padding: 1rem; margin-bottom: 1.5rem;">
           <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
             <div>
               <h3 style="margin: 0;">🧯 Site Mode</h3>
@@ -828,6 +828,16 @@
             <button id="btn-site-maint" class="danger" type="button">🔧 Set Maintenance</button>
             <span class="spacer"></span>
             <span id="site-mode-status" class="admin-msg"></span>
+          </div>
+        </div>
+
+        <div class="admin-card" style="margin-bottom: 2rem;">
+          <h3 style="margin:0 0 0.5rem 0;">🗓️ Expected Return Message</h3>
+          <label for="expected-return-input">Edit the message shown on the maintenance page:</label>
+          <input id="expected-return-input" type="text" maxlength="120" style="margin-bottom:0.7rem;" />
+          <div class="admin-actions">
+            <button id="btn-expected-return-save" type="button">💾 Save Message</button>
+            <span id="expected-return-status" class="admin-msg" style="margin-left:1rem;"></span>
           </div>
         </div>
 
@@ -898,6 +908,73 @@
 
     const siteModePillEl = document.getElementById('site-mode-pill');
     const siteModeStatusEl = document.getElementById('site-mode-status');
+    const expectedReturnInputEl = document.getElementById('expected-return-input');
+    const btnExpectedReturnSaveEl = document.getElementById('btn-expected-return-save');
+    const expectedReturnStatusEl = document.getElementById('expected-return-status');
+        // --- Expected Return Message ---
+        function getExpectedReturnApiUrl() {
+          // Use same logic as site mode API, but endpoint is /expected-return
+          const base = getSiteModeApiOverride() || '/api/site-mode';
+          if (base.endsWith('/')) return base + 'expected-return';
+          if (base.endsWith('site-mode')) return base + '/expected-return';
+          return base + '/expected-return';
+        }
+
+        function fetchExpectedReturnMessage() {
+          expectedReturnInputEl.value = '';
+          expectedReturnStatusEl.textContent = 'Loading...';
+          fetch(getExpectedReturnApiUrl(), { cache: 'no-store' })
+            .then(resp => resp.json())
+            .then(data => {
+              if (data && typeof data.message === 'string') {
+                expectedReturnInputEl.value = data.message;
+                expectedReturnStatusEl.textContent = 'Loaded.';
+              } else {
+                expectedReturnStatusEl.textContent = 'No message set.';
+              }
+            })
+            .catch(() => {
+              expectedReturnStatusEl.textContent = 'Error loading message.';
+            });
+        }
+
+        function saveExpectedReturnMessage() {
+          const msg = expectedReturnInputEl.value.trim();
+          if (!msg || msg.length > 120) {
+            expectedReturnStatusEl.textContent = 'Message must be 1-120 characters.';
+            return;
+          }
+          expectedReturnStatusEl.textContent = 'Saving...';
+          fetch(getExpectedReturnApiUrl(), {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(authHeader ? { 'Authorization': authHeader } : {}),
+            },
+            body: JSON.stringify({ message: msg }),
+          })
+            .then(resp => resp.json())
+            .then(data => {
+              if (data && data.ok) {
+                expectedReturnStatusEl.textContent = 'Saved!';
+              } else {
+                expectedReturnStatusEl.textContent = (data && data.error) ? data.error : 'Error saving.';
+              }
+            })
+            .catch(() => {
+              expectedReturnStatusEl.textContent = 'Error saving.';
+            });
+        }
+
+        if (expectedReturnInputEl && btnExpectedReturnSaveEl) {
+          btnExpectedReturnSaveEl.addEventListener('click', saveExpectedReturnMessage);
+        }
+
+        // Load message after unlock
+        function afterUnlock() {
+          // ...existing code...
+          fetchExpectedReturnMessage();
+        }
     const btnSiteRefreshEl = document.getElementById('btn-site-refresh');
     const btnSiteLiveEl = document.getElementById('btn-site-live');
     const btnSiteMaintEl = document.getElementById('btn-site-maint');

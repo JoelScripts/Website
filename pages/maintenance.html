@@ -194,7 +194,7 @@
         <div class="details">
             <p><strong>What's happening?</strong></p>
             <p>We're performing essential updates to ensure the best experience and legal compliance for all our visitors.</p>
-            <p style="margin-top: 1rem;"><strong>Expected return:</strong> By the end of January 2026</p>
+            <p style="margin-top: 1rem;" id="expected-return"><strong>Expected return:</strong> <span id="expected-return-message">Loading...</span></p>
         </div>
 
         <div class="contact-section">
@@ -227,6 +227,20 @@
         </div>
     </div>
 
-    <script src="../assets/js/main.js"></script>
+        <script src="../assets/js/main.js"></script>
+        <script>
+        // Fetch expected return message from API
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/site-mode/expected-return', { cache: 'no-store' })
+                .then(resp => resp.json())
+                .then(data => {
+                    var msg = (data && typeof data.message === 'string' && data.message.trim()) ? data.message.trim() : 'By the end of January 2026';
+                    document.getElementById('expected-return-message').textContent = msg;
+                })
+                .catch(() => {
+                    document.getElementById('expected-return-message').textContent = 'By the end of January 2026';
+                });
+        });
+        </script>
 </body>
 </html>
