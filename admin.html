@@ -831,92 +831,6 @@
           </div>
         </div>
 
-        <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; background: rgba(0,0,0,0.12); padding: 1rem;">
-          <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-            <div>
-              <h3 style="margin: 0;">✈️ Current Flight</h3>
-              <p class="admin-msg" style="margin-top: 0.2rem;">Update the public <code>/pages/current-flight.html</code> page (saves to <code>/api/schedule/current-flight</code>).</p>
-            </div>
-            <div id="current-flight-pill" class="muted">Status: …</div>
-          </div>
-
-          <div class="admin-row" style="margin-top: 0.8rem;">
-            <div>
-              <label for="cf-status">Flight status</label>
-              <select id="cf-status">
-                <option value="offline" selected>Offline</option>
-                <option value="boarding">Boarding</option>
-                <option value="en_route">En route</option>
-                <option value="on_time">On time</option>
-                <option value="delayed">Delayed</option>
-                <option value="arrived">Arrived</option>
-                <option value="diverted">Diverted</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-            <div>
-              <label for="cf-flight-number">Flight number</label>
-              <input id="cf-flight-number" type="text" placeholder="e.g. ACA861" maxlength="40" />
-            </div>
-          </div>
-
-          <div class="admin-row" style="margin-top: 0.8rem;">
-            <div>
-              <label for="cf-callsign">Callsign</label>
-              <input id="cf-callsign" type="text" placeholder="e.g. Aviationjoel" maxlength="40" />
-            </div>
-            <div>
-              <label for="cf-departure">Departure</label>
-              <input id="cf-departure" type="text" placeholder="e.g. EGLL / London Heathrow" maxlength="80" />
-            </div>
-          </div>
-
-          <div class="admin-row" style="margin-top: 0.8rem;">
-            <div>
-              <label for="cf-arrival">Arrival</label>
-              <input id="cf-arrival" type="text" placeholder="e.g. CYVR / Vancouver" maxlength="80" />
-            </div>
-            <div>
-              <label for="cf-provider">Tracking provider</label>
-              <select id="cf-provider">
-                <option value="custom" selected>Custom</option>
-                <option value="volanta">Volanta</option>
-                <option value="elevatex">ElevateX</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="admin-row" style="margin-top: 0.8rem;">
-            <div>
-              <label for="cf-eta">Estimated arrival (ETA)</label>
-              <input id="cf-eta" type="text" placeholder="e.g. 21:46 UTC" maxlength="40" />
-            </div>
-            <div>
-              <label for="cf-delay">Delay (minutes)</label>
-              <input id="cf-delay" type="number" min="0" max="1440" step="1" placeholder="0" />
-              <small class="admin-msg">Optional. If set, the public page will show “Yes (+X min)”.</small>
-            </div>
-          </div>
-
-          <div style="margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem;">
-            <label for="cf-url">Tracking link</label>
-            <input id="cf-url" type="url" placeholder="https://..." />
-            <small class="admin-msg">Paste your Volanta/ElevateX tracking link. Leave blank to hide tracking on the page.</small>
-          </div>
-
-          <div style="margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.4rem;">
-            <label for="cf-title">Title (optional)</label>
-            <input id="cf-title" type="text" placeholder="e.g. EGCC → EIDW | A320neo" maxlength="140" />
-          </div>
-
-          <div class="admin-actions" style="margin-top: 0.7rem;">
-            <button id="btn-cf-refresh" class="secondary" type="button">↻ Refresh</button>
-            <button id="btn-cf-save" type="button">💾 Save current flight</button>
-            <span class="spacer"></span>
-            <span id="cf-status-msg" class="admin-msg"></span>
-          </div>
-        </div>
-
         <div>
           <div class="admin-schedule-shell">
             <div class="admin-schedule-left">
@@ -988,21 +902,6 @@
     const btnSiteLiveEl = document.getElementById('btn-site-live');
     const btnSiteMaintEl = document.getElementById('btn-site-maint');
 
-    const currentFlightPillEl = document.getElementById('current-flight-pill');
-    const currentFlightStatusEl = document.getElementById('cf-status-msg');
-    const cfStatusEl = document.getElementById('cf-status');
-    const cfFlightNumberEl = document.getElementById('cf-flight-number');
-    const cfCallsignEl = document.getElementById('cf-callsign');
-    const cfDepartureEl = document.getElementById('cf-departure');
-    const cfArrivalEl = document.getElementById('cf-arrival');
-    const cfEtaEl = document.getElementById('cf-eta');
-    const cfDelayEl = document.getElementById('cf-delay');
-    const cfProviderEl = document.getElementById('cf-provider');
-    const cfUrlEl = document.getElementById('cf-url');
-    const cfTitleEl = document.getElementById('cf-title');
-    const btnCfRefreshEl = document.getElementById('btn-cf-refresh');
-    const btnCfSaveEl = document.getElementById('btn-cf-save');
-
     const desktopEditorBodyEl = document.getElementById('desktop-editor-body');
     const desktopEditorTitleEl = document.getElementById('desktop-editor-title');
     const desktopEditorSubEl = document.getElementById('desktop-editor-sub');
@@ -1023,7 +922,6 @@
 
     const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
     const SITE_MODE_API_LOCALSTORAGE_KEY = 'fwj_site_mode_api';
-    const CURRENT_FLIGHT_API_LOCALSTORAGE_KEY = 'fwj_current_flight_api';
 
     function sanitizeApiUrl(raw) {
       const s = (raw || '').trim();
@@ -1110,182 +1008,6 @@
       return Array.from(new Set(candidates));
     }
 
-    function getCurrentFlightApiOverride() {
-      // Query param wins and is persisted.
-      try {
-        const params = new URLSearchParams(window.location.search);
-        const qp = sanitizeApiUrl(params.get('currentFlightApi'));
-        if (qp) {
-          localStorage.setItem(CURRENT_FLIGHT_API_LOCALSTORAGE_KEY, qp);
-          return qp;
-        }
-      } catch {
-        // ignore
-      }
-
-      try {
-        const fromLs = sanitizeApiUrl(localStorage.getItem(CURRENT_FLIGHT_API_LOCALSTORAGE_KEY));
-        if (fromLs) return fromLs;
-      } catch {
-        // ignore
-      }
-
-      // Optional meta override.
-      const meta = document.querySelector('meta[name="current-flight-api"]');
-      const metaVal = sanitizeApiUrl(meta ? meta.getAttribute('content') : '');
-      return metaVal;
-    }
-
-    function getCurrentFlightApiCandidates() {
-      const override = getCurrentFlightApiOverride();
-      const candidates = [
-        override,
-        '/api/schedule/current-flight',
-        '/api/current-flight',
-      ].filter(Boolean);
-      return Array.from(new Set(candidates));
-    }
-
-    function setCurrentFlightStatus(text, kind) {
-      if (!currentFlightStatusEl) return;
-      const cls = 'admin-msg' + (kind ? ` ${kind}` : '');
-      currentFlightStatusEl.textContent = text || '';
-      currentFlightStatusEl.className = cls;
-    }
-
-    function renderCurrentFlightPill(status, lastUpdated) {
-      if (!currentFlightPillEl) return;
-      const raw = String(status || 'offline').toLowerCase();
-      const s = raw === 'live' ? 'en_route' : raw;
-      const labelMap = {
-        offline: '⚪ Offline',
-        boarding: '🟢 Boarding',
-        en_route: '🟢 En route',
-        on_time: '🟢 On time',
-        delayed: '🟡 Delayed',
-        arrived: '🟢 Arrived',
-        diverted: '🟡 Diverted',
-        cancelled: '🔴 Cancelled',
-      };
-      const label = labelMap[s] || labelMap.offline;
-      const when = lastUpdated ? ` (updated ${lastUpdated})` : '';
-      currentFlightPillEl.textContent = `Flight status: ${label}${when}`;
-    }
-
-    function setCurrentFlightInputs(data) {
-      if (!data || typeof data !== 'object') return;
-      if (cfStatusEl) {
-        const raw = String(data.status || 'offline').toLowerCase();
-        cfStatusEl.value = raw === 'live' ? 'en_route' : raw;
-      }
-      if (cfFlightNumberEl) cfFlightNumberEl.value = String(data.flightNumber || '');
-      if (cfCallsignEl) cfCallsignEl.value = String(data.callsign || '');
-      if (cfDepartureEl) cfDepartureEl.value = String(data.departure || '');
-      if (cfArrivalEl) cfArrivalEl.value = String(data.arrival || '');
-      if (cfEtaEl) cfEtaEl.value = String(data.eta || '');
-      if (cfDelayEl) {
-        const n = Number.isFinite(data.delayMinutes) ? data.delayMinutes : '';
-        cfDelayEl.value = String(n);
-      }
-      if (cfProviderEl) cfProviderEl.value = String((data.tracking && data.tracking.provider) || 'custom').toLowerCase() || 'custom';
-      if (cfUrlEl) cfUrlEl.value = String((data.tracking && data.tracking.url) || '');
-      if (cfTitleEl) cfTitleEl.value = String(data.title || '');
-      renderCurrentFlightPill(data.status || 'offline', data.lastUpdated || null);
-    }
-
-    async function loadCurrentFlight() {
-      setCurrentFlightStatus('Loading…', null);
-      try {
-        const result = await fetchFirstOkJson(getCurrentFlightApiCandidates(), { cache: 'no-store' });
-        if (!result) throw new Error('No current-flight API responded.');
-        setCurrentFlightInputs(result.data);
-        setCurrentFlightStatus(`Loaded from ${result.url}`, 'ok');
-      } catch (e) {
-        console.error(e);
-        renderCurrentFlightPill('offline', null);
-        setCurrentFlightStatus('Failed to load current flight.', 'err');
-      }
-    }
-
-    async function saveCurrentFlight() {
-      if (isPreviewMode()) {
-        setCurrentFlightStatus('Preview mode: changes are disabled.', 'err');
-        return;
-      }
-
-      const auth = authHeader;
-      if (!auth) {
-        setCurrentFlightStatus('Locked. Click Unlock first.', 'err');
-        return;
-      }
-
-      const payload = {
-        status: (cfStatusEl && cfStatusEl.value) ? String(cfStatusEl.value) : 'offline',
-        title: (cfTitleEl && cfTitleEl.value) ? String(cfTitleEl.value) : '',
-        flightNumber: (cfFlightNumberEl && cfFlightNumberEl.value) ? String(cfFlightNumberEl.value) : '',
-        callsign: (cfCallsignEl && cfCallsignEl.value) ? String(cfCallsignEl.value) : '',
-        departure: (cfDepartureEl && cfDepartureEl.value) ? String(cfDepartureEl.value) : '',
-        arrival: (cfArrivalEl && cfArrivalEl.value) ? String(cfArrivalEl.value) : '',
-        eta: (cfEtaEl && cfEtaEl.value) ? String(cfEtaEl.value) : '',
-        delayMinutes: (cfDelayEl && cfDelayEl.value !== '' && cfDelayEl.value !== null) ? Number(cfDelayEl.value) : null,
-        tracking: {
-          provider: (cfProviderEl && cfProviderEl.value) ? String(cfProviderEl.value) : 'custom',
-          url: (cfUrlEl && cfUrlEl.value) ? String(cfUrlEl.value) : '',
-        },
-      };
-
-      setCurrentFlightStatus('Saving…', null);
-      try {
-        const targets = getCurrentFlightApiCandidates();
-        let savedUrl = null;
-        let lastStatus = null;
-        let lastBody = null;
-
-        for (const u of targets) {
-          try {
-            const resp = await fetch(u, {
-              method: 'PUT',
-              headers: {
-                'content-type': 'application/json',
-                'authorization': auth,
-              },
-              body: JSON.stringify(payload),
-            });
-
-            lastStatus = resp.status;
-            if (resp.status === 401) {
-              setCurrentFlightStatus('Unauthorized (wrong username/password).', 'err');
-              return;
-            }
-
-            if (!resp.ok) {
-              try {
-                lastBody = await resp.text();
-              } catch {
-                lastBody = null;
-              }
-              continue;
-            }
-
-            savedUrl = u;
-            break;
-          } catch {
-            // try next
-          }
-        }
-
-        if (!savedUrl) {
-          const extra = lastBody ? ` — ${String(lastBody).slice(0, 220)}` : '';
-          throw new Error(`Save failed (${lastStatus ?? 'n/a'})${extra}`);
-        }
-
-        setCurrentFlightStatus(`Saved to ${savedUrl}.`, 'ok');
-        await loadCurrentFlight();
-      } catch (e) {
-        console.error(e);
-        setCurrentFlightStatus(String(e && e.message ? e.message : 'Save failed.'), 'err');
-      }
-    }
 
     function setSiteModeStatus(text, kind) {
       if (!siteModeStatusEl) return;
@@ -2046,8 +1768,6 @@
       setStatus('', null);
       renderSiteMode('live', null);
       setSiteModeStatus('', null);
-      renderCurrentFlightPill('offline', null);
-      setCurrentFlightStatus('', null);
     }
 
     async function unlock() {
@@ -2068,7 +1788,6 @@
         setStatus('Unlocked.', 'ok');
         await loadCurrent();
         await loadSiteMode();
-        await loadCurrentFlight();
       } catch (e) {
         console.error(e);
         setStatus('Login failed (could not reach auth endpoint).', 'err');
@@ -2317,9 +2036,6 @@
     if (btnSiteLiveEl) btnSiteLiveEl.addEventListener('click', () => saveSiteMode('live'));
     if (btnSiteMaintEl) btnSiteMaintEl.addEventListener('click', () => saveSiteMode('maintenance'));
 
-    if (btnCfRefreshEl) btnCfRefreshEl.addEventListener('click', loadCurrentFlight);
-    if (btnCfSaveEl) btnCfSaveEl.addEventListener('click', saveCurrentFlight);
-
     // Default locked view
     if (isPreviewMode()) {
       authHeader = null;
@@ -2335,7 +2051,6 @@
       setStatus('Preview mode enabled.', 'ok');
       loadCurrent();
       loadSiteMode();
-      loadCurrentFlight();
     } else {
       lockUi();
     }
