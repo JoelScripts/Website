@@ -230,27 +230,31 @@ body {
     line-height: 1.6;
 }
 
-.cta-btn {
-    background: linear-gradient(90deg, var(--primary), var(--secondary));
-    color: white;
-    border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 0.4rem;
-    cursor: pointer;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 2rem;
-    transition: transform 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
+
+
+.contact-link {
+    display: inline-block;
+    color: #fff !important;
+    background: linear-gradient(90deg, #FF8C42 0%, #FF5A36 100%) !important;
     text-decoration: none;
+    font-weight: 900;
+    padding: 0.9rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 18px rgba(255, 140, 66, 0.25);
+    transition: all 0.2s ease;
+    margin: 0.7rem auto;
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.18);
 }
-
-.cta-btn:hover {
-    transform: scale(1.05);
+.contact-link:hover {
+    background: linear-gradient(90deg, #FF5A36 0%, #FF8C42 100%) !important;
+    color: #fff !important;
+    transform: scale(1.06);
+    box-shadow: 0 8px 32px rgba(255, 90, 54, 0.28);
+    text-shadow: 0 4px 16px rgba(0,0,0,0.22);
 }
-
 .stats {
     display: flex;
     gap: 2rem;
