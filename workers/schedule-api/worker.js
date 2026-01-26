@@ -14,6 +14,7 @@ const SCHEDULE_KEY = 'schedule_v1';
 const TWITCH_TOKEN_KEY = 'twitch_token_v1';
 const SITE_MODE_KEY = 'site_mode_v1';
 const CURRENT_FLIGHT_KEY = 'current_flight_v1';
+const CURRENT_FLIGHT_LIVE_KEY = 'current_flight_live_v1';
 const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
 const TWITCH_CLIPS_KEY = 'twitch_clips_v1';
 
@@ -140,6 +141,242 @@ function clampString(value, maxLen) {
   if (typeof value !== 'string') return '';
   const trimmed = value.trim();
   return trimmed.length > maxLen ? trimmed.slice(0, maxLen) : trimmed;
+}
+
+function safeJsonParse(text) {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function isPlainObject(v) {
+  return Boolean(v && typeof v === 'object' && !Array.isArray(v));
+}
+
+function normalizeProviderFromTracking(providerRaw, trackingUrl) {
+  const p = (providerRaw || '').toString().trim().toLowerCase();
+  if (p === 'volanta' || p === 'elevatex') return p;
+
+  try {
+    const u = new URL((trackingUrl || '').toString().trim());
+    const host = (u.hostname || '').toLowerCase();
+    if (host.includes('volanta')) return 'volanta';
+    if (host.includes('elevatex') || host.includes('elevate')) return 'elevatex';
+  } catch {
+    // ignore
+  }
+
+  return p || 'custom';
+}
+
+function findFirstValueByKeys(root, keySet, maxNodes = 4000) {
+  const seen = new Set();
+  const queue = [{ v: root, depth: 0 }];
+  let nodes = 0;
+
+  while (queue.length) {
+    const { v, depth } = queue.shift();
+    if (v === null || v === undefined) continue;
+    if (typeof v !== 'object') continue;
+    if (seen.has(v)) continue;
+    seen.add(v);
+
+    nodes += 1;
+    if (nodes > maxNodes) return null;
+    if (depth > 18) continue;
+
+    if (Array.isArray(v)) {
+      for (const item of v) queue.push({ v: item, depth: depth + 1 });
+      continue;
+    }
+
+    for (const [k, val] of Object.entries(v)) {
+      const key = (k || '').toString().trim().toLowerCase();
+      if (keySet.has(key)) return val;
+      queue.push({ v: val, depth: depth + 1 });
+    }
+  }
+
+  return null;
+}
+
+function parseEtaToDisplayString(raw) {
+  if (raw === null || raw === undefined) return null;
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    // Treat as epoch seconds/ms if plausible.
+    const ms = raw > 10_000_000_000 ? raw : raw * 1000;
+    const d = new Date(ms);
+    if (!Number.isFinite(d.getTime())) return null;
+    return d.toLocaleString('en-GB', { timeZone: 'UTC' }) + ' UTC';
+  }
+
+  const s = raw.toString().trim();
+  if (!s) return null;
+
+  // ISO-ish?
+  const d = new Date(s);
+  if (Number.isFinite(d.getTime())) {
+    return d.toLocaleString('en-GB', { timeZone: 'UTC' }) + ' UTC';
+  }
+
+  // Otherwise return a safe, short string.
+  return clampString(s, 60) || null;
+}
+
+async function fetchWithTimeout(url, init, timeoutMs) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+function extractJsonCandidatesFromHtml(html) {
+  const out = [];
+  const text = (html || '').toString();
+
+  // Next.js
+  const nextDataMatch = text.match(/<script[^>]+id=["']__NEXT_DATA__["'][^>]*>([\s\S]*?)<\/script>/i);
+  if (nextDataMatch && nextDataMatch[1]) {
+    const parsed = safeJsonParse(nextDataMatch[1]);
+    if (parsed) out.push(parsed);
+  }
+
+  // JSON-LD blocks (could be multiple)
+  const ldJsonRe = /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let m;
+  while ((m = ldJsonRe.exec(text))) {
+    if (!m[1]) continue;
+    const parsed = safeJsonParse(m[1]);
+    if (parsed) out.push(parsed);
+    if (out.length >= 6) break;
+  }
+
+  // Generic: some sites inline a JSON blob like window.__DATA__ = {...}
+  const windowJsonRe = /window\.[A-Z0-9_]{2,}__?\s*=\s*(\{[\s\S]*?\});/i;
+  const winMatch = text.match(windowJsonRe);
+  if (winMatch && winMatch[1]) {
+    // This might include trailing semicolon and non-JSON; only accept if JSON parses.
+    const parsed = safeJsonParse(winMatch[1]);
+    if (parsed) out.push(parsed);
+  }
+
+  return out;
+}
+
+function extractLiveEtaAndDelayFromObject(obj) {
+  if (!obj) return { eta: null, delayMinutes: null };
+
+  const etaKeys = new Set([
+    'eta',
+    'estimatedarrival',
+    'estimated_arrival',
+    'estimatedarrivaltime',
+    'estimated_arrival_time',
+    'arrivalestimate',
+    'arrival_estimate',
+    'arrivalestimated',
+    'arrival_estimated',
+    'arrivalestimatedtime',
+    'arrival_estimated_time',
+    'arrivaleta',
+    'arrival_eta',
+    'etautc',
+    'eta_utc',
+    'estimatedarrivalutc',
+    'estimated_arrival_utc',
+  ]);
+
+  const delayKeys = new Set([
+    'delayminutes',
+    'delay_minutes',
+    'delay',
+    'delaymin',
+    'delay_min',
+  ]);
+
+  const etaRaw = findFirstValueByKeys(obj, etaKeys);
+  const delayRaw = findFirstValueByKeys(obj, delayKeys);
+
+  const eta = parseEtaToDisplayString(etaRaw);
+
+  let delayMinutes = null;
+  if (delayRaw !== null && delayRaw !== undefined && delayRaw !== '') {
+    const n = Number(delayRaw);
+    if (Number.isFinite(n)) delayMinutes = clampInt(n, 0, 1440);
+  }
+
+  return { eta, delayMinutes };
+}
+
+async function fetchLiveFromTracking(trackingUrl, provider) {
+  const url = (trackingUrl || '').toString().trim();
+  if (!url) return { ok: false, reason: 'Missing tracking URL.' };
+
+  // Basic URL sanity
+  let u;
+  try {
+    u = new URL(url);
+  } catch {
+    return { ok: false, reason: 'Invalid tracking URL.' };
+  }
+  if (u.protocol !== 'https:' && u.protocol !== 'http:') {
+    return { ok: false, reason: 'Tracking URL must be http(s).' };
+  }
+
+  const prov = normalizeProviderFromTracking(provider, url);
+  const fetchedAtUtc = new Date().toISOString();
+
+  try {
+    const resp = await fetchWithTimeout(
+      url,
+      {
+        method: 'GET',
+        headers: {
+          'accept': 'application/json,text/html;q=0.9,*/*;q=0.8',
+          'user-agent': 'FlyingWithJoelWorker/1.0 (+https://flyingwithjoel.co.uk)',
+        },
+      },
+      7000
+    );
+
+    if (!resp.ok) {
+      return { ok: false, reason: `Upstream responded ${resp.status}.`, provider: prov, fetchedAtUtc };
+    }
+
+    const ct = (resp.headers.get('content-type') || '').toLowerCase();
+    if (ct.includes('application/json')) {
+      const json = await resp.json();
+      const { eta, delayMinutes } = extractLiveEtaAndDelayFromObject(json);
+      if (eta || delayMinutes !== null) {
+        return { ok: true, provider: prov, fetchedAtUtc, eta, delayMinutes, source: 'json' };
+      }
+      return { ok: false, provider: prov, fetchedAtUtc, reason: 'JSON did not contain ETA/delay.' };
+    }
+
+    const html = await resp.text();
+    const candidates = extractJsonCandidatesFromHtml(html);
+    for (const cand of candidates) {
+      const { eta, delayMinutes } = extractLiveEtaAndDelayFromObject(cand);
+      if (eta || delayMinutes !== null) {
+        return { ok: true, provider: prov, fetchedAtUtc, eta, delayMinutes, source: 'html-json' };
+      }
+    }
+
+    // Last resort: a light regex for common “ETA” text.
+    const etaTextMatch = html.match(/\bETA\b[^\d]{0,20}(\d{1,2}:\d{2})/i);
+    if (etaTextMatch && etaTextMatch[1]) {
+      return { ok: true, provider: prov, fetchedAtUtc, eta: etaTextMatch[1] + ' UTC', delayMinutes: null, source: 'html-text' };
+    }
+
+    return { ok: false, provider: prov, fetchedAtUtc, reason: 'Could not extract ETA/delay from tracking page.' };
+  } catch (e) {
+    return { ok: false, provider: prov, fetchedAtUtc, reason: 'Fetch failed (timeout or network error).' };
+  }
 }
 
 function getRandomSample(array, count) {
@@ -616,13 +853,14 @@ export default {
     //  - GET /api/current-flight/auth -> verifies Basic Auth (for debugging)
     if (isCurrentFlight) {
       const isAuthPath = path === '/api/current-flight/auth' || path === '/api/schedule/current-flight/auth';
+      const isLivePath = path === '/api/current-flight/live' || path === '/api/schedule/current-flight/live';
       const isBasePath =
         path === '/api/current-flight'
         || path === '/api/current-flight/'
         || path === '/api/schedule/current-flight'
         || path === '/api/schedule/current-flight/';
 
-      if (!isAuthPath && !isBasePath) {
+      if (!isAuthPath && !isBasePath && !isLivePath) {
         return new Response('Not Found', {
           status: 404,
           headers: {
@@ -666,6 +904,74 @@ export default {
           { error: 'Missing KV binding SCHEDULE_KV.' },
           { status: 500, headers: corsHeadersFor(request) }
         );
+      }
+
+      if (isLivePath) {
+        if (request.method !== 'GET') {
+          return new Response('Method Not Allowed', {
+            status: 405,
+            headers: {
+              ...corsHeadersFor(request),
+              'cache-control': 'no-store',
+            },
+          });
+        }
+
+        // Load current flight config to get tracking URL/provider.
+        const rawCfg = await env.SCHEDULE_KV.get(CURRENT_FLIGHT_KEY);
+        if (!rawCfg) {
+          return jsonResponse(
+            { ok: false, error: 'No current flight configured.' },
+            { status: 200, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const cfg = safeJsonParse(rawCfg);
+        const trackingUrl = clampString(cfg?.tracking?.url, 800);
+        const provider = clampString(cfg?.tracking?.provider, 24);
+        if (!trackingUrl) {
+          return jsonResponse(
+            { ok: false, error: 'No tracking URL set for current flight.' },
+            { status: 200, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const cacheRaw = await env.SCHEDULE_KV.get(CURRENT_FLIGHT_LIVE_KEY);
+        if (cacheRaw) {
+          const cached = safeJsonParse(cacheRaw);
+          const cachedUrl = clampString(cached?.trackingUrl, 800);
+          const cachedFetchedAtUtc = clampString(cached?.fetchedAtUtc, 60);
+          const cachedResult = cached?.result;
+          if (cachedUrl && cachedUrl === trackingUrl && cachedFetchedAtUtc && cachedResult) {
+            const ageMs = Date.now() - Date.parse(cachedFetchedAtUtc);
+            if (Number.isFinite(ageMs) && ageMs >= 0 && ageMs < 30 * 1000) {
+              return jsonResponse(
+                { ...cachedResult, cache: 'hit' },
+                { status: 200, headers: corsHeadersFor(request) }
+              );
+            }
+          }
+        }
+
+        const live = await fetchLiveFromTracking(trackingUrl, provider);
+        const result = {
+          ok: Boolean(live.ok),
+          provider: live.provider || normalizeProviderFromTracking(provider, trackingUrl),
+          fetchedAtUtc: live.fetchedAtUtc || new Date().toISOString(),
+          eta: live.ok ? (live.eta || null) : null,
+          delayMinutes: live.ok ? (Number.isFinite(live.delayMinutes) ? live.delayMinutes : null) : null,
+          source: live.ok ? (live.source || 'tracking') : 'unavailable',
+          error: live.ok ? null : (live.reason || 'Unavailable'),
+        };
+
+        // Cache briefly to avoid hammering upstream providers.
+        await env.SCHEDULE_KV.put(
+          CURRENT_FLIGHT_LIVE_KEY,
+          JSON.stringify({ trackingUrl, fetchedAtUtc: result.fetchedAtUtc, result }),
+          { expirationTtl: 120 }
+        );
+
+        return jsonResponse(result, { status: 200, headers: corsHeadersFor(request) });
       }
 
       if (request.method === 'GET') {
