@@ -239,6 +239,19 @@
       const container = document.getElementById('weekly-schedule');
       if (!container) return;
 
+      // Sort items by date (expects item.dateKey in 'M-D' format)
+      items = items.slice().sort((a, b) => {
+        function parseDateKey(key) {
+          if (!key) return { m: 0, d: 0 };
+          const parts = String(key).split('-');
+          return { m: parseInt(parts[0], 10) || 0, d: parseInt(parts[1], 10) || 0 };
+        }
+        const ad = parseDateKey(a.dateKey);
+        const bd = parseDateKey(b.dateKey);
+        if (ad.m !== bd.m) return ad.m - bd.m;
+        return ad.d - bd.d;
+      });
+
       container.innerHTML = '';
 
       items.forEach((item) => {
