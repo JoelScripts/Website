@@ -480,13 +480,16 @@ body {
 }
 
 .stream-title {
-    font-size: 0.9rem;
-    color: var(--text-muted);
+    font-size: 1.08rem;
+    color: var(--text-light);
+    font-weight: 600;
+    margin-top: 0.5rem;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     display: block;
+    letter-spacing: 0.01em;
 }
 
 /* Highlights */
