@@ -1685,7 +1685,7 @@
 
       // Show/hide delayed UI
       delayedWrap.style.display = isDelayed ? '' : 'none';
-      delayedToEl.disabled = !isDelayed;
+      delayedToEl.disabled = !isDelayed ? true : false;
       delayedHintEl.textContent = isDelayed ? 'Enter the delayed (new) start time' : '';
 
       // Show/hide VOD UI (only meaningful for completed)
@@ -1694,13 +1694,22 @@
       vodHintEl.textContent = isCompleted ? 'This will appear on the completed card on the homepage.' : '';
 
       // UX: disable time/title when no stream
-      timeEl.disabled = isNone;
-      titleEl.disabled = isNone;
       if (isNone) {
+        timeEl.disabled = true;
+        titleEl.disabled = true;
         timeEl.value = '';
         titleEl.value = '';
         delayedToEl.value = '';
         vodUrlEl.value = '';
+      } else if (isDelayed) {
+        // For delayed, allow editing both time and delayedTo
+        timeEl.disabled = false;
+        titleEl.disabled = false;
+        delayedToEl.disabled = false;
+      } else {
+        timeEl.disabled = false;
+        titleEl.disabled = false;
+        delayedToEl.disabled = true;
       }
     }
 
