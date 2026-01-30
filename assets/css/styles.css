@@ -21,6 +21,7 @@ body {
     line-height: 1.6;
 }
 
+
 /* Next Stream Banner */
 .next-stream-banner {
     background: linear-gradient(90deg, var(--primary), var(--secondary));
@@ -1327,7 +1328,6 @@ body {
 
 
     .tag-group {
-        display: flex;
         gap: 0.5rem;
     }
 
