@@ -1977,6 +1977,21 @@
         return;
       }
 
+      // Validation: For any delayed status, require a new time
+      const rows = Array.from(document.querySelectorAll('.schedule-item'));
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const status = (row.querySelector('.status').value || 'none').toLowerCase();
+        if (status === 'delayed') {
+          const delayedTo = (row.querySelector('.delayedTo').value || '').trim();
+          if (!delayedTo) {
+            setStatus(`Error: For delayed status, you must enter a new time (Zulu) for day ${i + 1}.`, 'err');
+            row.querySelector('.delayedTo').focus();
+            return;
+          }
+        }
+      }
+
       const parsed = scheduleFromEditor();
       jsonEl.value = JSON.stringify(parsed, null, 2);
 
