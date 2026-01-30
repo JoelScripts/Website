@@ -523,6 +523,19 @@
       .desktop-editor-body .admin-edit-content { margin-top: 0; }
       /* Controls are still useful but take less visual weight */
       .admin-schedule-controls .admin-msg { display: none; }
+
+      /* Fix: force single-column for delayed status in desktop editor */
+      .desktop-editor-body .schedule-item.is-delayed {
+        grid-template-columns: 1fr !important;
+      }
+      .desktop-editor-body .schedule-item.is-delayed .field-day,
+      .desktop-editor-body .schedule-item.is-delayed .field-date,
+      .desktop-editor-body .schedule-item.is-delayed .field-time,
+      .desktop-editor-body .schedule-item.is-delayed .field-delayed,
+      .desktop-editor-body .schedule-item.is-delayed .field-title,
+      .desktop-editor-body .schedule-item.is-delayed .field-status {
+        grid-column: 1 / -1 !important;
+      }
     }
     .admin-day-card .schedule-item {
       display: grid;
