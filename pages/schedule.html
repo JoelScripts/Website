@@ -261,13 +261,17 @@
         const status = (item && item.status ? String(item.status) : '').toLowerCase();
         const hasStream = status === 'scheduled' || status === 'completed' || status === 'cancelled' || status === 'delayed';
         if (hasStream) card.classList.add('has-stream');
+        if (status === 'live') card.classList.add('live');
         if (status === 'completed') card.classList.add('completed');
         if (status === 'cancelled') card.classList.add('cancelled');
         if (status === 'delayed') card.classList.add('delayed');
 
         const pill = document.createElement('div');
         pill.className = 'status-pill';
-        if (status === 'completed') {
+        if (status === 'live') {
+          pill.textContent = 'LIVE';
+          pill.classList.add('live');
+        } else if (status === 'completed') {
           pill.textContent = 'COMPLETED';
           pill.classList.add('completed');
         } else if (status === 'cancelled') {

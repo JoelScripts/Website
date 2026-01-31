@@ -1005,6 +1005,7 @@
     const STATUSES = [
       { value: 'none', label: '🚫 No stream' },
       { value: 'scheduled', label: '🗓️ Scheduled' },
+      { value: 'live', label: '🔴 Live' },
       { value: 'cancelled', label: '❌ Cancelled' },
       { value: 'delayed', label: '⏳ Delayed' },
       { value: 'completed', label: '✅ Completed' },
@@ -1384,6 +1385,7 @@
             <div class="status-chips" aria-label="Quick status">
               <button type="button" class="chip" data-set-status="none">No stream</button>
               <button type="button" class="chip" data-set-status="scheduled">Scheduled</button>
+              <button type="button" class="chip live" data-set-status="live">Live</button>
               <button type="button" class="chip warn" data-set-status="delayed">Delayed</button>
               <button type="button" class="chip danger" data-set-status="cancelled">Cancelled</button>
               <button type="button" class="chip ok" data-set-status="completed">Completed</button>
@@ -1549,6 +1551,7 @@
     function statusLabel(status) {
       const s = (status || 'none').toLowerCase();
       if (s === 'scheduled') return 'scheduled';
+      if (s === 'live') return 'live';
       if (s === 'cancelled') return 'cancelled';
       if (s === 'delayed') return 'delayed';
       if (s === 'completed') return 'completed';
@@ -1566,6 +1569,7 @@
     function statusEmoji(status) {
       const s = (status || 'none').toLowerCase();
       if (s === 'scheduled') return '🗓️';
+      if (s === 'live') return '🔴';
       if (s === 'cancelled') return '❌';
       if (s === 'delayed') return '⏳';
       if (s === 'completed') return '✅';
@@ -1608,6 +1612,7 @@
 
       // Card-level classes match the public schedule page
       wrapper.classList.toggle('has-stream', status !== 'none');
+      wrapper.classList.toggle('live', status === 'live');
       wrapper.classList.toggle('cancelled', status === 'cancelled');
       wrapper.classList.toggle('delayed', status === 'delayed');
       wrapper.classList.toggle('completed', status === 'completed');
@@ -1751,6 +1756,21 @@
             timeText: 'No Stream Planned',
             zuluTime: null,
             streamTitle: '-',
+            vodUrl: null,
+          };
+        }
+        if (status === 'live') {
+          const zuluTime = normalizeZulu(zuluTimeRaw);
+          const timeText = zuluTime || 'Live';
+          return {
+            dateKey,
+            dayName,
+            dateText,
+            status: 'live',
+            gameLogo: '✈️',
+            timeText,
+            zuluTime: zuluTime || null,
+            streamTitle,
             vodUrl: null,
           };
         }
