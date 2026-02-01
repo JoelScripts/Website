@@ -1238,14 +1238,22 @@
 
     function buildEmptySchedule() {
       const today = new Date();
-      const month = today.getMonth() + 1;
-      const day = today.getDate();
-
       const items = [];
       for (let i = 0; i < 7; i += 1) {
+        // Start from tomorrow
+        const nextDate = new Date(today);
+        nextDate.setDate(today.getDate() + i + 1);
+        const month = nextDate.getMonth() + 1;
+        const day = nextDate.getDate();
+        const dayIdx = nextDate.getDay(); // 0=Sun, 1=Mon, ...
+        // Map JS dayIdx to DEFAULT_DAYS (which starts with MON)
+        // JS: 0=Sun, 1=Mon, ..., 6=Sat
+        // DEFAULT_DAYS: 0=MON, ..., 6=SUN
+        // So, for Sun (0), want 6; for Mon (1), want 0, etc.
+        const defaultDayName = DEFAULT_DAYS[(dayIdx + 6) % 7];
         items.push({
           dateKey: `${month}-${day}`,
-          dayName: DEFAULT_DAYS[i] || '-',
+          dayName: defaultDayName,
           dateText: `${MONTHS[month - 1]} ${day}`,
           status: 'none',
           gameLogo: '-',
