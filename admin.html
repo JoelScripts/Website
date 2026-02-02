@@ -907,9 +907,57 @@
         </div>
       </div>
     </div>
+
+  <!-- Discord Message Preview -->
+  <div class="admin-card" style="margin-top:2rem;">
+    <h3 style="margin:0 0 0.5rem 0;">💬 Discord Message Preview</h3>
+    <label for="discord-message-preview">Copy-paste this to Discord:</label>
+    <textarea id="discord-message-preview" readonly style="min-height:180px; margin-bottom:0.7rem;"></textarea>
+    <div class="admin-actions">
+      <button id="btn-generate-discord-message" type="button">🔄 Generate Discord Message</button>
+    </div>
+  </div>
   </main>
 
   <script>
+    // --- Discord Message Generator ---
+    function generateDiscordMessage(schedule) {
+      // schedule: array of 7 days, as in scheduleFromEditor()
+      let lines = [];
+      for (const item of schedule) {
+        // Use :Taino_No: for no stream, :Twitch: for any stream (scheduled, live, completed, delayed, cancelled)
+        let emoji = ':Taino_No:';
+        if (item.status && item.status !== 'none') {
+          emoji = ':Twitch:';
+        }
+        // Use the same time as shown on the website (item.timeText)
+        // Format: [emoji] [DayName] ([DateText]) - [TimeText]
+        lines.push(`${emoji} ${item.dayName} (${item.dateText}) - ${item.timeText}`);
+      }
+      return lines.join('\n');
+    }
+
+    function updateDiscordMessagePreview() {
+      const schedule = scheduleFromEditor();
+      const msg = generateDiscordMessage(schedule);
+      const previewEl = document.getElementById('discord-message-preview');
+      if (previewEl) previewEl.value = msg;
+    }
+
+    // Wire up button
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('btn-generate-discord-message');
+      if (btn) btn.addEventListener('click', updateDiscordMessagePreview);
+      // Auto-generate on load
+      updateDiscordMessagePreview();
+    });
+
+    // Also update preview whenever the schedule changes
+    const origRenderEditor = renderEditor;
+    renderEditor = function(items) {
+      origRenderEditor(items);
+      updateDiscordMessagePreview();
+    };
         // --- Reset to Rolling 7 Days ---
         const btnResetRollingEl = document.getElementById('btn-reset-rolling');
         if (btnResetRollingEl) {
@@ -1299,8 +1347,6 @@
       }
       activeDesktopDetailsEl = null;
       document.querySelectorAll('.admin-day-card.is-selected').forEach((c) => c.classList.remove('is-selected'));
-      if (desktopEditorTitleEl) desktopEditorTitleEl.textContent = '✏️ Edit day';
-      if (desktopEditorSubEl) desktopEditorSubEl.textContent = 'Select a day card to edit.';
       if (desktopEditorBodyEl) {
         desktopEditorBodyEl.innerHTML = '<p class="desktop-editor-empty">Pick a day card on the left to load its editor here. This keeps the grid stable while you edit.</p>';
       }
@@ -1858,6 +1904,7 @@
     function syncJsonFromEditor(showStatus) {
       const schedule = scheduleFromEditor();
       jsonEl.value = JSON.stringify(schedule, null, 2);
+      updateDiscordMessagePreview();
       if (showStatus) setStatus('Editor synced to JSON.', 'ok');
     }
 
