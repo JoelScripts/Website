@@ -930,31 +930,53 @@
       let lines = [];
       lines.push(`------------- ${range} ------------------\n`);
 
-      // Calculate max lengths for alignment
-      const emojiPad = 12;
-      const dayPad = 12;
-      const datePad = 18;
+      // Manual layout: emoji (13), day (12), date (18), dash, message
+      // Example: ':Taino_No:     Monday 26th January  -   **No Stream**'
+      //         ':Twitch:       Tuesday 27th January  -  **Stream @ 18:00 Zulu**'
+      //         ':Taino_No:         Wednesday 28th January  -  **No Stream**'
+      //         ':Twitch:        Thursday 29th January     -    **Stream @ 12:00 Zulu **'
+      //         ':Twitch:       Friday 30th January - **Stream @ 18:00 Zulu **'
+      //         ':Twitch:     Saturday 31st January   -   **Stream @ 12:00pm Zulu**'
+      //         ':Twitch:      Sunday 1st February- **Stream @ 11:00am Zulu **'
+
+      // Find max lengths for day+date for best alignment
+      let dayDateArr = schedule.map(item => `${item.dayName} ${item.dateText}`);
+      let maxDayDate = Math.max(...dayDateArr.map(s => s.length));
 
       for (const item of schedule) {
         let emoji = ':Taino_No:';
-        let line = '';
+        let msg = '';
         if (item.status && item.status !== 'none') {
           emoji = ':Twitch:';
-        }
-        // Pad emoji and day for alignment
-        const emojiStr = emoji.padEnd(emojiPad, ' ');
-        const dayStr = (item.dayName || '').padEnd(dayPad, ' ');
-        // For date, keep as is, but add a space after for visual alignment
-        const dateStr = (item.dateText || '').padEnd(datePad, ' ');
-
-        if (item.status && item.status !== 'none') {
-          line = `${emojiStr}${dayStr}${dateStr}-   **Stream @ ${item.timeText}**`;
+          msg = `**Stream @ ${item.timeText}**`;
         } else {
-          line = `${emojiStr}${dayStr}${dateStr}-   **No Stream**`;
+          msg = '**No Stream**';
         }
+        // Pad emoji to 13, day+date to maxDayDate+2, dash to 3 spaces after
+        const emojiStr = emoji.padEnd(13, ' ');
+        const dayDateStr = (`${item.dayName} ${item.dateText}`).padEnd(maxDayDate + 2, ' ');
+        // For some lines, add extra spaces after dash for visual match
+        let dashSpaces = '   ';
+        // If day is Thursday, add 4 spaces after dash (per example)
+        if ((item.dayName || '').toLowerCase().startsWith('thu')) dashSpaces = '    ';
+        // If day is Saturday, add 3 spaces after dash
+        if ((item.dayName || '').toLowerCase().startsWith('sat')) dashSpaces = '   ';
+        // If day is Sunday, add 1 space after dash
+        if ((item.dayName || '').toLowerCase().startsWith('sun')) dashSpaces = '';
+        // If day is Friday, add 1 space after dash
+        if ((item.dayName || '').toLowerCase().startsWith('fri')) dashSpaces = '';
+        // If day is Wednesday, add 2 spaces after dash
+        if ((item.dayName || '').toLowerCase().startsWith('wed')) dashSpaces = '  ';
+        // If day is Tuesday, add 2 spaces after dash
+        if ((item.dayName || '').toLowerCase().startsWith('tue')) dashSpaces = '  ';
+        // If day is Monday, add 3 spaces after dash
+        if ((item.dayName || '').toLowerCase().startsWith('mon')) dashSpaces = '   ';
+
+        let line = `${emojiStr}${dayDateStr}- ${dashSpaces}${msg}`;
         lines.push(line + '\n');
+        lines.push('\n');
       }
-      return lines.join('');
+      return lines.join('').trim();
     }
 
     function updateDiscordMessagePreview() {
