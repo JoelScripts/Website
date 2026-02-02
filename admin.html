@@ -928,21 +928,33 @@
       const last = schedule[schedule.length - 1];
       const range = `*${first.dateText} --> ${last.dateText}*`;
       let lines = [];
-      lines.push('-------------- ' + range + ' ---------------------\n');
+      lines.push(`------------- ${range} ------------------\n`);
+
+      // Calculate max lengths for alignment
+      const emojiPad = 12;
+      const dayPad = 12;
+      const datePad = 18;
+
       for (const item of schedule) {
         let emoji = ':Taino_No:';
         let line = '';
         if (item.status && item.status !== 'none') {
           emoji = ':Twitch:';
-          // Bold stream line, include time as on website
-          line = `${emoji} ${item.dayName} ${item.dateText}  -  **Stream @ ${item.timeText}**`;
-        } else {
-          // Bold No Stream
-          line = `${emoji} ${item.dayName} ${item.dateText}  -  **No Stream**`;
         }
-        lines.push(line);
+        // Pad emoji and day for alignment
+        const emojiStr = emoji.padEnd(emojiPad, ' ');
+        const dayStr = (item.dayName || '').padEnd(dayPad, ' ');
+        // For date, keep as is, but add a space after for visual alignment
+        const dateStr = (item.dateText || '').padEnd(datePad, ' ');
+
+        if (item.status && item.status !== 'none') {
+          line = `${emojiStr}${dayStr}${dateStr}-   **Stream @ ${item.timeText}**`;
+        } else {
+          line = `${emojiStr}${dayStr}${dateStr}-   **No Stream**`;
+        }
+        lines.push(line + '\n');
       }
-      return lines.join('\n\n');
+      return lines.join('');
     }
 
     function updateDiscordMessagePreview() {
