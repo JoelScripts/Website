@@ -899,11 +899,21 @@
 
         <div class="admin-actions">
           <button id="btn-load" class="secondary" type="button">🔄 Load current</button>
+          <button id="btn-reset-rolling" class="secondary" type="button">🗓️ Reset to Rolling 7 Days</button>
           <button id="btn-format" class="secondary" type="button">🧩 Sync JSON</button>
           <button id="btn-save" type="button">💾 Save schedule</button>
           <span class="spacer"></span>
           <button id="btn-lock" class="danger" type="button">🔒 Lock</button>
         </div>
+          // --- Reset to Rolling 7 Days ---
+          const btnResetRollingEl = document.getElementById('btn-reset-rolling');
+          if (btnResetRollingEl) {
+            btnResetRollingEl.addEventListener('click', () => {
+              const items = buildEmptySchedule();
+              renderEditor(items);
+              setStatus('Reset to rolling 7 days. Click Save to apply.', 'ok');
+            });
+          }
       </div>
     </div>
   </main>
