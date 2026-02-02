@@ -1240,9 +1240,9 @@
       const today = new Date();
       const items = [];
       for (let i = 0; i < 7; i += 1) {
-        // Start from tomorrow
+        // Start from TODAY
         const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + i + 1);
+        nextDate.setDate(today.getDate() + i);
         const month = nextDate.getMonth() + 1;
         const day = nextDate.getDate();
         const dayIdx = nextDate.getDay(); // 0=Sun, 1=Mon, ...
