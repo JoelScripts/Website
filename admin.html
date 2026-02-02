@@ -940,7 +940,22 @@
       //         ':Twitch:      Sunday 1st February- **Stream @ 11:00am Zulu **'
 
       // Find max lengths for day+date for best alignment
-      let dayDateArr = schedule.map(item => `${item.dayName} ${item.dateText}`);
+      // Map short day names to full names
+      const dayNameMap = {
+        'MON': 'Monday',
+        'TUE': 'Tuesday',
+        'WED': 'Wednesday',
+        'THU': 'Thursday',
+        'FRI': 'Friday',
+        'SAT': 'Saturday',
+        'SUN': 'Sunday'
+      };
+
+      let dayDateArr = schedule.map(item => {
+        const shortDay = (item.dayName || '').toUpperCase();
+        const fullDay = dayNameMap[shortDay] || item.dayName;
+        return `${fullDay} ${item.dateText}`;
+      });
       let maxDayDate = Math.max(...dayDateArr.map(s => s.length));
 
       for (const item of schedule) {
@@ -952,25 +967,21 @@
         } else {
           msg = '**No Stream**';
         }
+        // Use full day name
+        const shortDay = (item.dayName || '').toUpperCase();
+        const fullDay = dayNameMap[shortDay] || item.dayName;
         // Pad emoji to 13, day+date to maxDayDate+2, dash to 3 spaces after
         const emojiStr = emoji.padEnd(13, ' ');
-        const dayDateStr = (`${item.dayName} ${item.dateText}`).padEnd(maxDayDate + 2, ' ');
+        const dayDateStr = (`${fullDay} ${item.dateText}`).padEnd(maxDayDate + 2, ' ');
         // For some lines, add extra spaces after dash for visual match
         let dashSpaces = '   ';
-        // If day is Thursday, add 4 spaces after dash (per example)
-        if ((item.dayName || '').toLowerCase().startsWith('thu')) dashSpaces = '    ';
-        // If day is Saturday, add 3 spaces after dash
-        if ((item.dayName || '').toLowerCase().startsWith('sat')) dashSpaces = '   ';
-        // If day is Sunday, add 1 space after dash
-        if ((item.dayName || '').toLowerCase().startsWith('sun')) dashSpaces = '';
-        // If day is Friday, add 1 space after dash
-        if ((item.dayName || '').toLowerCase().startsWith('fri')) dashSpaces = '';
-        // If day is Wednesday, add 2 spaces after dash
-        if ((item.dayName || '').toLowerCase().startsWith('wed')) dashSpaces = '  ';
-        // If day is Tuesday, add 2 spaces after dash
-        if ((item.dayName || '').toLowerCase().startsWith('tue')) dashSpaces = '  ';
-        // If day is Monday, add 3 spaces after dash
-        if ((item.dayName || '').toLowerCase().startsWith('mon')) dashSpaces = '   ';
+        if (fullDay === 'Thursday') dashSpaces = '    ';
+        if (fullDay === 'Saturday') dashSpaces = '   ';
+        if (fullDay === 'Sunday') dashSpaces = '';
+        if (fullDay === 'Friday') dashSpaces = '';
+        if (fullDay === 'Wednesday') dashSpaces = '  ';
+        if (fullDay === 'Tuesday') dashSpaces = '  ';
+        if (fullDay === 'Monday') dashSpaces = '   ';
 
         let line = `${emojiStr}${dayDateStr}- ${dashSpaces}${msg}`;
         lines.push(line + '\n');
