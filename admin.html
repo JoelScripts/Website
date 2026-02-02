@@ -902,6 +902,7 @@
           <button id="btn-reset-rolling" class="secondary" type="button">🗓️ Reset to Rolling 7 Days</button>
           <button id="btn-format" class="secondary" type="button">🧩 Sync JSON</button>
           <button id="btn-save" type="button">💾 Save schedule</button>
+          <button id="btn-export-ics" class="secondary" type="button">📅 Export to Google Calendar</button>
           <span class="spacer"></span>
           <button id="btn-lock" class="danger" type="button">🔒 Lock</button>
         </div>
@@ -920,6 +921,71 @@
   </main>
 
   <script>
+    // --- Export to Google Calendar (.ics) ---
+    function scheduleToICS(schedule) {
+      function pad(n) { return n.toString().padStart(2, '0'); }
+      const now = new Date();
+      const year = now.getFullYear();
+      let ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Flying With Joel//Stream Schedule//EN'
+      ];
+      for (const item of schedule) {
+        if (!item || item.status === 'none' || /no stream/i.test(item.timeText)) continue;
+        // Parse date
+        const [month, day] = item.dateKey.split('-').map(Number);
+        // Parse time (e.g., "18:00 Zulu")
+        let timeMatch = (item.zuluTime || '').match(/(\d{1,2}):(\d{2})/);
+        let hour = timeMatch ? timeMatch[1] : '18';
+        let minute = timeMatch ? timeMatch[2] : '00';
+        // Format as YYYYMMDDTHHMMSSZ
+        const dt = `${year}${pad(month)}${pad(day)}T${pad(hour)}${pad(minute)}00Z`;
+        ics.push('BEGIN:VEVENT');
+        ics.push(`SUMMARY:${item.streamTitle || 'Stream'}`);
+        ics.push(`DTSTART:${dt}`);
+        ics.push(`DTEND:${dt}`); // Optionally add +2 hours
+        ics.push(`DESCRIPTION:${item.timeText}`);
+        ics.push('END:VEVENT');
+      }
+      ics.push('END:VCALENDAR');
+      return ics.join('\r\n');
+    }
+
+    function downloadICSFile(icsContent, filename) {
+      const blob = new Blob([icsContent], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+    }
+
+    function autoExportICS() {
+      const schedule = scheduleFromEditor();
+      const ics = scheduleToICS(schedule);
+      downloadICSFile(ics, 'stream-schedule.ics');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const btnExportICS = document.getElementById('btn-export-ics');
+      if (btnExportICS) {
+        btnExportICS.addEventListener('click', autoExportICS);
+      }
+    });
+
+    // Automatically export ICS every time the schedule changes
+    // (syncJsonFromEditor is called on every schedule change)
+    const origSyncJsonFromEditor = syncJsonFromEditor;
+    syncJsonFromEditor = function(showStatus) {
+      origSyncJsonFromEditor.apply(this, arguments);
+      autoExportICS();
+    };
     // --- Discord Message Generator ---
     function generateDiscordMessage(schedule) {
       if (!schedule || schedule.length === 0) return '';
