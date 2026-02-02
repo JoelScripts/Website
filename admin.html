@@ -905,20 +905,20 @@
           <span class="spacer"></span>
           <button id="btn-lock" class="danger" type="button">🔒 Lock</button>
         </div>
-      // --- Reset to Rolling 7 Days ---
-      const btnResetRollingEl = document.getElementById('btn-reset-rolling');
-      if (btnResetRollingEl) {
-        btnResetRollingEl.addEventListener('click', () => {
-          const items = buildEmptySchedule();
-          renderEditor(items);
-          setStatus('Reset to rolling 7 days. Click Save to apply.', 'ok');
-        });
-      }
       </div>
     </div>
   </main>
 
   <script>
+        // --- Reset to Rolling 7 Days ---
+        const btnResetRollingEl = document.getElementById('btn-reset-rolling');
+        if (btnResetRollingEl) {
+          btnResetRollingEl.addEventListener('click', () => {
+            const items = buildEmptySchedule();
+            renderEditor(items);
+            setStatus('Reset to rolling 7 days. Click Save to apply.', 'ok');
+          });
+        }
     const statusEl = document.getElementById('status');
     const statusBarEl = document.getElementById('status-bar');
     const userEl = document.getElementById('admin-user');
