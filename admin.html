@@ -922,19 +922,27 @@
   <script>
     // --- Discord Message Generator ---
     function generateDiscordMessage(schedule) {
-      // schedule: array of 7 days, as in scheduleFromEditor()
+      if (!schedule || schedule.length === 0) return '';
+      // Header line with date range
+      const first = schedule[0];
+      const last = schedule[schedule.length - 1];
+      const range = `*${first.dateText} --> ${last.dateText}*`;
       let lines = [];
+      lines.push('-------------- ' + range + ' ---------------------\n');
       for (const item of schedule) {
-        // Use :Taino_No: for no stream, :Twitch: for any stream (scheduled, live, completed, delayed, cancelled)
         let emoji = ':Taino_No:';
+        let line = '';
         if (item.status && item.status !== 'none') {
           emoji = ':Twitch:';
+          // Bold stream line, include time as on website
+          line = `${emoji} ${item.dayName} ${item.dateText}  -  **Stream @ ${item.timeText}**`;
+        } else {
+          // Bold No Stream
+          line = `${emoji} ${item.dayName} ${item.dateText}  -  **No Stream**`;
         }
-        // Use the same time as shown on the website (item.timeText)
-        // Format: [emoji] [DayName] ([DateText]) - [TimeText]
-        lines.push(`${emoji} ${item.dayName} (${item.dateText}) - ${item.timeText}`);
+        lines.push(line);
       }
-      return lines.join('\n');
+      return lines.join('\n\n');
     }
 
     function updateDiscordMessagePreview() {
