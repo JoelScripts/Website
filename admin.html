@@ -966,26 +966,16 @@
       }, 100);
     }
 
-    function autoExportICS() {
-      const schedule = scheduleFromEditor();
-      const ics = scheduleToICS(schedule);
-      downloadICSFile(ics, 'stream-schedule.ics');
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
       const btnExportICS = document.getElementById('btn-export-ics');
       if (btnExportICS) {
-        btnExportICS.addEventListener('click', autoExportICS);
+        btnExportICS.addEventListener('click', function() {
+          const schedule = scheduleFromEditor();
+          const ics = scheduleToICS(schedule);
+          downloadICSFile(ics, 'stream-schedule.ics');
+        });
       }
     });
-
-    // Automatically export ICS every time the schedule changes
-    // (syncJsonFromEditor is called on every schedule change)
-    const origSyncJsonFromEditor = syncJsonFromEditor;
-    syncJsonFromEditor = function(showStatus) {
-      origSyncJsonFromEditor.apply(this, arguments);
-      autoExportICS();
-    };
     // --- Discord Message Generator ---
     function generateDiscordMessage(schedule) {
       if (!schedule || schedule.length === 0) return '';
