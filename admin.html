@@ -1923,6 +1923,7 @@
         const titleRaw = (row.querySelector('.title').value || '').trim();
         const vodUrlRaw = (row.querySelector('.vodUrl')?.value || '').trim();
 
+        const streamTitle = titleRaw || 'Stream';
         if (status === 'none') {
           return {
             dateKey,
@@ -1951,10 +1952,6 @@
             vodUrl: null,
           };
         }
-
-        // ...existing code...
-
-        const streamTitle = titleRaw || 'Stream';
 
         if (status === 'completed') {
           const zuluTime = normalizeZulu(zuluTimeRaw);
