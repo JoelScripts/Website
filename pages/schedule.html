@@ -458,6 +458,21 @@
 
       const isActuallyLive = await getIsActuallyLive();
 
+      // Track the day the stream started
+      let liveStartDate = localStorage.getItem('fwj_live_start_date');
+
+      if (isActuallyLive === true) {
+        // If not set, set to today
+        if (!liveStartDate) {
+          liveStartDate = dateString;
+          localStorage.setItem('fwj_live_start_date', liveStartDate);
+        }
+      } else {
+        // If stream ended, clear
+        liveStartDate = null;
+        localStorage.removeItem('fwj_live_start_date');
+      }
+
       const dayCards = document.querySelectorAll('.day-card');
       dayCards.forEach(card => {
         const streamTimeEl = card.querySelector('.stream-time');
@@ -478,13 +493,13 @@
         }
 
         const cardDate = card.getAttribute('data-date');
+        const isLiveDay = liveStartDate && cardDate === liveStartDate;
         const isToday = cardDate === dateString;
         const hasStarted = currentUTCTime >= streamUTCTime;
-
         const isBlockedByStatus = card.classList.contains('cancelled') || card.classList.contains('completed');
 
-        // Only show LIVE when Twitch is actually live.
-        if (isActuallyLive === true && isToday && !isBlockedByStatus) {
+        // Show LIVE badge only on the original live day while stream is live
+        if (isActuallyLive === true && isLiveDay && !isBlockedByStatus) {
           card.classList.add('live');
           card.style.cursor = 'pointer';
           applyPillForCard(card, 'LIVE');
