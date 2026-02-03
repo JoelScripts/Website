@@ -1774,11 +1774,7 @@
 
       const vodUrl = (row.querySelector('.vodUrl')?.value || '').trim();
 
-      const normalizeZulu = (raw) => {
-        const r = (raw || '').trim();
-        if (!r) return '';
-        return r.toLowerCase().includes('zulu') ? r : `${r} Zulu`;
-      };
+      // ...existing code...
 
       const dayEl = wrapper.querySelector('.day-name');
       const dateEl = wrapper.querySelector('.day-date');
@@ -1956,11 +1952,7 @@
           };
         }
 
-        const normalizeZulu = (raw) => {
-          const r = (raw || '').trim();
-          if (!r) return '';
-          return r.toLowerCase().includes('zulu') ? r : `${r} Zulu`;
-        };
+        // ...existing code...
 
         const streamTitle = titleRaw || 'Stream';
 
