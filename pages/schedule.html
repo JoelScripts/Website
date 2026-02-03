@@ -462,11 +462,12 @@
       let liveStartDate = localStorage.getItem('fwj_live_start_date');
 
       if (isActuallyLive === true) {
-        // If not set, set to today
+        // Only set if not already set
         if (!liveStartDate) {
           liveStartDate = dateString;
           localStorage.setItem('fwj_live_start_date', liveStartDate);
         }
+        // If already set, keep the original value
       } else {
         // If stream ended, clear
         liveStartDate = null;
