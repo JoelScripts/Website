@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🛠️ Admin — Schedule</title>
   <meta name="robots" content="noindex,nofollow" />
+  <script>
+    // Top-level utility: normalizeZulu
+    function normalizeZulu(raw) {
+      const r = (raw || '').trim();
+      if (!r) return '';
+      return r.toLowerCase().includes('zulu') ? r : `${r} Zulu`;
+    }
+  </script>
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
