@@ -172,7 +172,7 @@ function validateSchedule($schedule): ?string {
   if (!is_array($schedule)) return 'Schedule must be an array.';
   if (count($schedule) < 1 || count($schedule) > 14) return 'Schedule array must be 1–14 items.';
 
-  $allowedStatus = ['none' => true, 'scheduled' => true, 'completed' => true, 'cancelled' => true];
+  $allowedStatus = ['none' => true, 'scheduled' => true, 'completed' => true, 'cancelled' => true, 'live' => true];
 
   foreach ($schedule as $item) {
     if (!is_array($item)) return 'Each schedule entry must be an object.';
