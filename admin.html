@@ -1012,6 +1012,11 @@
               <button id="btn-incident-refresh" class="secondary" type="button">↻ Refresh</button>
               <button id="btn-incident-save" type="button">💾 Save</button>
               <span class="spacer"></span>
+              <label class="admin-msg" style="display:flex; align-items:center; gap:0.5rem; margin:0;">
+                <input id="incident-notify" type="checkbox" />
+                Notify me (browser)
+              </label>
+              <span class="spacer"></span>
               <span id="incident-status" class="admin-msg"></span>
             </div>
           </section>
@@ -1268,6 +1273,7 @@
     const btnIncidentRefreshEl = document.getElementById('btn-incident-refresh');
     const btnIncidentSaveEl = document.getElementById('btn-incident-save');
     const incidentStatusEl = document.getElementById('incident-status');
+    const incidentNotifyEl = document.getElementById('incident-notify');
         // --- Expected Return Message ---
         function getExpectedReturnApiUrl() {
           // Use same logic as site mode API, but endpoint is /expected-return
@@ -1358,6 +1364,10 @@
     const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
     const SITE_MODE_API_LOCALSTORAGE_KEY = 'fwj_site_mode_api';
     const INCIDENT_API_LOCALSTORAGE_KEY = 'fwj_incident_api';
+
+    const INCIDENT_NOTIFY_ENABLED_KEY = 'fwj_admin_incident_notify_enabled';
+    const INCIDENT_WATCH_STATE_KEY = 'fwj_admin_incident_watch_state';
+    let incidentWatchTimer = null;
 
     function sanitizeApiUrl(raw) {
       const s = (raw || '').trim();
@@ -1501,6 +1511,131 @@
       if (incidentTitleEl) incidentTitleEl.value = (data && typeof data.title === 'string') ? data.title : '';
       if (incidentMessageEl) incidentMessageEl.value = (data && typeof data.message === 'string') ? data.message : '';
       renderIncidentPill(enabled, (data && data.updatedAtUtc) ? String(data.updatedAtUtc) : null);
+    }
+
+    function getIncidentNotifyEnabled() {
+      try { return localStorage.getItem(INCIDENT_NOTIFY_ENABLED_KEY) === 'true'; } catch { return false; }
+    }
+
+    function setIncidentNotifyEnabled(enabled) {
+      try { localStorage.setItem(INCIDENT_NOTIFY_ENABLED_KEY, enabled ? 'true' : 'false'); } catch {}
+    }
+
+    function readIncidentWatchState() {
+      try {
+        const raw = localStorage.getItem(INCIDENT_WATCH_STATE_KEY);
+        if (!raw) return { initialized: false, enabled: false, updatedAtUtc: null };
+        const p = JSON.parse(raw);
+        return {
+          initialized: Boolean(p && p.initialized),
+          enabled: Boolean(p && p.enabled),
+          updatedAtUtc: (p && typeof p.updatedAtUtc === 'string' && p.updatedAtUtc.trim()) ? p.updatedAtUtc.trim() : null,
+        };
+      } catch {
+        return { initialized: false, enabled: false, updatedAtUtc: null };
+      }
+    }
+
+    function writeIncidentWatchState(state) {
+      try {
+        const s = state || {};
+        localStorage.setItem(INCIDENT_WATCH_STATE_KEY, JSON.stringify({
+          initialized: Boolean(s.initialized),
+          enabled: Boolean(s.enabled),
+          updatedAtUtc: (s.updatedAtUtc && typeof s.updatedAtUtc === 'string') ? s.updatedAtUtc : null,
+        }));
+      } catch {
+        // ignore
+      }
+    }
+
+    async function ensureIncidentNotificationPermission() {
+      if (!('Notification' in window)) return false;
+      if (Notification.permission === 'granted') return true;
+      if (Notification.permission === 'denied') return false;
+      try {
+        const p = await Notification.requestPermission();
+        return p === 'granted';
+      } catch {
+        return false;
+      }
+    }
+
+    function notifyIncidentChange(next, prev) {
+      const title = (next && typeof next.title === 'string' ? next.title : '').trim() || 'Security incident notice updated';
+      const message = (next && typeof next.message === 'string' ? next.message : '').trim() || 'Open admin to view details.';
+
+      // Always show in-page status (even if Notifications are blocked).
+      setIncidentStatus('Incident updated on server. Click Refresh to load.', 'ok');
+
+      if (!('Notification' in window)) return;
+      if (Notification.permission !== 'granted') return;
+
+      try {
+        new Notification(title, {
+          body: message,
+          tag: 'fwj-security-incident',
+          renotify: true,
+        });
+      } catch {
+        // ignore
+      }
+    }
+
+    async function pollIncidentNoticeForChanges() {
+      try {
+        const result = await fetchFirstOkJson(getIncidentApiCandidates(), { cache: 'no-store' });
+        if (!result || !result.data) return;
+
+        const data = result.data || {};
+        const next = {
+          enabled: Boolean(data.enabled),
+          updatedAtUtc: (data && typeof data.updatedAtUtc === 'string' && data.updatedAtUtc.trim()) ? data.updatedAtUtc.trim() : null,
+          title: (data && typeof data.title === 'string') ? data.title : '',
+          message: (data && typeof data.message === 'string') ? data.message : '',
+        };
+
+        // Keep the pill in sync without overwriting form edits.
+        renderIncidentPill(next.enabled, next.updatedAtUtc);
+
+        const prev = readIncidentWatchState();
+        const isFirst = !prev.initialized;
+
+        // Prime state on first successful fetch (no notification on page load).
+        if (isFirst) {
+          writeIncidentWatchState({ initialized: true, enabled: next.enabled, updatedAtUtc: next.updatedAtUtc });
+          return;
+        }
+
+        const turnedOn = !prev.enabled && next.enabled;
+        const updated = next.enabled && next.updatedAtUtc && prev.updatedAtUtc && next.updatedAtUtc !== prev.updatedAtUtc;
+        const updatedWithMissingPrev = next.enabled && next.updatedAtUtc && !prev.updatedAtUtc;
+        const turnedOff = prev.enabled && !next.enabled;
+
+        // Notify on: turned on, or changed updatedAtUtc while enabled.
+        if (turnedOn || updated || updatedWithMissingPrev) {
+          notifyIncidentChange(next, prev);
+        } else if (turnedOff) {
+          setIncidentStatus('Incident notice disabled on server.', 'ok');
+        }
+
+        writeIncidentWatchState({ initialized: true, enabled: next.enabled, updatedAtUtc: next.updatedAtUtc });
+      } catch {
+        // best-effort
+      }
+    }
+
+    function startIncidentWatch() {
+      if (incidentWatchTimer) return;
+      // Initial poll then every 60s (while admin page is open).
+      pollIncidentNoticeForChanges();
+      incidentWatchTimer = setInterval(pollIncidentNoticeForChanges, 60_000);
+    }
+
+    function stopIncidentWatch() {
+      if (!incidentWatchTimer) return;
+      try { clearInterval(incidentWatchTimer); } catch {}
+      incidentWatchTimer = null;
     }
 
     async function loadIncidentNotice() {
@@ -2405,6 +2540,20 @@
         await loadSiteMode();
         try { if (typeof fetchExpectedReturnMessage === 'function') fetchExpectedReturnMessage(); } catch {}
         try { await loadIncidentNotice(); } catch {}
+
+        // Optional: incident change notifications while admin is open.
+        try {
+          if (incidentNotifyEl) {
+            const enabled = getIncidentNotifyEnabled();
+            incidentNotifyEl.checked = enabled;
+            if (enabled) {
+              ensureIncidentNotificationPermission();
+              startIncidentWatch();
+            } else {
+              stopIncidentWatch();
+            }
+          }
+        } catch {}
       } catch (e) {
         console.error(e);
         setStatus('Login failed (could not reach auth endpoint).', 'err');
@@ -2604,6 +2753,27 @@
 
     if (btnIncidentRefreshEl) btnIncidentRefreshEl.addEventListener('click', loadIncidentNotice);
     if (btnIncidentSaveEl) btnIncidentSaveEl.addEventListener('click', saveIncidentNotice);
+
+    if (incidentNotifyEl) {
+      // Reflect stored preference immediately (even before unlock).
+      incidentNotifyEl.checked = getIncidentNotifyEnabled();
+      incidentNotifyEl.addEventListener('change', async () => {
+        const enabled = Boolean(incidentNotifyEl.checked);
+        setIncidentNotifyEnabled(enabled);
+        if (enabled) {
+          const ok = await ensureIncidentNotificationPermission();
+          if (!ok) {
+            setIncidentStatus('Browser notifications blocked. Allow notifications for this site to enable.', 'err');
+            return;
+          }
+          startIncidentWatch();
+          setIncidentStatus('Notifications enabled (while this tab is open).', 'ok');
+        } else {
+          stopIncidentWatch();
+          setIncidentStatus('Notifications disabled.', null);
+        }
+      });
+    }
 
     const expandAllBtn = document.getElementById('btn-expand-all');
     const collapseAllBtn = document.getElementById('btn-collapse-all');
