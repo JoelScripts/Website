@@ -120,7 +120,7 @@ function injectSecurityIncidentBanner(config) {
     banner.setAttribute('role', 'status');
     banner.setAttribute('aria-live', 'polite');
 
-        const when = updatedAtUtc ? `Last updated: ${updatedAtUtc}` : '';
+    const when = updatedAtUtc ? `Last updated: ${updatedAtUtc}` : '';
     banner.innerHTML = `
       <div class="sib-inner">
                 <div class="sib-header">
@@ -134,21 +134,9 @@ function injectSecurityIncidentBanner(config) {
                     <div class="sib-meta" aria-label="Incident notice last updated"></div>
 
                     <div class="sib-links">
-                        <a class="sib-link sib-link-primary" href="/pages/status.html">View status / incident updates</a>
+                        <a class="sib-link sib-link-primary" href="/pages/incidents.html">View status / incident updates</a>
                         <a class="sib-link" href="/pages/security.html">Security page</a>
-                        <details class="sib-data" id="sib-data">
-                            <summary>Request my data / deletion</summary>
-                            <div class="sib-data-body">
-                                <label class="sib-data-label" for="sib-data-email">Email address</label>
-                                <div class="sib-data-row">
-                                    <input class="sib-data-email" id="sib-data-email" type="email" inputmode="email" autocomplete="email" placeholder="you@example.com" />
-                                    <button type="button" class="sib-data-btn" data-action="access">Email my data</button>
-                                    <button type="button" class="sib-data-btn sib-data-danger" data-action="delete">Delete my data</button>
-                                </div>
-                                <div class="sib-data-hint">We’ll email a confirmation link first (to verify you control the address).</div>
-                                <div class="sib-data-status" id="sib-data-status" aria-live="polite"></div>
-                            </div>
-                        </details>
+                        <a class="sib-link" href="/pages/data-requests.html">Request my data / deletion</a>
                     </div>
                 </div>
       </div>
@@ -167,72 +155,6 @@ function injectSecurityIncidentBanner(config) {
     dismissBtn?.addEventListener('click', () => {
         if (updatedAtUtc) setIncidentDismissedFor(updatedAtUtc);
         banner.style.display = 'none';
-    });
-
-    const statusEl = banner.querySelector('#sib-data-status');
-    const emailEl = banner.querySelector('#sib-data-email');
-
-    async function submitDataRequest(action) {
-        const email = (emailEl && typeof emailEl.value === 'string' ? emailEl.value : '').trim();
-        if (statusEl) statusEl.textContent = '';
-        if (!email) {
-            if (statusEl) statusEl.textContent = 'Enter your email address first.';
-            return;
-        }
-
-        const btns = banner.querySelectorAll('.sib-data-btn');
-        btns.forEach((b) => { try { b.disabled = true; } catch {} });
-
-        function disableFor(seconds) {
-            const s = Number.isFinite(seconds) ? Math.max(1, Math.min(600, Math.trunc(seconds))) : null;
-            if (!s) return;
-            let remaining = s;
-            if (statusEl) statusEl.textContent = `Too many requests. Please wait ${remaining}s.`;
-            const timer = setInterval(() => {
-                remaining -= 1;
-                if (remaining <= 0) {
-                    clearInterval(timer);
-                    btns.forEach((b) => { try { b.disabled = false; } catch {} });
-                    if (statusEl) statusEl.textContent = '';
-                    return;
-                }
-                if (statusEl) statusEl.textContent = `Too many requests. Please wait ${remaining}s.`;
-            }, 1000);
-        }
-
-        try {
-            const resp = await fetch('/api/data-requests', {
-                method: 'POST',
-                headers: { 'content-type': 'application/json' },
-                body: JSON.stringify({ email, action }),
-            });
-            const json = await resp.json().catch(() => null);
-            if (resp.ok) {
-                if (statusEl) statusEl.textContent = (json && json.message) ? json.message : 'Check your inbox for the confirmation link.';
-            } else if (resp.status === 429) {
-                const hdr = resp.headers ? resp.headers.get('retry-after') : null;
-                const fromHdr = hdr ? parseInt(hdr, 10) : NaN;
-                const fromJson = (json && typeof json.retryAfterSeconds === 'number') ? json.retryAfterSeconds : NaN;
-                const seconds = Number.isFinite(fromJson) ? fromJson : (Number.isFinite(fromHdr) ? fromHdr : 120);
-                disableFor(seconds);
-                return;
-            } else {
-                if (statusEl) statusEl.textContent = (json && json.error) ? json.error : 'Request failed. Please try again.';
-            }
-        } catch {
-            if (statusEl) statusEl.textContent = 'Request failed. Please try again.';
-        } finally {
-            // Buttons are re-enabled here unless we hit rate-limit (handled above).
-            btns.forEach((b) => { try { b.disabled = false; } catch {} });
-        }
-    }
-
-    banner.querySelectorAll('.sib-data-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const action = (btn.getAttribute('data-action') || '').toLowerCase();
-            if (action !== 'access' && action !== 'delete') return;
-            submitDataRequest(action);
-        });
     });
 
     const nav = document.querySelector('.navbar');

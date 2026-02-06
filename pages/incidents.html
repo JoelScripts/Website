@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Status & Incident Updates - Flying With Joel</title>
+  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <script src="../assets/js/site-mode.js"></script>
+  <style>
+    .wrap { max-width: 980px; margin: 3rem auto; padding: 0 1.25rem; }
+    .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255, 102, 0, 0.2); border-radius: 0.8rem; padding: 1.5rem; }
+    .muted { color: var(--text-muted); }
+    .pill { font-size: 0.75rem; font-weight: 900; letter-spacing: 0.6px; padding: 0.25rem 0.55rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); text-transform: uppercase; white-space: nowrap; }
+    .ok { border-color: rgba(76,175,80,0.6); background: rgba(76,175,80,0.12); color: #A6F2B0; }
+    .warn { border-color: rgba(255,183,77,0.6); background: rgba(255,183,77,0.12); color: #FFE0B2; }
+    .bad { border-color: rgba(255,68,68,0.6); background: rgba(255,68,68,0.12); color: #FFB3B3; }
+    .incident-title { margin: 0.65rem 0 0.35rem 0; color: var(--primary); }
+    .incident-msg { margin: 0; line-height: 1.7; white-space: pre-wrap; }
+    .incident-meta { margin-top: 0.85rem; display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; align-items: center; }
+    .links { margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .links a { text-decoration: none; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.6rem 0.85rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.06); color: var(--text); font-weight: 800; }
+    .btn.primary { border-color: rgba(255, 102, 0, 0.5); background: rgba(255, 102, 0, 0.12); color: var(--primary); }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">flywithjoel</div>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a href="suggestions.html">Suggestions</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+        <li><a href="security.html">Security</a></li>
+        <li><a href="#" id="cookie-settings-link">Cookie Settings</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap: 1rem; flex-wrap: wrap;">
+        <h1 style="margin:0; color: var(--primary);">Status & Incident Updates</h1>
+        <span id="incident-pill" class="pill warn">LOADING</span>
+      </div>
+      <p class="muted" style="margin:0.5rem 0 1rem 0; line-height:1.6;">If there’s an active security incident, details will appear here.</p>
+
+      <div id="incident">
+        <h2 class="incident-title" id="incident-title" style="display:none;"></h2>
+        <p class="incident-msg" id="incident-message" style="display:none;"></p>
+        <div class="incident-meta muted" id="incident-meta" style="display:none;"></div>
+      </div>
+
+      <div class="muted" id="incident-empty" style="display:none; margin-top: 0.75rem; line-height: 1.7;">
+        No active incident notice is currently published.
+      </div>
+
+      <div class="links">
+        <a class="btn primary" href="security.html">Security page</a>
+        <a class="btn" href="data-requests.html">Request my data / deletion</a>
+        <a class="btn" href="status.html">API status (technical)</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cookie Consent Banner -->
+  <div id="cookie-consent-banner" class="cookie-consent-banner">
+    <div class="cookie-consent-content">
+      <p>We use local storage (localStorage) to remember your choices (such as your consent preference for optional third-party embeds/resources). <a href="privacy.html">Learn more about our privacy practices</a>.</p>
+    </div>
+    <div class="cookie-consent-buttons">
+      <button id="cookie-accept-btn" class="cookie-consent-btn accept">Accept</button>
+      <button id="cookie-reject-btn" class="cookie-consent-btn decline">Decline</button>
+    </div>
+  </div>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+    hamburger?.addEventListener('click', () => { hamburger.classList.toggle('active'); navLinks.classList.toggle('active'); });
+
+    async function loadIncidentNotice() {
+      const pill = document.getElementById('incident-pill');
+      const titleEl = document.getElementById('incident-title');
+      const msgEl = document.getElementById('incident-message');
+      const metaEl = document.getElementById('incident-meta');
+      const emptyEl = document.getElementById('incident-empty');
+
+      function setPill(cls, text) {
+        if (!pill) return;
+        pill.className = `pill ${cls}`;
+        pill.textContent = text;
+      }
+
+      try {
+        const resp = await fetch('/api/incident_notice', { method: 'GET', cache: 'no-store' });
+        if (!resp.ok) throw new Error('fetch failed');
+        const json = await resp.json();
+
+        const enabled = Boolean(json && json.enabled);
+        const title = (json && typeof json.title === 'string' ? json.title : '').trim();
+        const message = (json && typeof json.message === 'string' ? json.message : '').trim();
+        const updatedAtUtc = (json && typeof json.updatedAtUtc === 'string' ? json.updatedAtUtc : '').trim();
+
+        if (!enabled || !title || !message) {
+          setPill('ok', 'NO INCIDENT');
+          if (emptyEl) emptyEl.style.display = 'block';
+          return;
+        }
+
+        setPill('bad', 'INCIDENT');
+
+        if (titleEl) { titleEl.textContent = title; titleEl.style.display = 'block'; }
+        if (msgEl) { msgEl.textContent = message; msgEl.style.display = 'block'; }
+        if (metaEl) {
+          metaEl.textContent = updatedAtUtc ? `Last updated: ${updatedAtUtc}` : '';
+          metaEl.style.display = metaEl.textContent ? 'flex' : 'none';
+        }
+      } catch {
+        setPill('warn', 'UNAVAILABLE');
+        if (emptyEl) {
+          emptyEl.textContent = 'Incident updates are temporarily unavailable. Please try again later.';
+          emptyEl.style.display = 'block';
+        }
+      }
+    }
+
+    loadIncidentNotice();
+  </script>
+
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
