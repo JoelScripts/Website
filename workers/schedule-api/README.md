@@ -8,6 +8,8 @@ This Worker provides a simple backend for your GitHub Pages site so `admin.html`
 - `PUT /api/schedule` → saves the schedule JSON array (requires HTTP Basic Auth)
 - `GET /api/site-mode` → returns `{ ok?: true, mode: "live"|"maintenance", updatedAtUtc: string|null }`
 - `PUT /api/site-mode` → saves `{ mode: "live"|"maintenance" }` (requires HTTP Basic Auth)
+- `GET /api/incident-notice` → returns `{ enabled: boolean, title: string|null, message: string|null, updatedAtUtc: string|null }`
+- `PUT /api/incident-notice` → saves `{ enabled, title, message }` (requires HTTP Basic Auth)
 - `GET /api/schedule/live` → returns `{ ok: true, live: boolean }` based on the channel’s actual Twitch live status (requires Twitch API secrets)
 - `GET /api/schedule/followers` → returns `{ ok: true, followers: number }` for the homepage follower card (uses Worker secrets; cached in KV)
 - `GET /api/schedule/clips` → returns `{ ok: true, clips: [...] }` for the homepage highlights section (uses Worker secrets; cached in KV)
@@ -64,6 +66,29 @@ Your frontend already calls `/api/schedule` as its first choice.
    - Worker → **Triggers** → **Routes** → Add route
    - Route: `flyingwithjoel.co.uk/api/site-mode*`
    - Zone: `flyingwithjoel.co.uk`
+
+10. **Add the incident-notice route**
+    - Worker → **Triggers** → **Routes** → Add route
+    - Route: `flyingwithjoel.co.uk/api/incident-notice*`
+    - Zone: `flyingwithjoel.co.uk`
+
+## Optional: Discord webhook / Email alerts (recommended)
+
+If you want to be notified *outside the website* when you enable/update/disable the incident notice (e.g., a data breach notice), set these Worker variables:
+
+- Discord (posts to a channel):
+   - `INCIDENT_ALERT_DISCORD_WEBHOOK_URL` = your Discord webhook URL
+- Email (sends to you):
+   - `INCIDENT_ALERT_EMAIL_TO` = your email address
+
+Email sending uses the existing MailChannels config in this Worker:
+- `MAILCHANNELS_API_KEY` (or `DSAR_MAILCHANNELS_API_KEY`)
+- `EMAIL_FROM` (or `MAIL_FROM` / `DSAR_FROM_EMAIL`)
+- Optional: `EMAIL_FROM_NAME`, `EMAIL_REPLY_TO`
+
+Notes:
+- Alerts are **best-effort** and will not block saving the incident notice.
+- Alerts are only sent when the incident notice actually changes (no-op saves won’t spam you).
 
 8. **Make sure traffic goes through Cloudflare**
    - Cloudflare DNS: your `@` and `www` records should be **Proxied** (orange cloud)

@@ -59,6 +59,95 @@ function jsonResponse(data, init = {}) {
   return new Response(JSON.stringify(data), { ...init, headers });
 }
 
+function clampLen(value, maxLen) {
+  const s = (value || '').toString();
+  if (s.length <= maxLen) return s;
+  return s.slice(0, maxLen);
+}
+
+function safeOneLine(value, maxLen = 500) {
+  const s = (value || '').toString().replace(/[\r\n\t]+/g, ' ').trim();
+  return clampLen(s, maxLen);
+}
+
+function getEnvString(env, key) {
+  try {
+    const v = env && env[key] != null ? String(env[key]) : '';
+    return v.trim();
+  } catch {
+    return '';
+  }
+}
+
+function isProbablyDiscordWebhookUrl(url) {
+  const s = (url || '').toString().trim();
+  if (!s) return false;
+  // Keep loose: Discord webhooks are HTTPS and include /api/webhooks/
+  return /^https:\/\//i.test(s) && s.includes('/api/webhooks/');
+}
+
+async function postDiscordWebhook(env, { event, enabled, updatedAtUtc, title, message, apiUrl }) {
+  const webhookUrl = getEnvString(env, 'INCIDENT_ALERT_DISCORD_WEBHOOK_URL');
+  if (!isProbablyDiscordWebhookUrl(webhookUrl)) return { ok: false, skipped: true, error: 'Webhook not configured.' };
+
+  const evt = safeOneLine(event || 'updated', 40);
+  const t = safeOneLine(title || 'Security incident notice', 200);
+  const m = clampLen((message || '').toString().trim(), 1500);
+  const when = safeOneLine(updatedAtUtc || '', 80);
+  const enabledText = enabled ? 'On' : 'Off';
+  const statusUrl = apiUrl || 'https://flyingwithjoel.co.uk/pages/status.html';
+
+  const payload = {
+    // Prevent accidental mentions.
+    allowed_mentions: { parse: [] },
+    embeds: [
+      {
+        title: `Security incident notice ${evt}`,
+        description: `**Status:** ${enabledText}${when ? `\n**Updated:** ${when}` : ''}`,
+        fields: [
+          { name: 'Title', value: t || '-', inline: false },
+          { name: 'Message', value: m || '-', inline: false },
+          { name: 'Status page', value: statusUrl, inline: false },
+        ],
+      },
+    ],
+  };
+
+  const resp = await fetch(webhookUrl, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok) {
+    let detail = null;
+    try { detail = await resp.text(); } catch { detail = null; }
+    return { ok: false, error: `Discord webhook failed (${resp.status}). ${String(detail || '').slice(0, 220)}`.trim() };
+  }
+  return { ok: true };
+}
+
+function buildIncidentAlertEmail({ event, enabled, updatedAtUtc, title, message }) {
+  const evt = safeOneLine(event || 'updated', 40);
+  const enabledText = enabled ? 'On' : 'Off';
+  const when = safeOneLine(updatedAtUtc || '', 80);
+  const t = (title || '').toString().trim();
+  const m = (message || '').toString().trim();
+
+  const subject = `Security incident notice ${evt} (${enabledText})`;
+  const text = (
+    `Security incident notice ${evt}\n` +
+    `Status: ${enabledText}\n` +
+    (when ? `Updated (UTC): ${when}\n` : '') +
+    `\nTitle:\n${t || '-'}\n` +
+    `\nMessage:\n${m || '-'}\n` +
+    `\nLinks:\n` +
+    `- Status: https://flyingwithjoel.co.uk/pages/status.html\n` +
+    `- Security: https://flyingwithjoel.co.uk/pages/security.html\n`
+  );
+  return { subject, text };
+}
+
 function htmlResponse(html, init = {}) {
   const headers = new Headers(init.headers || {});
   headers.set('content-type', 'text/html; charset=utf-8');
@@ -673,7 +762,7 @@ function validateIncidentNoticeBody(value) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     const path = url.pathname;
@@ -991,19 +1080,82 @@ export default {
           );
         }
 
+        // Read existing config so we can avoid spamming notifications for no-op saves.
+        let prev = { enabled: false, title: null, message: null, updatedAtUtc: null };
+        try {
+          const prevRaw = await env.SCHEDULE_KV.get(INCIDENT_NOTICE_KEY);
+          if (prevRaw) {
+            const p = JSON.parse(prevRaw);
+            prev = {
+              enabled: Boolean(p && p.enabled),
+              title: p && typeof p.title === 'string' ? p.title : null,
+              message: p && typeof p.message === 'string' ? p.message : null,
+              updatedAtUtc: p && typeof p.updatedAtUtc === 'string' ? p.updatedAtUtc : null,
+            };
+          }
+        } catch {
+          // ignore
+        }
+
         const updatedAtUtc = new Date().toISOString();
-        await env.SCHEDULE_KV.put(
-          INCIDENT_NOTICE_KEY,
-          JSON.stringify({
-            enabled: validation.enabled,
-            title: validation.title,
-            message: validation.message,
-            updatedAtUtc,
-          })
-        );
+        const next = {
+          enabled: validation.enabled,
+          title: validation.title,
+          message: validation.message,
+          updatedAtUtc,
+        };
+
+        await env.SCHEDULE_KV.put(INCIDENT_NOTICE_KEY, JSON.stringify(next));
+
+        const prevEnabled = Boolean(prev.enabled);
+        const prevTitle = (prev.title || '').toString();
+        const prevMessage = (prev.message || '').toString();
+        const nextTitle = (next.title || '').toString();
+        const nextMessage = (next.message || '').toString();
+
+        const contentChanged = (prevEnabled !== next.enabled) || (prevTitle !== nextTitle) || (prevMessage !== nextMessage);
+        let event = 'updated';
+        if (!contentChanged) event = 'noop';
+        else if (!prevEnabled && next.enabled) event = 'enabled';
+        else if (prevEnabled && !next.enabled) event = 'disabled';
+
+        // Best-effort outbound notifications.
+        if (event !== 'noop') {
+          const notifyPromises = [];
+
+          // Discord webhook
+          notifyPromises.push(
+            postDiscordWebhook(env, {
+              event,
+              enabled: next.enabled,
+              updatedAtUtc,
+              title: next.title,
+              message: next.message,
+              apiUrl: 'https://flyingwithjoel.co.uk/pages/status.html',
+            })
+          );
+
+          // Owner email
+          const alertTo = getEnvString(env, 'INCIDENT_ALERT_EMAIL_TO');
+          if (alertTo) {
+            const { subject, text } = buildIncidentAlertEmail({
+              event,
+              enabled: next.enabled,
+              updatedAtUtc,
+              title: next.title,
+              message: next.message,
+            });
+            notifyPromises.push(sendEmailViaMailchannels(env, { to: alertTo, subject, text }));
+          }
+
+          // Don't block the response; run in background if ctx is available.
+          const work = Promise.allSettled(notifyPromises).then(() => null);
+          if (ctx && typeof ctx.waitUntil === 'function') ctx.waitUntil(work);
+          else await work;
+        }
 
         return jsonResponse(
-          { ok: true, enabled: validation.enabled, title: validation.title, message: validation.message, updatedAtUtc },
+          { ok: true, enabled: next.enabled, title: next.title, message: next.message, updatedAtUtc },
           { headers: corsHeadersFor(request) }
         );
       }

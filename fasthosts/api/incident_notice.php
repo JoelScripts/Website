@@ -22,6 +22,100 @@ $STORE_FILE = __DIR__ . DIRECTORY_SEPARATOR . 'incident_notice.store.json';
 $ADMIN_USER = getenv('INCIDENT_NOTICE_ADMIN_USERNAME') ?: (getenv('SCHEDULE_ADMIN_USERNAME') ?: '');
 $ADMIN_PASS = getenv('INCIDENT_NOTICE_ADMIN_PASSWORD') ?: (getenv('SCHEDULE_ADMIN_PASSWORD') ?: '');
 
+// Optional outbound notifications (best-effort)
+// - Discord webhook (recommended): set INCIDENT_ALERT_DISCORD_WEBHOOK_URL
+// - Email via MailChannels: set INCIDENT_ALERT_EMAIL_TO + EMAIL_FROM(or MAIL_FROM) + MAILCHANNELS_API_KEY
+$INCIDENT_ALERT_DISCORD_WEBHOOK_URL = getenv('INCIDENT_ALERT_DISCORD_WEBHOOK_URL') ?: '';
+$INCIDENT_ALERT_EMAIL_TO = getenv('INCIDENT_ALERT_EMAIL_TO') ?: '';
+
+$MAILCHANNELS_API_KEY = getenv('MAILCHANNELS_API_KEY') ?: (getenv('DSAR_MAILCHANNELS_API_KEY') ?: '');
+$EMAIL_FROM = getenv('EMAIL_FROM') ?: (getenv('MAIL_FROM') ?: (getenv('DSAR_FROM_EMAIL') ?: ''));
+$EMAIL_FROM_NAME = getenv('EMAIL_FROM_NAME') ?: (getenv('MAIL_FROM_NAME') ?: (getenv('DSAR_FROM_NAME') ?: 'Flying With Joel'));
+$EMAIL_REPLY_TO = getenv('EMAIL_REPLY_TO') ?: (getenv('MAIL_REPLY_TO') ?: (getenv('DSAR_REPLY_TO') ?: ''));
+
+function safeOneLine(?string $s, int $maxLen = 500): string {
+  $v = trim((string)($s ?? ''));
+  $v = preg_replace('/[\r\n\t]+/', ' ', $v) ?? $v;
+  if (strlen($v) > $maxLen) $v = substr($v, 0, $maxLen);
+  return $v;
+}
+
+function isProbablyDiscordWebhookUrl(string $url): bool {
+  $u = trim($url);
+  if ($u === '') return false;
+  if (stripos($u, 'https://') !== 0) return false;
+  return strpos($u, '/api/webhooks/') !== false;
+}
+
+function postJson(string $url, array $payload): bool {
+  $ch = curl_init($url);
+  if ($ch === false) return false;
+  $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
+  if ($json === false) return false;
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_POST, true);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 4);
+  curl_exec($ch);
+  $code = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+  curl_close($ch);
+  return $code >= 200 && $code < 300;
+}
+
+function notifyDiscord(string $webhookUrl, string $event, array $payload): void {
+  if (!isProbablyDiscordWebhookUrl($webhookUrl)) return;
+  $title = safeOneLine(isset($payload['title']) && is_string($payload['title']) ? $payload['title'] : 'Security incident notice', 200);
+  $message = isset($payload['message']) && is_string($payload['message']) ? trim($payload['message']) : '';
+  if (strlen($message) > 1500) $message = substr($message, 0, 1500);
+  $enabled = !empty($payload['enabled']);
+  $when = safeOneLine(isset($payload['updatedAtUtc']) && is_string($payload['updatedAtUtc']) ? $payload['updatedAtUtc'] : '', 80);
+  $evt = safeOneLine($event, 40);
+
+  $body = [
+    'allowed_mentions' => ['parse' => []],
+    'embeds' => [[
+      'title' => "Security incident notice {$evt}",
+      'description' => "**Status:** " . ($enabled ? 'On' : 'Off') . ($when ? "\n**Updated:** {$when}" : ''),
+      'fields' => [
+        ['name' => 'Title', 'value' => ($title ?: '-'), 'inline' => false],
+        ['name' => 'Message', 'value' => ($message ?: '-'), 'inline' => false],
+        ['name' => 'Status page', 'value' => 'https://flyingwithjoel.co.uk/pages/status.html', 'inline' => false],
+      ],
+    ]],
+  ];
+
+  try { postJson($webhookUrl, $body); } catch (Throwable $e) { /* ignore */ }
+}
+
+function notifyEmailViaMailchannels(string $to, string $apiKey, string $fromEmail, string $fromName, string $replyTo, string $subject, string $text): void {
+  $to = trim($to);
+  if ($to === '' || trim($apiKey) === '' || trim($fromEmail) === '') return;
+
+  $payload = [
+    'personalizations' => [[ 'to' => [[ 'email' => $to ]] ]],
+    'from' => [ 'email' => $fromEmail, 'name' => $fromName ?: 'Flying With Joel' ],
+    'subject' => $subject,
+    'content' => [[ 'type' => 'text/plain', 'value' => $text ]],
+  ];
+  if (trim($replyTo) !== '') $payload['reply_to'] = [ 'email' => $replyTo ];
+
+  $ch = curl_init('https://api.mailchannels.net/tx/v1/send');
+  if ($ch === false) return;
+  $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
+  if ($json === false) return;
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_POST, true);
+  curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'X-Api-Key: ' . $apiKey,
+  ]);
+  curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+  curl_exec($ch);
+  curl_close($ch);
+}
+
 function sendCors(array $allowedOrigins): void {
   $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
   if ($origin && in_array($origin, $allowedOrigins, true)) {
@@ -112,6 +206,21 @@ function readStoredNotice(string $storeFile): array {
   ];
 }
 
+function computeIncidentEvent(array $prev, array $next): string {
+  $prevEnabled = !empty($prev['enabled']);
+  $nextEnabled = !empty($next['enabled']);
+  $prevTitle = isset($prev['title']) && is_string($prev['title']) ? $prev['title'] : '';
+  $prevMessage = isset($prev['message']) && is_string($prev['message']) ? $prev['message'] : '';
+  $nextTitle = isset($next['title']) && is_string($next['title']) ? $next['title'] : '';
+  $nextMessage = isset($next['message']) && is_string($next['message']) ? $next['message'] : '';
+
+  $changed = ($prevEnabled !== $nextEnabled) || ($prevTitle !== $nextTitle) || ($prevMessage !== $nextMessage);
+  if (!$changed) return 'noop';
+  if (!$prevEnabled && $nextEnabled) return 'enabled';
+  if ($prevEnabled && !$nextEnabled) return 'disabled';
+  return 'updated';
+}
+
 sendCors($ALLOWED_ORIGINS);
 
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
@@ -127,6 +236,8 @@ if ($method === 'GET') {
 
 if ($method === 'PUT') {
   requireAuth($ADMIN_USER, $ADMIN_PASS);
+
+  $prev = readStoredNotice($STORE_FILE);
 
   $raw = file_get_contents('php://input');
   if ($raw === false) jsonResponse(['error' => 'Could not read request body.'], 400);
@@ -158,6 +269,29 @@ if ($method === 'PUT') {
 
   $ok = file_put_contents($STORE_FILE, $json, LOCK_EX);
   if ($ok === false) jsonResponse(['error' => 'Could not save incident notice.'], 500);
+
+  // Best-effort notifications (do not block saving on failure)
+  try {
+    $event = computeIncidentEvent($prev, $payload);
+    if ($event !== 'noop') {
+      if ($INCIDENT_ALERT_DISCORD_WEBHOOK_URL) {
+        notifyDiscord($INCIDENT_ALERT_DISCORD_WEBHOOK_URL, $event, $payload);
+      }
+      if ($INCIDENT_ALERT_EMAIL_TO && $MAILCHANNELS_API_KEY && $EMAIL_FROM) {
+        $subject = 'Security incident notice ' . $event . ' (' . ($enabled ? 'On' : 'Off') . ')';
+        $text =
+          'Security incident notice ' . $event . "\n" .
+          'Status: ' . ($enabled ? 'On' : 'Off') . "\n" .
+          'Updated (UTC): ' . (string)$payload['updatedAtUtc'] . "\n\n" .
+          'Title:\n' . (string)($payload['title'] ?? '-') . "\n\n" .
+          'Message:\n' . (string)($payload['message'] ?? '-') . "\n\n" .
+          "Links:\n- Status: https://flyingwithjoel.co.uk/pages/status.html\n- Security: https://flyingwithjoel.co.uk/pages/security.html\n";
+        notifyEmailViaMailchannels($INCIDENT_ALERT_EMAIL_TO, $MAILCHANNELS_API_KEY, $EMAIL_FROM, $EMAIL_FROM_NAME, $EMAIL_REPLY_TO, $subject, $text);
+      }
+    }
+  } catch (Throwable $e) {
+    // ignore
+  }
 
   jsonResponse(['ok' => true] + $payload, 200);
 }

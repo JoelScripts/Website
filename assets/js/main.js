@@ -120,17 +120,25 @@ function injectSecurityIncidentBanner(config) {
     banner.setAttribute('role', 'status');
     banner.setAttribute('aria-live', 'polite');
 
-    const when = updatedAtUtc ? `Last updated: ${updatedAtUtc}` : '';
+        const when = updatedAtUtc ? `Last updated: ${updatedAtUtc}` : '';
     banner.innerHTML = `
       <div class="sib-inner">
-        <div class="sib-badge">Security incident</div>
+                <div class="sib-top">
+                    <div class="sib-badge">Security incident</div>
+                    <div class="sib-actions">
+                        <button type="button" class="sib-dismiss" id="sib-dismiss" aria-label="Dismiss security incident notice">Dismiss</button>
+                    </div>
+                </div>
 
-        <div class="sib-main">
-          <div class="sib-title"></div>
-          <p class="sib-text"></p>
-          <div class="sib-links">
-            <a href="/pages/status.html">View status / incident updates</a>
-            <a href="/pages/security.html">Security page</a>
+                <div class="sib-main">
+                    <div class="sib-title-row">
+                        <div class="sib-title"></div>
+                        <div class="sib-meta" aria-label="Incident notice last updated"></div>
+                    </div>
+                    <p class="sib-text"></p>
+                    <div class="sib-links">
+                        <a href="/pages/status.html">View status / incident updates</a>
+                        <a href="/pages/security.html">Security page</a>
                         <details class="sib-data" id="sib-data">
                             <summary>Request my data / deletion</summary>
                             <div class="sib-data-body">
@@ -144,27 +152,19 @@ function injectSecurityIncidentBanner(config) {
                                 <div class="sib-data-status" id="sib-data-status" aria-live="polite"></div>
                             </div>
                         </details>
-          </div>
-        </div>
-
-        <div class="sib-actions">
-          <button type="button" class="sib-dismiss" id="sib-dismiss">Dismiss</button>
-        </div>
+                    </div>
+                </div>
       </div>
     `;
 
     const titleEl = banner.querySelector('.sib-title');
     const textEl = banner.querySelector('.sib-text');
+    const metaEl = banner.querySelector('.sib-meta');
     if (titleEl) titleEl.textContent = title;
     if (textEl) {
         textEl.textContent = message;
-        if (when) {
-            const meta = document.createElement('span');
-            meta.className = 'sib-meta';
-            meta.textContent = ` ${when}`;
-            textEl.appendChild(meta);
-        }
     }
+    if (metaEl) metaEl.textContent = when;
 
     const dismissBtn = banner.querySelector('#sib-dismiss');
     dismissBtn?.addEventListener('click', () => {
