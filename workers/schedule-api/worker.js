@@ -16,6 +16,9 @@ const SITE_MODE_KEY = 'site_mode_v1';
 const EXPECTED_RETURN_KEY = 'expected_return_v1';
 const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
 const TWITCH_CLIPS_KEY = 'twitch_clips_v1';
+const INCIDENT_NOTICE_KEY = 'incident_notice_v1';
+const DATA_REQUEST_PREFIX = 'data_request_v1:';
+const DATA_REQUEST_RATE_LIMIT_PREFIX = 'data_request_rl_v1:';
 
 const DEFAULT_SITE_MODE = 'live';
 
@@ -31,7 +34,7 @@ function corsHeadersFor(request) {
   if (!origin) {
     return {
       'access-control-allow-origin': '*',
-      'access-control-allow-methods': 'GET,PUT,OPTIONS',
+      'access-control-allow-methods': 'GET,PUT,POST,OPTIONS',
       'access-control-allow-headers': 'content-type, authorization',
     };
   }
@@ -40,7 +43,7 @@ function corsHeadersFor(request) {
     return {
       'access-control-allow-origin': origin,
       'vary': 'origin',
-      'access-control-allow-methods': 'GET,PUT,OPTIONS',
+      'access-control-allow-methods': 'GET,PUT,POST,OPTIONS',
       'access-control-allow-headers': 'content-type, authorization',
     };
   }
@@ -54,6 +57,117 @@ function jsonResponse(data, init = {}) {
   headers.set('content-type', 'application/json; charset=utf-8');
   headers.set('cache-control', 'no-store');
   return new Response(JSON.stringify(data), { ...init, headers });
+}
+
+function htmlResponse(html, init = {}) {
+  const headers = new Headers(init.headers || {});
+  headers.set('content-type', 'text/html; charset=utf-8');
+  headers.set('cache-control', 'no-store');
+  return new Response(html, { ...init, headers });
+}
+
+function isValidEmail(email) {
+  const s = (email || '').toString().trim();
+  if (!s || s.length > 254) return false;
+  // Intentionally simple: we just need a reasonable check.
+  if (!s.includes('@') || s.includes(' ')) return false;
+  const parts = s.split('@');
+  if (parts.length !== 2) return false;
+  if (!parts[0] || !parts[1]) return false;
+  if (!parts[1].includes('.')) return false;
+  return true;
+}
+
+function base64UrlEncode(bytes) {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 1) binary += String.fromCharCode(bytes[i]);
+  // btoa is available in Workers.
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function generateToken(bytes = 24) {
+  const buf = new Uint8Array(bytes);
+  crypto.getRandomValues(buf);
+  return base64UrlEncode(buf);
+}
+
+async function sha256Hex(value) {
+  const enc = new TextEncoder();
+  const data = enc.encode(String(value || ''));
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function enforceDataRequestRateLimit(env, ip) {
+  if (!env.SCHEDULE_KV) return { ok: true, skipped: true };
+  if (!ip) return { ok: true, skipped: true };
+
+  const ipHash = await sha256Hex(ip);
+  const key = `${DATA_REQUEST_RATE_LIMIT_PREFIX}${ipHash}`;
+  const existing = await env.SCHEDULE_KV.get(key);
+  if (existing) return { ok: false, retryAfterSeconds: 120 };
+  await env.SCHEDULE_KV.put(key, String(Date.now()), { expirationTtl: 120 });
+  return { ok: true };
+}
+
+async function sendEmailViaMailchannels(env, { to, subject, text }) {
+  const fromEmail = (env.DSAR_FROM_EMAIL || env.MAIL_FROM || env.EMAIL_FROM || '').toString().trim();
+  const fromName = (env.DSAR_FROM_NAME || env.MAIL_FROM_NAME || env.EMAIL_FROM_NAME || 'Flying With Joel').toString().trim();
+  const replyTo = (env.DSAR_REPLY_TO || env.MAIL_REPLY_TO || env.EMAIL_REPLY_TO || '').toString().trim();
+
+  if (!fromEmail) {
+    return { ok: false, error: 'Email sending not configured (missing DSAR_FROM_EMAIL / MAIL_FROM / EMAIL_FROM).' };
+  }
+
+  const payload = {
+    personalizations: [{ to: [{ email: to }] }],
+    from: { email: fromEmail, name: fromName },
+    subject,
+    content: [{ type: 'text/plain', value: text }],
+  };
+  if (replyTo) payload.reply_to = { email: replyTo };
+
+  const resp = await fetch('https://api.mailchannels.net/tx/v1/send', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  if (!resp.ok) {
+    return { ok: false, error: `Email send failed (${resp.status}).` };
+  }
+  return { ok: true };
+}
+
+function buildConfirmHtml(title, body) {
+  const safeTitle = (title || 'Request').toString();
+  const safeBody = (body || '').toString();
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${safeTitle}</title>
+    <style>
+      :root { color-scheme: dark; }
+      body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#0a0a0a; color:#e0e0e0; }
+      .wrap { max-width: 720px; margin: 0 auto; padding: 48px 20px; }
+      .card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 20px; }
+      h1 { margin: 0 0 10px 0; font-size: 20px; }
+      p { margin: 0; color: #a0a0a0; line-height: 1.6; }
+      a { color: #FF8C42; text-decoration: none; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="card">
+        <h1>${safeTitle}</h1>
+        <p>${safeBody}</p>
+        <p style="margin-top:14px"><a href="/">Return to the website</a></p>
+      </div>
+    </div>
+  </body>
+</html>`;
 }
 
 async function getCachedTwitchToken(env) {
@@ -510,6 +624,23 @@ function validateSiteModeBody(value) {
   return { ok: true, mode };
 }
 
+function validateIncidentNoticeBody(value) {
+  if (!value || typeof value !== 'object') return { ok: false, reason: 'Body is not an object.' };
+
+  const enabled = Boolean(value.enabled);
+  const title = typeof value.title === 'string' ? value.title.trim() : '';
+  const message = typeof value.message === 'string' ? value.message.trim() : '';
+
+  if (title.length > 80) return { ok: false, reason: 'title must be 0-80 characters.' };
+  if (message.length > 220) return { ok: false, reason: 'message must be 0-220 characters.' };
+
+  if (enabled && (!title || !message)) {
+    return { ok: false, reason: 'When enabled, title and message are required.' };
+  }
+
+  return { ok: true, enabled, title: title || null, message: message || null };
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -528,9 +659,326 @@ export default {
 
     const isSchedule = path.startsWith('/api/schedule');
     const isSiteMode = path.startsWith('/api/site-mode');
-    if (!isSchedule && !isSiteMode) {
+    const isIncidentNotice = path.startsWith('/api/incident-notice');
+    const isDataRequests = path.startsWith('/api/data-requests');
+    if (!isSchedule && !isSiteMode && !isIncidentNotice && !isDataRequests) {
       return new Response('Not Found', {
         status: 404,
+        headers: {
+          ...corsHeadersFor(request),
+          'cache-control': 'no-store',
+        },
+      });
+    }
+
+    // ===== Data access / deletion request endpoints =====
+    // Purpose:
+    //  - Let a user request a copy of data we can associate with their email address, or request deletion.
+    // Safety:
+    //  - We require email confirmation (token link) before fulfilling the request.
+    // Routes:
+    //  - POST /api/data-requests            -> creates a pending request and emails a confirmation link
+    //  - GET  /api/data-requests/confirm    -> confirms + processes, then emails the result
+    if (isDataRequests) {
+      if (!env.SCHEDULE_KV) {
+        return jsonResponse(
+          { error: 'Missing KV binding SCHEDULE_KV.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (request.method === 'POST' && path === '/api/data-requests') {
+        let body;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse(
+            { error: 'Invalid JSON body.' },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const email = (body && typeof body.email === 'string' ? body.email : '').trim();
+        const action = (body && typeof body.action === 'string' ? body.action : '').trim().toLowerCase();
+        if (!isValidEmail(email)) {
+          return jsonResponse(
+            { error: 'Please enter a valid email address.' },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        if (action !== 'access' && action !== 'delete') {
+          return jsonResponse(
+            { error: 'Invalid action. Use "access" or "delete".' },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const remoteIp = request.headers.get('cf-connecting-ip') || undefined;
+        const rate = await enforceDataRequestRateLimit(env, remoteIp);
+        if (!rate.ok) {
+          return jsonResponse(
+            { error: 'Too many requests. Please wait and try again.' },
+            {
+              status: 429,
+              headers: { ...corsHeadersFor(request), 'retry-after': String(rate.retryAfterSeconds ?? 120) },
+            }
+          );
+        }
+
+        const token = generateToken(24);
+        const createdAtUtc = new Date().toISOString();
+        const requestKey = `${DATA_REQUEST_PREFIX}${token}`;
+
+        // Store the request briefly. We only need it long enough for the user to confirm.
+        await env.SCHEDULE_KV.put(
+          requestKey,
+          JSON.stringify({
+            email,
+            action,
+            createdAtUtc,
+            confirmedAtUtc: null,
+            processedAtUtc: null,
+          }),
+          { expirationTtl: 24 * 60 * 60 }
+        );
+
+        const origin = url.origin;
+        const confirmUrl = `${origin}/api/data-requests/confirm?token=${encodeURIComponent(token)}`;
+        const subject = action === 'delete'
+          ? 'Confirm your data deletion request'
+          : 'Confirm your data access request';
+
+        const text =
+          `We received a request to ${action === 'delete' ? 'delete your data' : 'get a copy of your data'} associated with this email address.\n\n` +
+          `To confirm, open this link:\n${confirmUrl}\n\n` +
+          `If you did not request this, you can ignore this email.\n`;
+
+        const sent = await sendEmailViaMailchannels(env, { to: email, subject, text });
+        if (!sent.ok) {
+          return jsonResponse(
+            { error: sent.error || 'Email could not be sent.' },
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        return jsonResponse(
+          { ok: true, message: 'Check your inbox for the confirmation link.' },
+          { headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (request.method === 'GET' && path === '/api/data-requests/confirm') {
+        const token = (url.searchParams.get('token') || '').trim();
+        if (!token) {
+          return htmlResponse(
+            buildConfirmHtml('Invalid request', 'Missing token.'),
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const requestKey = `${DATA_REQUEST_PREFIX}${token}`;
+        const raw = await env.SCHEDULE_KV.get(requestKey);
+        if (!raw) {
+          return htmlResponse(
+            buildConfirmHtml('Request expired', 'This link is invalid or has expired. Please submit a new request.'),
+            { status: 404, headers: corsHeadersFor(request) }
+          );
+        }
+
+        let record;
+        try {
+          record = JSON.parse(raw);
+        } catch {
+          return htmlResponse(
+            buildConfirmHtml('Request error', 'This request could not be processed.'),
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const email = record && typeof record.email === 'string' ? record.email : null;
+        const action = record && typeof record.action === 'string' ? record.action : null;
+        if (!email || !action) {
+          return htmlResponse(
+            buildConfirmHtml('Request error', 'This request could not be processed.'),
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        // Idempotency: if already processed, just show a friendly page.
+        if (record.processedAtUtc) {
+          return htmlResponse(
+            buildConfirmHtml('Request already processed', 'This request has already been confirmed and processed. Please check your email.'),
+            { headers: corsHeadersFor(request) }
+          );
+        }
+
+        const confirmedAtUtc = new Date().toISOString();
+        const emailHash = await sha256Hex(email.toLowerCase());
+
+        // Build the response email.
+        const subject = action === 'delete' ? 'Your data deletion request' : 'Your data access request';
+        const processedAtUtc = new Date().toISOString();
+
+        // IMPORTANT: This site does not run user accounts. Unless you explicitly store data keyed by email,
+        // we likely have nothing server-side to return besides the request itself.
+        // This message is intentionally conservative and avoids claiming data sources we cannot reliably enumerate.
+        const text = action === 'delete'
+          ? (
+            `We have processed your data deletion request.\n\n` +
+            `What we deleted:\n` +
+            `- Any server-side records we can associate with this email address (if any).\n` +
+            `\nNotes:\n` +
+            `- Some data may exist in provider logs (e.g., CDN/hosting logs) or third-party services you interacted with. Those are not always deletable automatically from here.\n` +
+            `\nProcessed at: ${processedAtUtc} UTC\n`
+          )
+          : (
+            `We have processed your data access request.\n\n` +
+            `Data we can associate with this email address:\n` +
+            `- (None found in our server-side storage.)\n` +
+            `\nNotes:\n` +
+            `- This website does not use user accounts. Most preferences (like cookie consent) are stored locally in your browser and are not sent to our servers.\n` +
+            `- If you submitted content via forms that are delivered to third-party systems (e.g., Discord), those systems may hold a copy.\n` +
+            `\nProcessed at: ${processedAtUtc} UTC\n`
+          );
+
+        const sent = await sendEmailViaMailchannels(env, { to: email, subject, text });
+        if (!sent.ok) {
+          return htmlResponse(
+            buildConfirmHtml('Email failed', 'We confirmed your request but could not send the response email. Please try again later.'),
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        // Minimize stored personal data: replace the record with a minimal audit entry and expire it.
+        await env.SCHEDULE_KV.put(
+          requestKey,
+          JSON.stringify({
+            action,
+            createdAtUtc: record.createdAtUtc || null,
+            confirmedAtUtc,
+            processedAtUtc,
+            emailHash,
+          }),
+          { expirationTtl: 30 * 24 * 60 * 60 }
+        );
+
+        return htmlResponse(
+          buildConfirmHtml('Request confirmed', 'Thanks — your request has been confirmed and an email has been sent.'),
+          { headers: corsHeadersFor(request) }
+        );
+      }
+
+      return new Response('Not Found', {
+        status: 404,
+        headers: {
+          ...corsHeadersFor(request),
+          'cache-control': 'no-store',
+        },
+      });
+    }
+
+    // ===== Incident notice endpoints =====
+    // Routes:
+    //  - GET /api/incident-notice -> { enabled: boolean, title: string|null, message: string|null, updatedAtUtc: string|null }
+    //  - PUT /api/incident-notice -> saves { enabled, title, message }
+    if (isIncidentNotice) {
+      if (path !== '/api/incident-notice') {
+        return new Response('Not Found', {
+          status: 404,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
+      }
+
+      if (!env.SCHEDULE_KV) {
+        return jsonResponse(
+          { error: 'Missing KV binding SCHEDULE_KV.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (request.method === 'GET') {
+        const raw = await env.SCHEDULE_KV.get(INCIDENT_NOTICE_KEY);
+        if (!raw) {
+          return jsonResponse(
+            { enabled: false, title: null, message: null, updatedAtUtc: null },
+            { headers: corsHeadersFor(request) }
+          );
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          const enabled = Boolean(parsed && parsed.enabled);
+          const title = parsed && typeof parsed.title === 'string' ? parsed.title : null;
+          const message = parsed && typeof parsed.message === 'string' ? parsed.message : null;
+          const updatedAtUtc = parsed && typeof parsed.updatedAtUtc === 'string' ? parsed.updatedAtUtc : null;
+          return jsonResponse(
+            { enabled, title: title || null, message: message || null, updatedAtUtc: updatedAtUtc || null },
+            { headers: corsHeadersFor(request) }
+          );
+        } catch {
+          return jsonResponse(
+            { enabled: false, title: null, message: null, updatedAtUtc: null },
+            { headers: corsHeadersFor(request) }
+          );
+        }
+      }
+
+      if (request.method === 'PUT') {
+        if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+          return jsonResponse(
+            { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        if (!isAuthorized(request, env)) {
+          const resp = unauthorizedResponse();
+          const headers = new Headers(resp.headers);
+          const cors = corsHeadersFor(request);
+          for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+          return new Response(resp.body, { status: resp.status, headers });
+        }
+
+        let body;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse(
+            { error: 'Invalid JSON body.' },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const validation = validateIncidentNoticeBody(body);
+        if (!validation.ok) {
+          return jsonResponse(
+            { error: 'Invalid incident notice.', details: validation },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const updatedAtUtc = new Date().toISOString();
+        await env.SCHEDULE_KV.put(
+          INCIDENT_NOTICE_KEY,
+          JSON.stringify({
+            enabled: validation.enabled,
+            title: validation.title,
+            message: validation.message,
+            updatedAtUtc,
+          })
+        );
+
+        return jsonResponse(
+          { ok: true, enabled: validation.enabled, title: validation.title, message: validation.message, updatedAtUtc },
+          { headers: corsHeadersFor(request) }
+        );
+      }
+
+      return new Response('Method Not Allowed', {
+        status: 405,
         headers: {
           ...corsHeadersFor(request),
           'cache-control': 'no-store',

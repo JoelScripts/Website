@@ -974,6 +974,48 @@
             </div>
           </section>
 
+          <section class="admin-panel span-2" aria-label="Security incident notice">
+            <div class="admin-panel-head">
+              <div>
+                <h3>🚨 Security Incident Notice</h3>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Shows a banner site-wide (no email required). Links to <code>/pages/status.html</code> and <code>/pages/security.html</code>.</p>
+              </div>
+              <div id="incident-pill" class="admin-pill">Incident: …</div>
+            </div>
+
+            <div class="admin-row" style="margin-bottom: 0.7rem;">
+              <div>
+                <label for="incident-enabled">Enabled</label>
+                <select id="incident-enabled">
+                  <option value="0">Off</option>
+                  <option value="1">On</option>
+                </select>
+              </div>
+              <div>
+                <label for="incident-updated">Last updated (UTC)</label>
+                <input id="incident-updated" type="text" disabled />
+              </div>
+            </div>
+
+            <div class="admin-row" style="margin-bottom: 0.7rem;">
+              <div>
+                <label for="incident-title">Title (max 80)</label>
+                <input id="incident-title" type="text" maxlength="80" placeholder="We’re investigating a potential security incident" />
+              </div>
+              <div>
+                <label for="incident-message">Message (max 220)</label>
+                <input id="incident-message" type="text" maxlength="220" placeholder="Short, factual summary and what users should do" />
+              </div>
+            </div>
+
+            <div class="admin-actions">
+              <button id="btn-incident-refresh" class="secondary" type="button">↻ Refresh</button>
+              <button id="btn-incident-save" type="button">💾 Save</button>
+              <span class="spacer"></span>
+              <span id="incident-status" class="admin-msg"></span>
+            </div>
+          </section>
+
           <section class="admin-panel span-2" aria-label="Discord message preview">
             <div class="admin-panel-head">
               <div>
@@ -1217,6 +1259,15 @@
     const expectedReturnInputEl = document.getElementById('expected-return-input');
     const btnExpectedReturnSaveEl = document.getElementById('btn-expected-return-save');
     const expectedReturnStatusEl = document.getElementById('expected-return-status');
+
+    const incidentPillEl = document.getElementById('incident-pill');
+    const incidentEnabledEl = document.getElementById('incident-enabled');
+    const incidentUpdatedEl = document.getElementById('incident-updated');
+    const incidentTitleEl = document.getElementById('incident-title');
+    const incidentMessageEl = document.getElementById('incident-message');
+    const btnIncidentRefreshEl = document.getElementById('btn-incident-refresh');
+    const btnIncidentSaveEl = document.getElementById('btn-incident-save');
+    const incidentStatusEl = document.getElementById('incident-status');
         // --- Expected Return Message ---
         function getExpectedReturnApiUrl() {
           // Use same logic as site mode API, but endpoint is /expected-return
@@ -1306,6 +1357,7 @@
 
     const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
     const SITE_MODE_API_LOCALSTORAGE_KEY = 'fwj_site_mode_api';
+    const INCIDENT_API_LOCALSTORAGE_KEY = 'fwj_incident_api';
 
     function sanitizeApiUrl(raw) {
       const s = (raw || '').trim();
@@ -1390,6 +1442,161 @@
         'https://api.flyingwithjoel.co.uk/api/site_mode.php',
       ].filter(Boolean);
       return Array.from(new Set(candidates));
+    }
+
+    function getIncidentApiOverride() {
+      // Query param wins and is persisted.
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const qp = sanitizeApiUrl(params.get('incidentApi'));
+        if (qp) {
+          localStorage.setItem(INCIDENT_API_LOCALSTORAGE_KEY, qp);
+          return qp;
+        }
+      } catch {
+        // ignore
+      }
+
+      try {
+        const fromLs = sanitizeApiUrl(localStorage.getItem(INCIDENT_API_LOCALSTORAGE_KEY));
+        if (fromLs) return fromLs;
+      } catch {
+        // ignore
+      }
+
+      // Optional meta override.
+      const meta = document.querySelector('meta[name="incident-api"]');
+      const metaVal = sanitizeApiUrl(meta ? meta.getAttribute('content') : '');
+      return metaVal;
+    }
+
+    function getIncidentApiCandidates() {
+      const override = getIncidentApiOverride();
+      const candidates = [
+        override,
+        '/api/incident-notice',
+        'https://api.flyingwithjoel.co.uk/api/incident_notice.php',
+      ].filter(Boolean);
+      return Array.from(new Set(candidates));
+    }
+
+    function setIncidentStatus(text, kind) {
+      if (!incidentStatusEl) return;
+      const cls = 'admin-msg' + (kind ? ` ${kind}` : '');
+      incidentStatusEl.textContent = text || '';
+      incidentStatusEl.className = cls;
+    }
+
+    function renderIncidentPill(enabled, updatedAtUtc) {
+      if (!incidentPillEl) return;
+      const label = enabled ? '✅ On' : '🚫 Off';
+      const when = updatedAtUtc ? ` (updated ${updatedAtUtc})` : '';
+      incidentPillEl.textContent = `Incident: ${label}${when}`;
+    }
+
+    function fillIncidentForm(data) {
+      const enabled = Boolean(data && data.enabled);
+      if (incidentEnabledEl) incidentEnabledEl.value = enabled ? '1' : '0';
+      if (incidentUpdatedEl) incidentUpdatedEl.value = (data && data.updatedAtUtc) ? String(data.updatedAtUtc) : '';
+      if (incidentTitleEl) incidentTitleEl.value = (data && typeof data.title === 'string') ? data.title : '';
+      if (incidentMessageEl) incidentMessageEl.value = (data && typeof data.message === 'string') ? data.message : '';
+      renderIncidentPill(enabled, (data && data.updatedAtUtc) ? String(data.updatedAtUtc) : null);
+    }
+
+    async function loadIncidentNotice() {
+      setIncidentStatus('Loading…', null);
+      try {
+        const result = await fetchFirstOkJson(getIncidentApiCandidates(), { cache: 'no-store' });
+        if (!result) throw new Error('No incident API responded.');
+        fillIncidentForm(result.data || {});
+        setIncidentStatus(`Loaded from ${result.url}`, 'ok');
+      } catch (e) {
+        console.error(e);
+        fillIncidentForm({ enabled: false, title: '', message: '', updatedAtUtc: null });
+        setIncidentStatus('Failed to load incident notice.', 'err');
+      }
+    }
+
+    async function saveIncidentNotice() {
+      if (isPreviewMode()) {
+        setIncidentStatus('Preview mode: changes are disabled.', 'err');
+        return;
+      }
+
+      const auth = authHeader;
+      if (!auth) {
+        setIncidentStatus('Locked. Click Unlock first.', 'err');
+        return;
+      }
+
+      const enabled = (incidentEnabledEl && incidentEnabledEl.value === '1');
+      const title = (incidentTitleEl ? incidentTitleEl.value : '').trim();
+      const message = (incidentMessageEl ? incidentMessageEl.value : '').trim();
+
+      if (enabled && (!title || !message)) {
+        setIncidentStatus('When enabled, title + message are required.', 'err');
+        return;
+      }
+      if (title.length > 80) {
+        setIncidentStatus('Title must be 0-80 characters.', 'err');
+        return;
+      }
+      if (message.length > 220) {
+        setIncidentStatus('Message must be 0-220 characters.', 'err');
+        return;
+      }
+
+      setIncidentStatus('Saving…', null);
+      try {
+        const targets = getIncidentApiCandidates();
+        let savedUrl = null;
+        let lastStatus = null;
+        let lastBody = null;
+        let lastUrl = null;
+
+        for (const u of targets) {
+          try {
+            const resp = await fetch(u, {
+              method: 'PUT',
+              headers: {
+                'content-type': 'application/json',
+                'authorization': auth,
+              },
+              body: JSON.stringify({ enabled, title, message }),
+            });
+
+            lastUrl = u;
+            lastStatus = resp.status;
+            if (resp.status === 401) {
+              setIncidentStatus('Unauthorized (wrong username/password).', 'err');
+              return;
+            }
+            if (!resp.ok) {
+              try { lastBody = await resp.text(); } catch { lastBody = null; }
+              continue;
+            }
+
+            savedUrl = u;
+            break;
+          } catch {
+            // try next
+          }
+        }
+
+        if (!savedUrl) {
+          const extra = lastBody ? ` — ${String(lastBody).slice(0, 220)}` : '';
+          const hint = (lastUrl && lastUrl === '/api/incident-notice' && (lastStatus === 404 || lastStatus === 405))
+            ? ' Hint: /api/incident-notice is not configured. Ensure your Cloudflare Worker has a route for /api/incident-notice'
+            : '';
+          throw new Error(`Save failed (last: ${lastUrl || (targets[0] || '/api/incident-notice')} status: ${lastStatus ?? 'n/a'})${extra}${hint}`);
+        }
+
+        setIncidentStatus(`Saved to ${savedUrl}.`, 'ok');
+        await loadIncidentNotice();
+      } catch (e) {
+        console.error(e);
+        setIncidentStatus(String(e && e.message ? e.message : 'Save failed.'), 'err');
+      }
     }
 
 
@@ -2196,6 +2403,8 @@
         setStatus('Unlocked.', 'ok');
         await loadCurrent();
         await loadSiteMode();
+        try { if (typeof fetchExpectedReturnMessage === 'function') fetchExpectedReturnMessage(); } catch {}
+        try { await loadIncidentNotice(); } catch {}
       } catch (e) {
         console.error(e);
         setStatus('Login failed (could not reach auth endpoint).', 'err');
@@ -2392,6 +2601,9 @@
     document.getElementById('btn-format').addEventListener('click', formatJson);
     document.getElementById('btn-save').addEventListener('click', saveSchedule);
     document.getElementById('btn-lock').addEventListener('click', lockUi);
+
+    if (btnIncidentRefreshEl) btnIncidentRefreshEl.addEventListener('click', loadIncidentNotice);
+    if (btnIncidentSaveEl) btnIncidentSaveEl.addEventListener('click', saveIncidentNotice);
 
     const expandAllBtn = document.getElementById('btn-expand-all');
     const collapseAllBtn = document.getElementById('btn-collapse-all');

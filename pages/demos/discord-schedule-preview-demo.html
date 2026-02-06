@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Discord Schedule Message Preview Demo</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <style>
+    body { background: #181818; color: #fff; font-family: sans-serif; }
+    .demo-wrap { max-width: 700px; margin: 2rem auto; padding: 2rem; background: #232323; border-radius: 1rem; box-shadow: 0 2px 16px #0003; }
+    h2 { color: #ffb88a; }
+    label { font-weight: 700; color: #ffb88a; }
+    textarea { width: 100%; min-height: 220px; background: #181818; color: #fff; font-family: monospace; font-size: 1rem; margin-top: 0.5rem; border-radius: 0.5rem; padding: 1rem; border: 1px solid #444; }
+    .desc { color: #aaa; font-size: 0.95rem; margin-top: 0.3rem; }
+  </style>
+</head>
+<body>
+  <div class="demo-wrap">
+    <h2>Discord Message Preview</h2>
+    <label for="discord-schedule-preview">Copy and paste this into Discord after saving your schedule:</label>
+    <textarea id="discord-schedule-preview" readonly>---------------- *2 Feb --> 8 Feb* ------------------
+
+:Taino_No:     Mon Feb 2  -  **No Stream**
+
+:Twitch:     Tue Feb 3  -  **Stream @ 18:00 Zulu**
+
+:Taino_No:     Wed Feb 4  -  **No Stream**
+
+:Twitch:     Thu Feb 5  -  **Stream @ 12:00 Zulu**
+
+:Twitch:     Fri Feb 6  -  **Stream @ 18:00 Zulu**
+
+:Twitch:     Sat Feb 7  -  **Stream @ 12:00pm Zulu**
+
+:Twitch:     Sun Feb 8  -  **Stream @ 11:00am Zulu**
+</textarea>
+    <div class="desc">This is how your schedule will look when posted to Discord, including emoji and formatting.</div>
+  </div>
+</body>
+</html>

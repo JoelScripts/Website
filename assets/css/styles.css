@@ -21,6 +21,301 @@ body {
     line-height: 1.6;
 }
 
+/* Security Incident Notice Banner */
+/* Support both class and id selectors to avoid unstyled banners if markup varies. */
+.security-incident-banner,
+#security-incident-banner {
+    width: 100%;
+    background:
+        radial-gradient(900px 260px at 0% 0%, rgba(255, 140, 66, 0.22), transparent 58%),
+        radial-gradient(900px 260px at 100% 0%, rgba(255, 90, 54, 0.18), transparent 58%),
+        rgba(255, 255, 255, 0.02);
+    border-bottom: 1px solid rgba(255, 140, 66, 0.28);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(6px);
+}
+
+.security-incident-banner .sib-inner,
+#security-incident-banner .sib-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0.95rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.security-incident-banner .sib-badge,
+#security-incident-banner .sib-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 140, 66, 0.45);
+    background: rgba(0, 0, 0, 0.24);
+    color: rgba(255, 255, 255, 0.94);
+    font-weight: 800;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+}
+
+.security-incident-banner .sib-main,
+#security-incident-banner .sib-main {
+    flex: 1;
+    min-width: 260px;
+}
+
+.security-incident-banner .sib-title,
+#security-incident-banner .sib-title {
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    margin: 0 0 0.25rem 0;
+    color: var(--text-light);
+    font-size: 1.05rem;
+    line-height: 1.25;
+}
+
+.security-incident-banner .sib-text,
+#security-incident-banner .sib-text {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.security-incident-banner .sib-meta,
+#security-incident-banner .sib-meta {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.82rem;
+    margin-left: 0.25rem;
+}
+
+.security-incident-banner .sib-links,
+#security-incident-banner .sib-links {
+    margin-top: 0.6rem;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.security-incident-banner .sib-data,
+#security-incident-banner .sib-data {
+    display: inline-flex;
+    align-items: center;
+}
+
+.security-incident-banner .sib-data summary,
+#security-incident-banner .sib-data summary {
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgba(255, 255, 255, 0.92);
+    font-weight: 800;
+    font-size: 0.88rem;
+    padding: 0.38rem 0.7rem;
+    border-radius: 999px;
+    border: 1px dashed rgba(255, 255, 255, 0.22);
+    background: rgba(0, 0, 0, 0.14);
+}
+
+.security-incident-banner .sib-data summary::-webkit-details-marker,
+#security-incident-banner .sib-data summary::-webkit-details-marker {
+    display: none;
+}
+
+.security-incident-banner .sib-data[open] summary,
+#security-incident-banner .sib-data[open] summary {
+    border-color: rgba(255, 140, 66, 0.45);
+}
+
+.security-incident-banner .sib-data-body,
+#security-incident-banner .sib-data-body {
+    margin-top: 0.6rem;
+    padding: 0.85rem;
+    border-radius: 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.20);
+    min-width: min(720px, calc(100vw - 3rem));
+}
+
+.security-incident-banner .sib-data-label,
+#security-incident-banner .sib-data-label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.88);
+    margin-bottom: 0.45rem;
+}
+
+.security-incident-banner .sib-data-row,
+#security-incident-banner .sib-data-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.security-incident-banner .sib-data-email,
+#security-incident-banner .sib-data-email {
+    background: rgba(10, 10, 10, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.92);
+    padding: 0.55rem 0.7rem;
+    border-radius: 0.65rem;
+    font-weight: 700;
+    font-size: 0.92rem;
+    min-width: 220px;
+}
+
+.security-incident-banner .sib-data-email:focus-visible,
+#security-incident-banner .sib-data-email:focus-visible {
+    outline: 2px solid rgba(255, 140, 66, 0.35);
+    outline-offset: 2px;
+}
+
+.security-incident-banner .sib-data-btn,
+#security-incident-banner .sib-data-btn {
+    background: rgba(0, 0, 0, 0.18);
+    color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    padding: 0.55rem 0.75rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: 900;
+    font-size: 0.88rem;
+    white-space: nowrap;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.security-incident-banner .sib-data-btn:hover,
+#security-incident-banner .sib-data-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 140, 66, 0.55);
+}
+
+.security-incident-banner .sib-data-btn:disabled,
+#security-incident-banner .sib-data-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.security-incident-banner .sib-data-danger,
+#security-incident-banner .sib-data-danger {
+    border-color: rgba(255, 90, 54, 0.35);
+}
+
+.security-incident-banner .sib-data-danger:hover,
+#security-incident-banner .sib-data-danger:hover {
+    border-color: rgba(255, 90, 54, 0.65);
+}
+
+.security-incident-banner .sib-data-hint,
+#security-incident-banner .sib-data-hint {
+    margin-top: 0.55rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 0.82rem;
+}
+
+.security-incident-banner .sib-data-status,
+#security-incident-banner .sib-data-status {
+    margin-top: 0.55rem;
+    font-weight: 800;
+    font-size: 0.86rem;
+    color: rgba(255, 255, 255, 0.90);
+}
+
+.security-incident-banner .sib-links a,
+#security-incident-banner .sib-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.88rem;
+    padding: 0.38rem 0.7rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.security-incident-banner .sib-links a:hover,
+#security-incident-banner .sib-links a:hover {
+    color: var(--primary);
+    border-color: rgba(255, 140, 66, 0.55);
+    background: rgba(0, 0, 0, 0.22);
+    transform: translateY(-1px);
+}
+
+.security-incident-banner .sib-links a:focus-visible,
+#security-incident-banner .sib-links a:focus-visible {
+    outline: 2px solid rgba(255, 140, 66, 0.35);
+    outline-offset: 2px;
+}
+
+.security-incident-banner .sib-actions,
+#security-incident-banner .sib-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.security-incident-banner .sib-dismiss,
+#security-incident-banner .sib-dismiss {
+    background: rgba(0, 0, 0, 0.22);
+    color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    padding: 0.55rem 0.9rem;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+}
+
+.security-incident-banner .sib-dismiss:hover,
+#security-incident-banner .sib-dismiss:hover {
+    transform: scale(1.03);
+    border-color: rgba(255, 140, 66, 0.55);
+}
+
+.security-incident-banner .sib-dismiss:focus-visible,
+#security-incident-banner .sib-dismiss:focus-visible {
+    outline: 2px solid rgba(255, 140, 66, 0.35);
+    outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+    .security-incident-banner .sib-inner,
+    #security-incident-banner .sib-inner {
+        padding: 0.9rem 1.1rem;
+        align-items: flex-start;
+    }
+
+    .security-incident-banner .sib-data-row,
+    #security-incident-banner .sib-data-row {
+        grid-template-columns: 1fr;
+    }
+
+    .security-incident-banner .sib-data-body,
+    #security-incident-banner .sib-data-body {
+        min-width: 0;
+    }
+}
+
 
 /* Next Stream Banner */
 .next-stream-banner {

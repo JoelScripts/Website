@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Incident Notice Banner (Demo) - Flying With Joel</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="stylesheet" href="/assets/css/styles.css" />
+  <script src="/assets/js/site-mode.js"></script>
+  <style>
+    .wrap { max-width: 1100px; margin: 2.5rem auto; padding: 0 1.25rem; }
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .muted { color: var(--text-muted); }
+    code { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.14); padding: 0.15rem 0.35rem; border-radius: 0.35rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="logo">flywithjoel</div>
+      <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+      <ul class="nav-links" id="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/pages/schedule.html">Schedule</a></li>
+        <li><a href="/pages/suggestions.html">Suggestions</a></li>
+        <li><a href="/pages/privacy.html">Privacy</a></li>
+        <li><a href="/pages/security.html">Security</a></li>
+        <li><a href="/pages/status.html">Status</a></li>
+        <li><a href="#" id="cookie-settings-link">Cookie Settings</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Demo: Security Incident Notice Banner -->
+  <div id="security-incident-banner" class="security-incident-banner" role="status" aria-live="polite">
+    <div class="sib-inner">
+      <div class="sib-badge">Security incident</div>
+
+      <div class="sib-main">
+        <div class="sib-title">We’re investigating a potential security incident</div>
+        <p class="sib-text">
+          We detected suspicious activity affecting a limited set of site systems. We are investigating and will post verified updates.
+          <span class="sib-meta">Last updated: Feb 6, 2026 14:10 UTC</span>
+        </p>
+        <div class="sib-links">
+          <a href="/pages/status.html">View status / incident updates</a>
+          <a href="/pages/security.html">Security page</a>
+        </div>
+      </div>
+
+      <div class="sib-actions">
+        <button type="button" class="sib-dismiss" id="sib-dismiss">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h1 style="margin:0 0 0.5rem 0; color: var(--primary);">Security Incident Notice Banner (Demo)</h1>
+      <p class="muted" style="margin:0; line-height:1.6;">
+        This page previews how an on-site incident notice could look without collecting user email addresses. The banner content is static demo text.
+      </p>
+    </div>
+
+    <div class="demo-grid">
+      <div class="card">
+        <h3 style="margin-top:0;">What users see</h3>
+        <p class="muted" style="margin:0; line-height:1.6;">
+          A prominent banner with a short summary and links to the canonical incident page (usually <code>/pages/status.html</code>) and your security page.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Dismiss behavior (demo)</h3>
+        <p class="muted" style="margin:0; line-height:1.6;">
+          Click <strong>Dismiss</strong> to hide the banner for this page view. (In a real rollout, you’d typically store dismissal in <code>localStorage</code>.)
+        </p>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0;">Where it would live</h3>
+        <p class="muted" style="margin:0; line-height:1.6;">
+          Typically placed near the top of key pages like <code>index.html</code> so it’s hard to miss.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('nav-links');
+    hamburger?.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('active');
+    });
+
+    const banner = document.getElementById('security-incident-banner');
+    const dismissBtn = document.getElementById('sib-dismiss');
+    dismissBtn?.addEventListener('click', () => {
+      if (banner) banner.style.display = 'none';
+    });
+  </script>
+
+  <!-- Cookie Consent Banner (site standard) -->
+  <div id="cookie-consent-banner" class="cookie-consent-banner">
+    <div class="cookie-consent-content">
+      <p>We use local storage (localStorage) to remember your choices (such as your consent preference for optional third-party embeds/resources). <a href="/pages/privacy.html">Learn more about our privacy practices</a>.</p>
+    </div>
+    <div class="cookie-consent-buttons">
+      <button id="cookie-accept-btn" class="cookie-consent-btn accept">Accept</button>
+      <button id="cookie-reject-btn" class="cookie-consent-btn decline">Decline</button>
+    </div>
+  </div>
+
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>
