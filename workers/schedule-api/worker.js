@@ -98,15 +98,24 @@ async function sha256Hex(value) {
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+function getDsrRateLimitSeconds(env) {
+  const raw = (env && env.DSAR_RATE_LIMIT_SECONDS != null) ? String(env.DSAR_RATE_LIMIT_SECONDS).trim() : '';
+  const n = raw ? parseInt(raw, 10) : NaN;
+  // Default: 2 minutes. Clamp to a sane range.
+  if (!Number.isFinite(n)) return 120;
+  return Math.max(5, Math.min(600, Math.trunc(n)));
+}
+
 async function enforceDataRequestRateLimit(env, ip) {
   if (!env.SCHEDULE_KV) return { ok: true, skipped: true };
   if (!ip) return { ok: true, skipped: true };
 
+  const limitSeconds = getDsrRateLimitSeconds(env);
   const ipHash = await sha256Hex(ip);
   const key = `${DATA_REQUEST_RATE_LIMIT_PREFIX}${ipHash}`;
   const existing = await env.SCHEDULE_KV.get(key);
-  if (existing) return { ok: false, retryAfterSeconds: 120 };
-  await env.SCHEDULE_KV.put(key, String(Date.now()), { expirationTtl: 120 });
+  if (existing) return { ok: false, retryAfterSeconds: limitSeconds };
+  await env.SCHEDULE_KV.put(key, String(Date.now()), { expirationTtl: limitSeconds });
   return { ok: true };
 }
 
@@ -114,9 +123,18 @@ async function sendEmailViaMailchannels(env, { to, subject, text }) {
   const fromEmail = (env.DSAR_FROM_EMAIL || env.MAIL_FROM || env.EMAIL_FROM || '').toString().trim();
   const fromName = (env.DSAR_FROM_NAME || env.MAIL_FROM_NAME || env.EMAIL_FROM_NAME || 'Flying With Joel').toString().trim();
   const replyTo = (env.DSAR_REPLY_TO || env.MAIL_REPLY_TO || env.EMAIL_REPLY_TO || '').toString().trim();
+  const apiKey = (env.DSAR_MAILCHANNELS_API_KEY || env.MAILCHANNELS_API_KEY || '').toString().trim();
 
   if (!fromEmail) {
     return { ok: false, error: 'Email sending not configured (missing DSAR_FROM_EMAIL / MAIL_FROM / EMAIL_FROM).' };
+  }
+
+  // MailChannels Email API now requires an API key (X-Api-Key) + Domain Lockdown DNS record.
+  if (!apiKey) {
+    return {
+      ok: false,
+      error: 'Email sending not configured (missing DSAR_MAILCHANNELS_API_KEY / MAILCHANNELS_API_KEY).',
+    };
   }
 
   const payload = {
@@ -129,12 +147,25 @@ async function sendEmailViaMailchannels(env, { to, subject, text }) {
 
   const resp = await fetch('https://api.mailchannels.net/tx/v1/send', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': apiKey,
+    },
     body: JSON.stringify(payload),
   });
 
   if (!resp.ok) {
-    return { ok: false, error: `Email send failed (${resp.status}).` };
+    let detail = null;
+    try {
+      detail = (await resp.text()) || null;
+    } catch {
+      detail = null;
+    }
+    const extra = detail ? ` ${String(detail).trim().slice(0, 280)}` : '';
+    const hint = resp.status === 401
+      ? ' (MailChannels rejected the request: check API key + Domain Lockdown DNS _mailchannels TXT record.)'
+      : '';
+    return { ok: false, error: `Email send failed (${resp.status})${hint}.${extra}` };
   }
   return { ok: true };
 }
@@ -718,7 +749,7 @@ export default {
         const rate = await enforceDataRequestRateLimit(env, remoteIp);
         if (!rate.ok) {
           return jsonResponse(
-            { error: 'Too many requests. Please wait and try again.' },
+            { error: 'Too many requests. Please wait and try again.', retryAfterSeconds: rate.retryAfterSeconds ?? null },
             {
               status: 429,
               headers: { ...corsHeadersFor(request), 'retry-after': String(rate.retryAfterSeconds ?? 120) },

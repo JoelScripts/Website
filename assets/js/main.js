@@ -186,6 +186,23 @@ function injectSecurityIncidentBanner(config) {
         const btns = banner.querySelectorAll('.sib-data-btn');
         btns.forEach((b) => { try { b.disabled = true; } catch {} });
 
+        function disableFor(seconds) {
+            const s = Number.isFinite(seconds) ? Math.max(1, Math.min(600, Math.trunc(seconds))) : null;
+            if (!s) return;
+            let remaining = s;
+            if (statusEl) statusEl.textContent = `Too many requests. Please wait ${remaining}s.`;
+            const timer = setInterval(() => {
+                remaining -= 1;
+                if (remaining <= 0) {
+                    clearInterval(timer);
+                    btns.forEach((b) => { try { b.disabled = false; } catch {} });
+                    if (statusEl) statusEl.textContent = '';
+                    return;
+                }
+                if (statusEl) statusEl.textContent = `Too many requests. Please wait ${remaining}s.`;
+            }, 1000);
+        }
+
         try {
             const resp = await fetch('/api/data-requests', {
                 method: 'POST',
@@ -195,12 +212,20 @@ function injectSecurityIncidentBanner(config) {
             const json = await resp.json().catch(() => null);
             if (resp.ok) {
                 if (statusEl) statusEl.textContent = (json && json.message) ? json.message : 'Check your inbox for the confirmation link.';
+            } else if (resp.status === 429) {
+                const hdr = resp.headers ? resp.headers.get('retry-after') : null;
+                const fromHdr = hdr ? parseInt(hdr, 10) : NaN;
+                const fromJson = (json && typeof json.retryAfterSeconds === 'number') ? json.retryAfterSeconds : NaN;
+                const seconds = Number.isFinite(fromJson) ? fromJson : (Number.isFinite(fromHdr) ? fromHdr : 120);
+                disableFor(seconds);
+                return;
             } else {
                 if (statusEl) statusEl.textContent = (json && json.error) ? json.error : 'Request failed. Please try again.';
             }
         } catch {
             if (statusEl) statusEl.textContent = 'Request failed. Please try again.';
         } finally {
+            // Buttons are re-enabled here unless we hit rate-limit (handled above).
             btns.forEach((b) => { try { b.disabled = false; } catch {} });
         }
     }
