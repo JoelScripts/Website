@@ -16,8 +16,8 @@
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <link rel="stylesheet" href="assets/css/styles.css" />
   <style>
-    .admin-wrap { max-width: 1000px; margin: 0 auto; padding: 2rem; }
-    .admin-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; padding: 1.5rem; }
+    .admin-wrap { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .admin-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 0.9rem; padding: 1.5rem; }
     .admin-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; }
     .admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .admin-row > div { display: flex; flex-direction: column; gap: 0.4rem; }
@@ -55,6 +55,103 @@
       color: var(--text-muted);
       margin-top: 0.35rem;
       line-height: 1.6;
+    }
+
+    /* Page hero */
+    .admin-hero {
+      padding: 1.6rem 1.6rem 1.4rem;
+      background: radial-gradient(1000px 420px at 0% 0%, rgba(255,140,66,0.14), transparent 55%),
+        rgba(255,255,255,0.03);
+      box-shadow: 0 0 30px rgba(0,0,0,0.35);
+    }
+    .admin-hero-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .admin-hero h1 { margin: 0; }
+    .admin-hero code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.10);
+      padding: 0.12rem 0.35rem;
+      border-radius: 0.4rem;
+      color: rgba(255,255,255,0.92);
+    }
+    .admin-statusbar {
+      margin-top: 1rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.14);
+      border-radius: 0.8rem;
+      padding: 0.75rem 0.9rem;
+      min-height: 2.25rem;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Editor layout */
+    .admin-editor { margin-top: 1.2rem; }
+    .admin-editor-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 1rem;
+    }
+    .admin-editor-head h2 { margin: 0; }
+    .admin-editor-sub { margin-top: 0.25rem; }
+    .admin-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.18);
+      color: rgba(255,255,255,0.86);
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      font-size: 0.8rem;
+      white-space: nowrap;
+    }
+
+    .admin-panels {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    @media (min-width: 980px) {
+      .admin-panels { grid-template-columns: 1fr 1fr; }
+      .admin-panels .span-2 { grid-column: 1 / -1; }
+    }
+    .admin-panel {
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 0.9rem;
+      background: rgba(0,0,0,0.12);
+      padding: 1rem;
+    }
+    .admin-panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.8rem;
+    }
+    .admin-panel-head h3 { margin: 0; }
+
+    /* Button polish (keeps existing palette) */
+    .admin-actions button:hover { filter: brightness(1.05); }
+    .admin-actions button:active { transform: translateY(1px); }
+    .admin-actions button:focus-visible {
+      outline: 2px solid rgba(255, 140, 66, 0.35);
+      outline-offset: 2px;
     }
 
     .login-card {
@@ -773,18 +870,26 @@
   <nav class="navbar">
     <div class="nav-container">
       <div class="logo">flywithjoel</div>
-      <ul class="nav-links" style="display:flex; gap: 1rem;">
+      <ul class="nav-links" style="gap: 1rem;">
         <li><a href="/">Home</a></li>
       </ul>
     </div>
   </nav>
 
   <main class="admin-wrap">
-    <h1 class="admin-title">🛠️ Schedule Admin</h1>
+    <header class="admin-card admin-hero">
+      <div class="admin-hero-top">
+        <div>
+          <h1 class="admin-title">🛠️ Schedule Admin</h1>
+          <p class="admin-lede">🔐 Sign in to edit the schedule. This page saves to <code>/api/schedule</code> (Cloudflare Worker + KV).</p>
+        </div>
+        <div class="admin-pill" aria-label="Admin area">🔒 Admin-only</div>
+      </div>
 
-    <p class="admin-lede">🔐 Sign in to edit the schedule. This page saves to <code>/api/schedule</code> (Cloudflare Worker + KV).</p>
-
-    <div id="status-bar" class="admin-msg" style="margin: 0.75rem 0 0;"></div>
+      <div class="admin-statusbar" aria-live="polite">
+        <div id="status-bar" class="admin-msg"></div>
+      </div>
+    </header>
 
     <div id="login-card" class="admin-card login-card">
       <div class="login-top">
@@ -824,42 +929,65 @@
       </div>
     </div>
 
-    <div id="editor-card" class="admin-card hidden" style="margin-top: 1rem;">
+    <div id="editor-card" class="admin-card admin-editor hidden">
       <div class="admin-grid">
-        <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+        <div class="admin-editor-head">
           <div>
-            <h2 style="margin: 0;">📅 7 Day Schedule</h2>
-            <p class="admin-msg" style="margin-top: 0.2rem;">Edit each day: month/day, time (Zulu), and whether there is a stream.</p>
+            <h2>📅 7 Day Schedule</h2>
+            <p class="admin-msg admin-editor-sub">Edit each day: month/day, time (Zulu), and whether there is a stream.</p>
           </div>
-          <div id="signed-in-pill" class="muted">You’re signed in.</div>
+          <div id="signed-in-pill" class="admin-pill">✅ Signed in</div>
         </div>
 
-        <div style="border: 1px solid rgba(255,255,255,0.08); border-radius: 0.8rem; background: rgba(0,0,0,0.12); padding: 1rem; margin-bottom: 1.5rem;">
-          <div style="display:flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
-            <div>
-              <h3 style="margin: 0;">🧯 Site Mode</h3>
-              <p class="admin-msg" style="margin-top: 0.2rem;">Switch the public site between Live and Maintenance (<code>/pages/maintenance.html</code>).</p>
+        <div class="admin-panels">
+          <section class="admin-panel" aria-label="Site mode controls">
+            <div class="admin-panel-head">
+              <div>
+                <h3>🧯 Site Mode</h3>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Switch the public site between Live and Maintenance (<code>/pages/maintenance.html</code>).</p>
+              </div>
+              <div id="site-mode-pill" class="admin-pill">Mode: …</div>
             </div>
-            <div id="site-mode-pill" class="muted">Mode: …</div>
-          </div>
 
-          <div class="admin-actions" style="margin-top: 0.7rem;">
-            <button id="btn-site-refresh" class="secondary" type="button">↻ Refresh mode</button>
-            <button id="btn-site-live" class="secondary" type="button">✅ Set Live</button>
-            <button id="btn-site-maint" class="danger" type="button">🔧 Set Maintenance</button>
-            <span class="spacer"></span>
-            <span id="site-mode-status" class="admin-msg"></span>
-          </div>
-        </div>
+            <div class="admin-actions">
+              <button id="btn-site-refresh" class="secondary" type="button">↻ Refresh</button>
+              <button id="btn-site-live" class="secondary" type="button">✅ Set Live</button>
+              <button id="btn-site-maint" class="danger" type="button">🔧 Maintenance</button>
+              <span class="spacer"></span>
+              <span id="site-mode-status" class="admin-msg"></span>
+            </div>
+          </section>
 
-        <div class="admin-card" style="margin-bottom: 2rem;">
-          <h3 style="margin:0 0 0.5rem 0;">🗓️ Expected Return Message</h3>
-          <label for="expected-return-input">Edit the message shown on the maintenance page:</label>
-          <input id="expected-return-input" type="text" maxlength="120" style="margin-bottom:0.7rem;" />
-          <div class="admin-actions">
-            <button id="btn-expected-return-save" type="button">💾 Save Message</button>
-            <span id="expected-return-status" class="admin-msg" style="margin-left:1rem;"></span>
-          </div>
+          <section class="admin-panel" aria-label="Maintenance message">
+            <div class="admin-panel-head">
+              <div>
+                <h3>🗓️ Expected Return</h3>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Message shown on the maintenance page.</p>
+              </div>
+            </div>
+
+            <label for="expected-return-input">Expected return message</label>
+            <input id="expected-return-input" type="text" maxlength="120" style="margin-bottom:0.7rem;" />
+            <div class="admin-actions">
+              <button id="btn-expected-return-save" type="button">💾 Save</button>
+              <span id="expected-return-status" class="admin-msg" style="margin-left:1rem;"></span>
+            </div>
+          </section>
+
+          <section class="admin-panel span-2" aria-label="Discord message preview">
+            <div class="admin-panel-head">
+              <div>
+                <h3>💬 Discord Message Preview</h3>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Copy/paste this to Discord.</p>
+              </div>
+            </div>
+
+            <label for="discord-message-preview">Preview</label>
+            <textarea id="discord-message-preview" readonly style="min-height:180px; margin-bottom:0.7rem;"></textarea>
+            <div class="admin-actions">
+              <button id="btn-generate-discord-message" type="button">🔄 Generate</button>
+            </div>
+          </section>
         </div>
 
         <div>
@@ -916,16 +1044,6 @@
         </div>
       </div>
     </div>
-
-  <!-- Discord Message Preview -->
-  <div class="admin-card" style="margin-top:2rem;">
-    <h3 style="margin:0 0 0.5rem 0;">💬 Discord Message Preview</h3>
-    <label for="discord-message-preview">Copy-paste this to Discord:</label>
-    <textarea id="discord-message-preview" readonly style="min-height:180px; margin-bottom:0.7rem;"></textarea>
-    <div class="admin-actions">
-      <button id="btn-generate-discord-message" type="button">🔄 Generate Discord Message</button>
-    </div>
-  </div>
   </main>
 
   <script>

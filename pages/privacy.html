@@ -586,7 +586,7 @@
                 <p>We use Cloudflare to provide small serverless API endpoints (for example, schedule data and the suggestions submission proxy). Depending on configuration, Cloudflare may also process short-lived technical data (such as IP address and request metadata) for security, abuse prevention, and service operation.</p>
                 <p><a href="https://www.cloudflare.com/privacypolicy/" target="_blank">View Cloudflare Privacy Policy →</a></p>
                 <div class="card-note">
-                    <strong>Data Processed:</strong> Request metadata (and potentially short-lived abuse-prevention signals) when you interact with site API endpoints.
+                    <strong>Data Processed:</strong> Request metadata (and potentially short-lived abuse-prevention signals) when you interact with site API endpoints. For the Suggestions endpoint, we may apply a short-lived anti-abuse rate limit using a <strong>pseudonymous</strong> (hashed) representation of your IP address with a brief expiry (typically around 2 minutes).
                 </div>
             </div>
 
@@ -642,6 +642,15 @@
                 <p>Our hosting and infrastructure providers may generate access/security logs (which can include IP address, browser information, and access timestamps) to operate the service securely and prevent abuse. Retention periods vary by provider and their policies.</p>
                 <div class="card-note">
                     <strong>Duration:</strong> Varies by provider.
+                </div>
+            </div>
+
+            <!-- Card 2b: Anti-Abuse Rate Limiting -->
+            <div class="card">
+                <h3>🧯 Anti-Abuse Rate Limiting</h3>
+                <p>To protect the Suggestions endpoint from repeated automated submissions, we may apply short-lived rate limiting. Where used, this is implemented using a pseudonymous (hashed) representation of your IP address and expires quickly.</p>
+                <div class="card-note">
+                    <strong>Retention:</strong> Typically ~2 minutes per rate-limit key.
                 </div>
             </div>
 

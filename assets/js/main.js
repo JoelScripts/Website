@@ -31,6 +31,11 @@ function loadGoogleFonts() {
     document.head.appendChild(link);
 }
 
+function unloadGoogleFonts() {
+    const link = document.getElementById('google-fonts-poppins');
+    if (link && link.parentNode) link.parentNode.removeChild(link);
+}
+
 function showCookieBanner(bannerEl) {
     if (!bannerEl) return;
     bannerEl.classList.add('show');
@@ -82,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.stopPropagation();
             localStorage.setItem(GDPR_CONSENT_KEY, 'false');
             hideCookieBanner(banner);
+            unloadGoogleFonts();
             window.dispatchEvent(new CustomEvent('fwj:consent:rejected'));
         });
     }
@@ -100,5 +106,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (hasGdprConsent()) {
         loadGoogleFonts();
     }
+
+    // If consent is withdrawn elsewhere (e.g., user reopens banner via Cookie Settings),
+    // ensure optional resources can be disabled without a full reload.
+    window.addEventListener('fwj:consent:rejected', () => {
+        unloadGoogleFonts();
+    });
 });
 

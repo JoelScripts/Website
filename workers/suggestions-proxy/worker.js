@@ -8,6 +8,7 @@
 // - DISCORD_WEBHOOK_URL (secret)
 // Optional:
 // - TURNSTILE_SECRET_KEY (secret)
+// - TURNSTILE_SEND_REMOTEIP=1 to include the user's IP in Turnstile verification (default: omitted for data minimization)
 // - ALLOWED_ORIGINS (comma-separated string) for CORS when not using same-origin routing
 // - SUGGESTIONS_KV (KV namespace binding) for simple IP rate limiting
 
@@ -54,6 +55,13 @@ function clampString(value, maxLen) {
   return trimmed.length > maxLen ? trimmed.slice(0, maxLen) : trimmed;
 }
 
+async function sha256Hex(value) {
+  const enc = new TextEncoder();
+  const data = enc.encode(String(value || ''));
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
 function validateFlightRadarLink(link) {
   if (!link) return null;
   try {
@@ -73,7 +81,11 @@ async function verifyTurnstile(token, env, remoteIp) {
   const form = new FormData();
   form.append('secret', env.TURNSTILE_SECRET_KEY);
   form.append('response', token);
-  if (remoteIp) form.append('remoteip', remoteIp);
+  // Data minimization: omit remote IP by default.
+  // If you explicitly want it, set TURNSTILE_SEND_REMOTEIP=1.
+  if (remoteIp && String(env.TURNSTILE_SEND_REMOTEIP || '').trim() === '1') {
+    form.append('remoteip', remoteIp);
+  }
 
   const resp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
     method: 'POST',
@@ -90,7 +102,9 @@ async function enforceRateLimit(env, ip) {
   if (!env.SUGGESTIONS_KV) return { ok: true, skipped: true };
   if (!ip) return { ok: true, skipped: true };
 
-  const key = `rl:${ip}`;
+  // Data minimization: store a pseudonymous key instead of the raw IP.
+  const ipHash = await sha256Hex(ip);
+  const key = `rl:${ipHash}`;
   const existing = await env.SUGGESTIONS_KV.get(key);
   if (existing) {
     return { ok: false, retryAfterSeconds: 120 };
