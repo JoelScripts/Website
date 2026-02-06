@@ -39,13 +39,13 @@ body {
 #security-incident-banner .sib-inner {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 1rem 2rem;
+    padding: 1.05rem 2rem;
     display: grid;
-    gap: 0.75rem;
+    gap: 0.8rem;
 }
 
-.security-incident-banner .sib-top,
-#security-incident-banner .sib-top {
+.security-incident-banner .sib-header,
+#security-incident-banner .sib-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -71,18 +71,9 @@ body {
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
 }
 
-.security-incident-banner .sib-main,
-#security-incident-banner .sib-main {
+.security-incident-banner .sib-body,
+#security-incident-banner .sib-body {
     min-width: 0;
-}
-
-.security-incident-banner .sib-title-row,
-#security-incident-banner .sib-title-row {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 0.75rem;
-    flex-wrap: wrap;
 }
 
 .security-incident-banner .sib-title,
@@ -108,7 +99,7 @@ body {
     color: rgba(255, 255, 255, 0.72);
     font-size: 0.82rem;
     margin-left: 0;
-    white-space: nowrap;
+    margin-top: 0.25rem;
 }
 
 .security-incident-banner .sib-meta:empty,
@@ -118,11 +109,53 @@ body {
 
 .security-incident-banner .sib-links,
 #security-incident-banner .sib-links {
-    margin-top: 0.6rem;
+    margin-top: 0.75rem;
     display: flex;
     gap: 0.75rem;
     flex-wrap: wrap;
     align-items: flex-start;
+}
+
+.security-incident-banner .sib-link,
+#security-incident-banner .sib-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 0.88rem;
+    padding: 0.42rem 0.78rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.security-incident-banner .sib-link:hover,
+#security-incident-banner .sib-link:hover {
+    color: var(--primary);
+    border-color: rgba(255, 140, 66, 0.55);
+    background: rgba(0, 0, 0, 0.22);
+    transform: translateY(-1px);
+}
+
+.security-incident-banner .sib-link:focus-visible,
+#security-incident-banner .sib-link:focus-visible {
+    outline: 2px solid rgba(255, 140, 66, 0.35);
+    outline-offset: 2px;
+}
+
+.security-incident-banner .sib-link-primary,
+#security-incident-banner .sib-link-primary {
+    border-color: rgba(255, 140, 66, 0.55);
+    background: rgba(255, 140, 66, 0.16);
+}
+
+.security-incident-banner .sib-link-primary:hover,
+#security-incident-banner .sib-link-primary:hover {
+    color: rgba(255, 255, 255, 0.96);
+    background: rgba(255, 140, 66, 0.22);
 }
 
 .security-incident-banner .sib-data,
@@ -262,8 +295,10 @@ body {
     color: rgba(255, 255, 255, 0.90);
 }
 
+
 .security-incident-banner .sib-links a,
 #security-incident-banner .sib-links a {
+    /* Back-compat: if an anchor doesn't have sib-link, keep it styled */
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -271,7 +306,7 @@ body {
     text-decoration: none;
     font-weight: 800;
     font-size: 0.88rem;
-    padding: 0.38rem 0.7rem;
+    padding: 0.42rem 0.78rem;
     border-radius: 999px;
     border: 1px solid rgba(255, 255, 255, 0.14);
     background: rgba(0, 0, 0, 0.18);
@@ -300,19 +335,12 @@ body {
 }
 
 @media (max-width: 700px) {
-    .security-incident-banner .sib-inner,
-    #security-incident-banner .sib-inner {
-        padding: 0.9rem 1rem;
-    }
-
-    .security-incident-banner .sib-meta,
-    #security-incident-banner .sib-meta {
         white-space: normal;
     }
 }
 
 .security-incident-banner .sib-dismiss,
-#security-incident-banner .sib-dismiss {
+        padding: 0.45rem 0.85rem;
     background: rgba(0, 0, 0, 0.22);
     color: rgba(255, 255, 255, 0.92);
     border: 1px solid rgba(255, 255, 255, 0.18);
@@ -337,17 +365,17 @@ body {
     outline-offset: 2px;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 700px) {
     .security-incident-banner .sib-inner,
     #security-incident-banner .sib-inner {
-        padding: 0.9rem 1.1rem;
-        align-items: flex-start;
+        padding: 0.9rem 1rem;
     }
 
-    .security-incident-banner .sib-data-row,
-    #security-incident-banner .sib-data-row {
-        grid-template-columns: 1fr;
+    .security-incident-banner .sib-header,
+    #security-incident-banner .sib-header {
+        align-items: flex-start;
     }
+}
 
     .security-incident-banner .sib-data-body,
     #security-incident-banner .sib-data-body {

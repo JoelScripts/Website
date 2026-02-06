@@ -123,22 +123,19 @@ function injectSecurityIncidentBanner(config) {
         const when = updatedAtUtc ? `Last updated: ${updatedAtUtc}` : '';
     banner.innerHTML = `
       <div class="sib-inner">
-                <div class="sib-top">
+                <div class="sib-header">
                     <div class="sib-badge">Security incident</div>
-                    <div class="sib-actions">
-                        <button type="button" class="sib-dismiss" id="sib-dismiss" aria-label="Dismiss security incident notice">Dismiss</button>
-                    </div>
+                    <button type="button" class="sib-dismiss" id="sib-dismiss" aria-label="Dismiss security incident notice">Dismiss</button>
                 </div>
 
-                <div class="sib-main">
-                    <div class="sib-title-row">
-                        <div class="sib-title"></div>
-                        <div class="sib-meta" aria-label="Incident notice last updated"></div>
-                    </div>
+                <div class="sib-body">
+                    <div class="sib-title"></div>
                     <p class="sib-text"></p>
+                    <div class="sib-meta" aria-label="Incident notice last updated"></div>
+
                     <div class="sib-links">
-                        <a href="/pages/status.html">View status / incident updates</a>
-                        <a href="/pages/security.html">Security page</a>
+                        <a class="sib-link sib-link-primary" href="/pages/status.html">View status / incident updates</a>
+                        <a class="sib-link" href="/pages/security.html">Security page</a>
                         <details class="sib-data" id="sib-data">
                             <summary>Request my data / deletion</summary>
                             <div class="sib-data-body">
