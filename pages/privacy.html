@@ -356,7 +356,7 @@
         <!-- Header Card -->
         <div class="header-card">
             <h1>🔐 Privacy & Data Notice</h1>
-            <p class="last-updated">Last Updated: January 2026</p>
+            <p class="last-updated">Last Updated: <span id="privacy-last-updated">—</span></p>
             <p>We are committed to protecting your privacy. This website is designed to minimize personal data collection and support compliance with applicable privacy laws (including GDPR/UK GDPR and other regional requirements where relevant).</p>
         </div>
 
@@ -760,5 +760,17 @@
     </div>
 
     <script src="../assets/js/main.js"></script>
+    <script>
+        (function () {
+            const el = document.getElementById('privacy-last-updated');
+            if (!el) return;
+            const d = new Date();
+            el.textContent = d.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+        })();
+    </script>
 </body>
 </html>

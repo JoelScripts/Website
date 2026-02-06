@@ -42,7 +42,7 @@
 
     <!-- Last Updated Notice -->
     <div style="text-align: center; padding: 1rem 2rem; background: rgba(66, 165, 245, 0.08); color: var(--text-muted); font-size: 0.85rem; border-bottom: 1px solid var(--border);">
-        Last Updated: January 2026 | Effective Date: January 2026
+        Last Updated: <span id="terms-last-updated">—</span> | Effective Date: <span id="terms-effective-date">—</span>
     </div>
 
     <!-- Main Terms Content Section -->
@@ -267,5 +267,22 @@
         </div>
     </div>
     <script src="../assets/js/main.js"></script>
+    <script>
+        (function () {
+            const updatedEl = document.getElementById('terms-last-updated');
+            const effectiveEl = document.getElementById('terms-effective-date');
+            if (!updatedEl && !effectiveEl) return;
+
+            const d = new Date();
+            const text = d.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+
+            if (updatedEl) updatedEl.textContent = text;
+            if (effectiveEl) effectiveEl.textContent = text;
+        })();
+    </script>
 </body>
 </html>
