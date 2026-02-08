@@ -6,6 +6,8 @@ This Worker provides a simple backend for your GitHub Pages site so `admin.html`
 
 - `GET /api/schedule` → returns the saved schedule JSON array (or `[]` if empty)
 - `PUT /api/schedule` → saves the schedule JSON array (requires HTTP Basic Auth)
+- `GET /api/schedule/admin-notes` → returns admin notes (requires HTTP Basic Auth)
+- `PUT /api/schedule/admin-notes` → saves admin notes (requires HTTP Basic Auth)
 - `GET /api/site-mode` → returns `{ ok?: true, mode: "live"|"maintenance", updatedAtUtc: string|null }`
 - `PUT /api/site-mode` → saves `{ mode: "live"|"maintenance" }` (requires HTTP Basic Auth)
 - `GET /api/incident-notice` → returns `{ enabled: boolean, title: string|null, message: string|null, updatedAtUtc: string|null }`

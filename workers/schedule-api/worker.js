@@ -17,6 +17,7 @@ const EXPECTED_RETURN_KEY = 'expected_return_v1';
 const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
 const TWITCH_CLIPS_KEY = 'twitch_clips_v1';
 const INCIDENT_NOTICE_KEY = 'incident_notice_v1';
+const ADMIN_NOTES_PREFIX = 'admin_notes_v1:';
 const DATA_REQUEST_PREFIX = 'data_request_v1:';
 const DATA_REQUEST_RATE_LIMIT_PREFIX = 'data_request_rl_v1:';
 
@@ -761,6 +762,14 @@ function validateIncidentNoticeBody(value) {
   return { ok: true, enabled, title: title || null, message: message || null };
 }
 
+function validateAdminNotesBody(value) {
+  if (!value || typeof value !== 'object') return { ok: false, reason: 'Body is not an object.' };
+  const notes = (typeof value.notes === 'string' ? value.notes : '').toString();
+  // Keep this generous but bounded (KV is not meant for huge blobs).
+  if (notes.length > 20000) return { ok: false, reason: 'notes must be 0-20000 characters.' };
+  return { ok: true, notes };
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
@@ -784,6 +793,83 @@ export default {
     if (!isSchedule && !isSiteMode && !isIncidentNotice && !isDataRequests) {
       return new Response('Not Found', {
         status: 404,
+        headers: {
+          ...corsHeadersFor(request),
+          'cache-control': 'no-store',
+        },
+      });
+    }
+
+    // ===== Admin notes (saved to KV; requires Basic Auth) =====
+    // Route is under /api/schedule* so it works with the existing Cloudflare route.
+    if (path === '/api/schedule/admin-notes') {
+      if (!env.SCHEDULE_KV) {
+        return jsonResponse(
+          { error: 'Missing KV binding SCHEDULE_KV.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+        return jsonResponse(
+          { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+          { status: 500, headers: corsHeadersFor(request) }
+        );
+      }
+
+      if (!isAuthorized(request, env)) {
+        const resp = unauthorizedResponse();
+        const headers = new Headers(resp.headers);
+        const cors = corsHeadersFor(request);
+        for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+        return new Response(resp.body, { status: resp.status, headers });
+      }
+
+      const creds = parseBasicAuth(request);
+      const username = (creds && typeof creds.username === 'string' ? creds.username : 'admin').trim() || 'admin';
+      const key = `${ADMIN_NOTES_PREFIX}${username}`;
+
+      if (request.method === 'GET') {
+        const raw = await env.SCHEDULE_KV.get(key);
+        if (!raw) {
+          return jsonResponse({ ok: true, notes: '', updatedAtUtc: null }, { headers: corsHeadersFor(request) });
+        }
+        try {
+          const parsed = JSON.parse(raw);
+          const notes = parsed && typeof parsed.notes === 'string' ? parsed.notes : '';
+          const updatedAtUtc = parsed && typeof parsed.updatedAtUtc === 'string' ? parsed.updatedAtUtc : null;
+          return jsonResponse({ ok: true, notes, updatedAtUtc: updatedAtUtc || null }, { headers: corsHeadersFor(request) });
+        } catch {
+          return jsonResponse({ ok: true, notes: '', updatedAtUtc: null }, { headers: corsHeadersFor(request) });
+        }
+      }
+
+      if (request.method === 'PUT') {
+        let body;
+        try {
+          body = await request.json();
+        } catch {
+          return jsonResponse(
+            { error: 'Invalid JSON body.' },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const validation = validateAdminNotesBody(body);
+        if (!validation.ok) {
+          return jsonResponse(
+            { error: 'Invalid notes.', details: validation },
+            { status: 400, headers: corsHeadersFor(request) }
+          );
+        }
+
+        const updatedAtUtc = new Date().toISOString();
+        await env.SCHEDULE_KV.put(key, JSON.stringify({ notes: validation.notes, updatedAtUtc }));
+        return jsonResponse({ ok: true, updatedAtUtc }, { headers: corsHeadersFor(request) });
+      }
+
+      return new Response('Method Not Allowed', {
+        status: 405,
         headers: {
           ...corsHeadersFor(request),
           'cache-control': 'no-store',

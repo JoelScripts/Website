@@ -1040,7 +1040,7 @@
             <div class="admin-panel-head">
               <div>
                 <h3>📝 Notes</h3>
-                <p class="admin-msg" style="margin-top: 0.2rem;">Saved locally in this browser.</p>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Saved to your admin login.</p>
               </div>
             </div>
 
@@ -1291,10 +1291,10 @@
     const incidentStatusEl = document.getElementById('incident-status');
     const incidentNotifyEl = document.getElementById('incident-notify');
 
-    // --- Admin Notes (local, auto-save) ---
+    // --- Admin Notes (server-side, tied to admin login) ---
+    // Stored behind Basic Auth in the Schedule API backend.
     const adminNotesEl = document.getElementById('admin-notes');
     const adminNotesStatusEl = document.getElementById('admin-notes-status');
-    const ADMIN_NOTES_LOCALSTORAGE_KEY = 'fwj_admin_notes_v1';
     let adminNotesSaveTimer = null;
 
     function setAdminNotesStatus(text) {
@@ -1302,37 +1302,129 @@
       adminNotesStatusEl.textContent = (text || '').toString();
     }
 
-    function loadAdminNotes() {
+    function deriveAdminNotesApiUrl(scheduleApiUrl) {
+      const u = (scheduleApiUrl || '').toString().trim();
+      if (!u) return null;
+      // Worker style: /api/schedule -> /api/schedule/admin-notes
+      if (u.endsWith('/api/schedule')) return u + '/admin-notes';
+      // FastHosts fallback style: schedule.php -> admin_notes.php
+      if (/schedule\.php$/i.test(u)) return u.replace(/schedule\.php$/i, 'admin_notes.php');
+      return null;
+    }
+
+    function getAdminNotesApiCandidates() {
+      const override = getScheduleApiOverride();
+      const derived = deriveAdminNotesApiUrl(override);
+      const candidates = [
+        derived,
+        '/api/schedule/admin-notes',
+        'https://api.flyingwithjoel.co.uk/api/admin_notes.php',
+      ].filter(Boolean);
+      return Array.from(new Set(candidates));
+    }
+
+    async function loadAdminNotes() {
+      const auth = authHeader;
       if (!adminNotesEl) return;
-      try {
-        const saved = localStorage.getItem(ADMIN_NOTES_LOCALSTORAGE_KEY);
-        adminNotesEl.value = saved != null ? String(saved) : '';
-        setAdminNotesStatus(saved ? 'Loaded.' : '');
-      } catch {
+      if (!auth) {
+        // Locked: don't attempt.
         setAdminNotesStatus('');
+        return;
+      }
+
+      setAdminNotesStatus('Loading…');
+      try {
+        const result = await fetchFirstOkJson(getAdminNotesApiCandidates(), {
+          method: 'GET',
+          cache: 'no-store',
+          headers: { 'authorization': auth },
+        });
+        if (!result) throw new Error('No notes API responded.');
+
+        const data = result.data;
+        const notes = (data && typeof data.notes === 'string') ? data.notes : '';
+        adminNotesEl.value = notes;
+        setAdminNotesStatus('Loaded.');
+      } catch (e) {
+        console.error(e);
+        setAdminNotesStatus('Could not load notes.');
       }
     }
 
-    function saveAdminNotes() {
+    async function saveAdminNotes() {
+      const auth = authHeader;
       if (!adminNotesEl) return;
+      if (!auth) return;
+
+      const payload = { notes: adminNotesEl.value || '' };
       try {
-        localStorage.setItem(ADMIN_NOTES_LOCALSTORAGE_KEY, adminNotesEl.value || '');
+        const targets = getAdminNotesApiCandidates();
+        let savedUrl = null;
+        let lastStatus = null;
+        let lastBody = null;
+
+        for (const u of targets) {
+          try {
+            const resp = await fetch(u, {
+              method: 'PUT',
+              headers: {
+                'content-type': 'application/json',
+                'authorization': auth,
+              },
+              body: JSON.stringify(payload),
+            });
+
+            lastStatus = resp.status;
+            if (resp.status === 401) {
+              setAdminNotesStatus('Unauthorized.');
+              return;
+            }
+
+            if (!resp.ok) {
+              try {
+                lastBody = await resp.text();
+              } catch {
+                lastBody = null;
+              }
+              continue;
+            }
+
+            savedUrl = u;
+            break;
+          } catch {
+            // try next
+          }
+        }
+
+        if (!savedUrl) {
+          const extra = lastBody ? ` (${String(lastBody).slice(0, 120)})` : '';
+          throw new Error(`Save failed (last status: ${lastStatus ?? 'n/a'})${extra}`);
+        }
+
         setAdminNotesStatus('Saved.');
-      } catch {
+      } catch (e) {
+        console.error(e);
         setAdminNotesStatus('Save failed.');
       }
     }
 
     if (adminNotesEl) {
-      loadAdminNotes();
       adminNotesEl.addEventListener('input', () => {
-        setAdminNotesStatus('Saving...');
+        if (!authHeader) {
+          setAdminNotesStatus('Unlock to save notes.');
+          return;
+        }
+        setAdminNotesStatus('Saving…');
         if (adminNotesSaveTimer) clearTimeout(adminNotesSaveTimer);
-        adminNotesSaveTimer = setTimeout(saveAdminNotes, 250);
+        adminNotesSaveTimer = setTimeout(() => { saveAdminNotes(); }, 350);
       });
-      window.addEventListener('beforeunload', saveAdminNotes);
+      window.addEventListener('beforeunload', () => {
+        try { saveAdminNotes(); } catch {}
+      });
       document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') saveAdminNotes();
+        if (document.visibilityState === 'hidden') {
+          try { saveAdminNotes(); } catch {}
+        }
       });
     }
         // --- Expected Return Message ---
@@ -2580,6 +2672,7 @@
       setStatus('', null);
       renderSiteMode('live', null);
       setSiteModeStatus('', null);
+      try { if (typeof setAdminNotesStatus === 'function') setAdminNotesStatus(''); } catch {}
     }
 
     async function unlock() {
@@ -2600,6 +2693,7 @@
         setStatus('Unlocked.', 'ok');
         await loadCurrent();
         await loadSiteMode();
+        try { if (typeof loadAdminNotes === 'function') await loadAdminNotes(); } catch {}
         try { if (typeof fetchExpectedReturnMessage === 'function') fetchExpectedReturnMessage(); } catch {}
         try { await loadIncidentNotice(); } catch {}
 
