@@ -154,6 +154,17 @@
       outline-offset: 2px;
     }
 
+    /* Notes (read-only) */
+    .admin-notes-text {
+      min-height: 220px;
+      resize: none;
+      line-height: 1.55;
+      font-size: 0.95rem;
+    }
+    .admin-notes-text[readonly] {
+      cursor: default;
+    }
+
     .login-card {
       padding: 0;
       overflow: hidden;
@@ -1040,15 +1051,12 @@
             <div class="admin-panel-head">
               <div>
                 <h3>📝 Notes</h3>
-                <p class="admin-msg" style="margin-top: 0.2rem;">Saved to your admin login.</p>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Read-only note (saved to your admin login).</p>
               </div>
+              <div class="admin-pill">🔒 Read-only</div>
             </div>
 
-            <label for="admin-notes">Notes</label>
-            <textarea id="admin-notes" spellcheck="false" readonly style="min-height:160px; margin-bottom:0.7rem;" aria-readonly="true"></textarea>
-            <div class="admin-actions">
-              <span id="admin-notes-status" class="admin-msg"></span>
-            </div>
+            <textarea id="admin-notes" class="admin-notes-text" spellcheck="false" readonly aria-readonly="true" aria-label="Notes"></textarea>
           </section>
         </div>
 
@@ -1294,13 +1302,7 @@
     // --- Admin Notes (fixed, read-only) ---
     // This is stored behind Basic Auth in the backend, but the UI is intentionally not editable.
     const adminNotesEl = document.getElementById('admin-notes');
-    const adminNotesStatusEl = document.getElementById('admin-notes-status');
     const FIXED_ADMIN_NOTES = 'Note:\nDad Thinks im in college on\n\nMONDAY\nTUESDAY\nFRIDAY\n.';
-
-    function setAdminNotesStatus(text) {
-      if (!adminNotesStatusEl) return;
-      adminNotesStatusEl.textContent = (text || '').toString();
-    }
 
     function deriveAdminNotesApiUrl(scheduleApiUrl) {
       const u = (scheduleApiUrl || '').toString().trim();
@@ -1328,11 +1330,9 @@
       if (!adminNotesEl) return;
       if (!auth) {
         // Locked: don't attempt.
-        setAdminNotesStatus('');
         return;
       }
 
-      setAdminNotesStatus('Loading…');
       try {
         const result = await fetchFirstOkJson(getAdminNotesApiCandidates(), {
           method: 'GET',
@@ -1343,12 +1343,10 @@
 
         // Always show the fixed note (non-editable).
         adminNotesEl.value = FIXED_ADMIN_NOTES;
-        setAdminNotesStatus('Loaded.');
       } catch (e) {
         console.error(e);
         // Still show the fixed note even if the API is unreachable.
         adminNotesEl.value = FIXED_ADMIN_NOTES;
-        setAdminNotesStatus('Loaded.');
       }
     }
 
@@ -2604,7 +2602,6 @@
       setStatus('', null);
       renderSiteMode('live', null);
       setSiteModeStatus('', null);
-      try { if (typeof setAdminNotesStatus === 'function') setAdminNotesStatus(''); } catch {}
     }
 
     async function unlock() {
