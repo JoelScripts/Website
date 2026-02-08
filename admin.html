@@ -155,14 +155,20 @@
     }
 
     /* Notes (read-only) */
-    .admin-notes-text {
-      min-height: 220px;
-      resize: none;
-      line-height: 1.55;
-      font-size: 0.95rem;
+    .admin-notes-card {
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+      border-radius: 0.85rem;
+      padding: 1rem;
     }
-    .admin-notes-text[readonly] {
-      cursor: default;
+    .admin-notes-pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      line-height: 1.6;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.92);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
     .login-card {
@@ -1056,7 +1062,9 @@
               <div class="admin-pill">🔒 Read-only</div>
             </div>
 
-            <textarea id="admin-notes" class="admin-notes-text" spellcheck="false" readonly aria-readonly="true" aria-label="Notes"></textarea>
+            <div class="admin-notes-card" role="note" aria-label="Notes">
+              <pre id="admin-notes" class="admin-notes-pre"></pre>
+            </div>
           </section>
         </div>
 
@@ -1342,20 +1350,17 @@
         if (!result) throw new Error('No notes API responded.');
 
         // Always show the fixed note (non-editable).
-        adminNotesEl.value = FIXED_ADMIN_NOTES;
+        adminNotesEl.textContent = FIXED_ADMIN_NOTES;
       } catch (e) {
         console.error(e);
         // Still show the fixed note even if the API is unreachable.
-        adminNotesEl.value = FIXED_ADMIN_NOTES;
+        adminNotesEl.textContent = FIXED_ADMIN_NOTES;
       }
     }
 
     if (adminNotesEl) {
-      // Ensure it's locked down even if HTML attributes are modified.
-      adminNotesEl.readOnly = true;
-      adminNotesEl.setAttribute('aria-readonly', 'true');
       // Pre-fill immediately; will still try to load after unlock.
-      adminNotesEl.value = FIXED_ADMIN_NOTES;
+      adminNotesEl.textContent = FIXED_ADMIN_NOTES;
     }
         // --- Expected Return Message ---
         function getExpectedReturnApiUrl() {
