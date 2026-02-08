@@ -1240,15 +1240,16 @@
       origRenderEditor(items);
       updateDiscordMessagePreview();
     };
-        // --- Reset to Rolling 7 Days ---
-        const btnResetRollingEl = document.getElementById('btn-reset-rolling');
-        if (btnResetRollingEl) {
-          btnResetRollingEl.addEventListener('click', () => {
-            const items = buildEmptySchedule();
-            renderEditor(items);
-            setStatus('Reset to rolling 7 days. Click Save to apply.', 'ok');
-          });
-        }
+    // --- Reset to Rolling 7 Days ---
+    // NOTE: This intentionally excludes "today" and loads the NEXT 7 days.
+    const btnResetRollingEl = document.getElementById('btn-reset-rolling');
+    if (btnResetRollingEl) {
+      btnResetRollingEl.addEventListener('click', () => {
+        const items = buildEmptySchedule(1);
+        renderEditor(items);
+        setStatus('Reset to rolling 7 days. Click Save to apply.', 'ok');
+      });
+    }
     const statusEl = document.getElementById('status');
     const statusBarEl = document.getElementById('status-bar');
     const userEl = document.getElementById('admin-user');
@@ -1871,13 +1872,14 @@
       return STATUSES.map((s) => `<option value="${s.value}" ${s.value === v ? 'selected' : ''}>${s.label}</option>`).join('');
     }
 
-    function buildEmptySchedule() {
+    function buildEmptySchedule(startOffsetDays = 0) {
       const today = new Date();
+      const offset = Number.isFinite(startOffsetDays) ? Math.trunc(startOffsetDays) : 0;
       const items = [];
       for (let i = 0; i < 7; i += 1) {
-        // Start from TODAY
+        // Start from TODAY + offset (e.g., offset=1 => tomorrow)
         const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + i);
+        nextDate.setDate(today.getDate() + offset + i);
         const month = nextDate.getMonth() + 1;
         const day = nextDate.getDate();
         const dayIdx = nextDate.getDay(); // 0=Sun, 1=Mon, ...
