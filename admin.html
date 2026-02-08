@@ -2458,8 +2458,21 @@
     }
 
     function scheduleFromEditor() {
-      const rows = Array.from(document.querySelectorAll('.schedule-item'));
-      return rows.map((row, idx) => {
+      // NOTE: In desktop layout we move the selected day's <details> into the right-side panel.
+      // That changes DOM order, so always sort by the day index instead of relying on querySelectorAll order.
+      const rows = Array.from(document.querySelectorAll('.schedule-item'))
+        .sort((a, b) => {
+          const ai = parseInt(a.getAttribute('data-index') || '', 10);
+          const bi = parseInt(b.getAttribute('data-index') || '', 10);
+          const aIndex = Number.isFinite(ai) ? ai : 9999;
+          const bIndex = Number.isFinite(bi) ? bi : 9999;
+          return aIndex - bIndex;
+        });
+
+      return rows.map((row, pos) => {
+        const idxFromAttr = parseInt(row.getAttribute('data-index') || '', 10);
+        const idx = Number.isFinite(idxFromAttr) ? idxFromAttr : pos;
+
         const dayName = (row.querySelector('.dayName').value || DEFAULT_DAYS[idx] || '-').trim();
         const month = Math.max(1, Math.min(12, parseInt(row.querySelector('.month').value, 10)));
         const day = Math.max(1, Math.min(31, parseInt(row.querySelector('.day').value, 10)));
