@@ -1035,6 +1035,21 @@
               <button id="btn-generate-discord-message" type="button">🔄 Generate</button>
             </div>
           </section>
+
+          <section class="admin-panel span-2" aria-label="Admin notes">
+            <div class="admin-panel-head">
+              <div>
+                <h3>📝 Notes</h3>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Saved locally in this browser.</p>
+              </div>
+            </div>
+
+            <label for="admin-notes">Notes</label>
+            <textarea id="admin-notes" spellcheck="true" style="min-height:160px; margin-bottom:0.7rem;" placeholder="Add notes for yourself…"></textarea>
+            <div class="admin-actions">
+              <span id="admin-notes-status" class="admin-msg"></span>
+            </div>
+          </section>
         </div>
 
         <div>
@@ -1275,6 +1290,51 @@
     const btnIncidentSaveEl = document.getElementById('btn-incident-save');
     const incidentStatusEl = document.getElementById('incident-status');
     const incidentNotifyEl = document.getElementById('incident-notify');
+
+    // --- Admin Notes (local, auto-save) ---
+    const adminNotesEl = document.getElementById('admin-notes');
+    const adminNotesStatusEl = document.getElementById('admin-notes-status');
+    const ADMIN_NOTES_LOCALSTORAGE_KEY = 'fwj_admin_notes_v1';
+    let adminNotesSaveTimer = null;
+
+    function setAdminNotesStatus(text) {
+      if (!adminNotesStatusEl) return;
+      adminNotesStatusEl.textContent = (text || '').toString();
+    }
+
+    function loadAdminNotes() {
+      if (!adminNotesEl) return;
+      try {
+        const saved = localStorage.getItem(ADMIN_NOTES_LOCALSTORAGE_KEY);
+        adminNotesEl.value = saved != null ? String(saved) : '';
+        setAdminNotesStatus(saved ? 'Loaded.' : '');
+      } catch {
+        setAdminNotesStatus('');
+      }
+    }
+
+    function saveAdminNotes() {
+      if (!adminNotesEl) return;
+      try {
+        localStorage.setItem(ADMIN_NOTES_LOCALSTORAGE_KEY, adminNotesEl.value || '');
+        setAdminNotesStatus('Saved.');
+      } catch {
+        setAdminNotesStatus('Save failed.');
+      }
+    }
+
+    if (adminNotesEl) {
+      loadAdminNotes();
+      adminNotesEl.addEventListener('input', () => {
+        setAdminNotesStatus('Saving...');
+        if (adminNotesSaveTimer) clearTimeout(adminNotesSaveTimer);
+        adminNotesSaveTimer = setTimeout(saveAdminNotes, 250);
+      });
+      window.addEventListener('beforeunload', saveAdminNotes);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') saveAdminNotes();
+      });
+    }
         // --- Expected Return Message ---
         function getExpectedReturnApiUrl() {
           // Use same logic as site mode API, but endpoint is /expected-return
