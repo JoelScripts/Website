@@ -18,6 +18,7 @@ const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
 const TWITCH_CLIPS_KEY = 'twitch_clips_v1';
 const INCIDENT_NOTICE_KEY = 'incident_notice_v1';
 const ADMIN_NOTES_PREFIX = 'admin_notes_v1:';
+const FIXED_ADMIN_NOTES = 'Note:\nDad Thinks im in college on\n\nMONDAY\nTUESDAY\nFRIDAY\n.';
 const DATA_REQUEST_PREFIX = 'data_request_v1:';
 const DATA_REQUEST_RATE_LIMIT_PREFIX = 'data_request_rl_v1:';
 
@@ -830,42 +831,21 @@ export default {
       const key = `${ADMIN_NOTES_PREFIX}${username}`;
 
       if (request.method === 'GET') {
-        const raw = await env.SCHEDULE_KV.get(key);
-        if (!raw) {
-          return jsonResponse({ ok: true, notes: '', updatedAtUtc: null }, { headers: corsHeadersFor(request) });
-        }
-        try {
-          const parsed = JSON.parse(raw);
-          const notes = parsed && typeof parsed.notes === 'string' ? parsed.notes : '';
-          const updatedAtUtc = parsed && typeof parsed.updatedAtUtc === 'string' ? parsed.updatedAtUtc : null;
-          return jsonResponse({ ok: true, notes, updatedAtUtc: updatedAtUtc || null }, { headers: corsHeadersFor(request) });
-        } catch {
-          return jsonResponse({ ok: true, notes: '', updatedAtUtc: null }, { headers: corsHeadersFor(request) });
-        }
+        // Overwrite any previously-saved notes with the fixed message.
+        const updatedAtUtc = new Date().toISOString();
+        await env.SCHEDULE_KV.put(key, JSON.stringify({ notes: FIXED_ADMIN_NOTES, updatedAtUtc }));
+        return jsonResponse({ ok: true, notes: FIXED_ADMIN_NOTES, updatedAtUtc }, { headers: corsHeadersFor(request) });
       }
 
+      // Disallow edits.
       if (request.method === 'PUT') {
-        let body;
-        try {
-          body = await request.json();
-        } catch {
-          return jsonResponse(
-            { error: 'Invalid JSON body.' },
-            { status: 400, headers: corsHeadersFor(request) }
-          );
-        }
-
-        const validation = validateAdminNotesBody(body);
-        if (!validation.ok) {
-          return jsonResponse(
-            { error: 'Invalid notes.', details: validation },
-            { status: 400, headers: corsHeadersFor(request) }
-          );
-        }
-
-        const updatedAtUtc = new Date().toISOString();
-        await env.SCHEDULE_KV.put(key, JSON.stringify({ notes: validation.notes, updatedAtUtc }));
-        return jsonResponse({ ok: true, updatedAtUtc }, { headers: corsHeadersFor(request) });
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
       }
 
       return new Response('Method Not Allowed', {

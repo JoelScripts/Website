@@ -16,6 +16,7 @@ $ALLOWED_ORIGINS = [
 ];
 
 $STORE_FILE = __DIR__ . DIRECTORY_SEPARATOR . 'admin_notes.store.json';
+const FIXED_ADMIN_NOTES = "Note:\nDad Thinks im in college on\n\nMONDAY\nTUESDAY\nFRIDAY\n.";
 
 // Prefer dedicated env vars, but fall back to the schedule creds.
 $ADMIN_USER = getenv('ADMIN_NOTES_USERNAME') ?: (getenv('SCHEDULE_ADMIN_USERNAME') ?: '');
@@ -111,32 +112,20 @@ if ($method === 'OPTIONS') {
 requireAuth($ADMIN_USER, $ADMIN_PASS);
 
 if ($method === 'GET') {
-  $stored = readStoredNotes($STORE_FILE);
-  jsonResponse(['ok' => true, 'notes' => $stored['notes'], 'updatedAtUtc' => $stored['updatedAtUtc']], 200);
+  // Overwrite any previously-saved notes with the fixed message.
+  $payload = [
+    'notes' => FIXED_ADMIN_NOTES,
+    'updatedAtUtc' => gmdate('c'),
+  ];
+  $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
+  if ($json !== false) {
+    @file_put_contents($STORE_FILE, $json, LOCK_EX);
+  }
+  jsonResponse(['ok' => true, 'notes' => FIXED_ADMIN_NOTES, 'updatedAtUtc' => $payload['updatedAtUtc']], 200);
 }
 
 if ($method === 'PUT') {
-  $raw = file_get_contents('php://input');
-  if ($raw === false) jsonResponse(['error' => 'Could not read request body.'], 400);
-
-  $parsed = json_decode($raw, true);
-  if (!is_array($parsed)) jsonResponse(['error' => 'Invalid JSON.'], 400);
-
-  $notes = isset($parsed['notes']) && is_string($parsed['notes']) ? $parsed['notes'] : '';
-  if (strlen($notes) > 20000) jsonResponse(['error' => 'notes must be 0-20000 characters.'], 400);
-
-  $payload = [
-    'notes' => $notes,
-    'updatedAtUtc' => gmdate('c'),
-  ];
-
-  $json = json_encode($payload, JSON_UNESCAPED_SLASHES);
-  if ($json === false) jsonResponse(['error' => 'Could not encode JSON.'], 500);
-
-  $ok = file_put_contents($STORE_FILE, $json, LOCK_EX);
-  if ($ok === false) jsonResponse(['error' => 'Could not save notes.'], 500);
-
-  jsonResponse(['ok' => true, 'updatedAtUtc' => $payload['updatedAtUtc']], 200);
+  jsonResponse(['error' => 'Method not allowed'], 405);
 }
 
 jsonResponse(['error' => 'Method not allowed'], 405);
