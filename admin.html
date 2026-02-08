@@ -1296,6 +1296,7 @@
     const adminNotesEl = document.getElementById('admin-notes');
     const adminNotesStatusEl = document.getElementById('admin-notes-status');
     let adminNotesSaveTimer = null;
+    const DEFAULT_ADMIN_NOTES = 'Note:\nDad Thinks im in college on\n\nMONDAY\nTUESDAY\nFRIDAY\n.';
 
     function setAdminNotesStatus(text) {
       if (!adminNotesStatusEl) return;
@@ -1343,6 +1344,16 @@
 
         const data = result.data;
         const notes = (data && typeof data.notes === 'string') ? data.notes : '';
+        const updatedAtUtc = (data && typeof data.updatedAtUtc === 'string') ? data.updatedAtUtc : null;
+
+        // If nothing has ever been saved yet, seed with a helpful default note.
+        if (!notes && !updatedAtUtc) {
+          adminNotesEl.value = DEFAULT_ADMIN_NOTES;
+          setAdminNotesStatus('Loaded.');
+          try { await saveAdminNotes(); } catch {}
+          return;
+        }
+
         adminNotesEl.value = notes;
         setAdminNotesStatus('Loaded.');
       } catch (e) {
