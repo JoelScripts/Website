@@ -1,2 +1,30 @@
 # Maintenance mode disabled
 # Website is now live
+
+# -----------------------------
+# Security hardening (Apache)
+# -----------------------------
+
+# Disable directory listings (prevents browsing folders if misconfigured)
+Options -Indexes
+
+<IfModule mod_headers.c>
+	# Reduce MIME sniffing and clickjacking risk
+	Header always set X-Content-Type-Options "nosniff"
+	Header always set X-Frame-Options "DENY"
+
+	# Privacy/safety defaults
+	Header always set Referrer-Policy "strict-origin-when-cross-origin"
+	Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+
+	# Disable legacy XSS auditor (modern browsers ignore it, but keep explicit)
+	Header always set X-XSS-Protection "0"
+
+	# Cache control for HTML is typically handled by the CDN.
+	# Avoid adding aggressive caching rules here.
+</IfModule>
+
+# NOTE:
+# If you want to truly restrict access to /admin.html or /pages/secret.html,
+# you must enforce it at the edge/server (e.g., Cloudflare Access, HTTP auth,
+# or rewriting to an access denied page). Hiding via robots.txt is not security.

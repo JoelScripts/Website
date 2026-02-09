@@ -21,6 +21,7 @@ const ADMIN_NOTES_PREFIX = 'admin_notes_v1:';
 const FIXED_ADMIN_NOTES = 'Note:\nDad Thinks im in college on\n\nMONDAY\nTUESDAY\nFRIDAY\n.';
 const DATA_REQUEST_PREFIX = 'data_request_v1:';
 const DATA_REQUEST_RATE_LIMIT_PREFIX = 'data_request_rl_v1:';
+const AUTH_FAIL_PREFIX = 'auth_fail_v1:';
 
 const DEFAULT_SITE_MODE = 'live';
 
@@ -195,6 +196,116 @@ function getDsrRateLimitSeconds(env) {
   // Default: 2 minutes. Clamp to a sane range.
   if (!Number.isFinite(n)) return 120;
   return Math.max(5, Math.min(600, Math.trunc(n)));
+}
+
+function getAuthFailWindowSeconds(env) {
+  const raw = (env && env.AUTH_FAIL_WINDOW_SECONDS != null) ? String(env.AUTH_FAIL_WINDOW_SECONDS).trim() : '';
+  const n = raw ? parseInt(raw, 10) : NaN;
+  // Default: 10 minutes. Clamp to 1–60 minutes.
+  if (!Number.isFinite(n)) return 600;
+  return Math.max(60, Math.min(3600, Math.trunc(n)));
+}
+
+function getAuthFailMaxAttempts(env) {
+  const raw = (env && env.AUTH_FAIL_MAX_ATTEMPTS != null) ? String(env.AUTH_FAIL_MAX_ATTEMPTS).trim() : '';
+  const n = raw ? parseInt(raw, 10) : NaN;
+  // Default: 12 attempts per window. Clamp to 3–100.
+  if (!Number.isFinite(n)) return 12;
+  return Math.max(3, Math.min(100, Math.trunc(n)));
+}
+
+async function getAuthFailState(env, ip) {
+  if (!env || !env.SCHEDULE_KV) return { ok: true, skipped: true, blocked: false };
+  if (!ip) return { ok: true, skipped: true, blocked: false };
+
+  const windowSeconds = getAuthFailWindowSeconds(env);
+  const maxAttempts = getAuthFailMaxAttempts(env);
+  const key = `${AUTH_FAIL_PREFIX}${await sha256Hex(ip)}`;
+
+  const raw = await env.SCHEDULE_KV.get(key);
+  if (!raw) return { ok: true, blocked: false, attempts: 0, maxAttempts, windowSeconds, key };
+
+  try {
+    const parsed = JSON.parse(raw);
+    const attempts = parsed && Number.isFinite(parsed.attempts) ? Math.max(0, Math.trunc(parsed.attempts)) : 0;
+    return {
+      ok: true,
+      blocked: attempts >= maxAttempts,
+      attempts,
+      maxAttempts,
+      windowSeconds,
+      key,
+    };
+  } catch {
+    return { ok: true, blocked: false, attempts: 0, maxAttempts, windowSeconds, key };
+  }
+}
+
+async function recordAuthFailure(env, ip) {
+  if (!env || !env.SCHEDULE_KV) return { ok: true, skipped: true, blocked: false };
+  if (!ip) return { ok: true, skipped: true, blocked: false };
+
+  const state = await getAuthFailState(env, ip);
+  if (!state || state.skipped) return { ok: true, skipped: true, blocked: false };
+
+  const nextAttempts = Math.max(0, (state.attempts || 0)) + 1;
+  await env.SCHEDULE_KV.put(
+    state.key,
+    JSON.stringify({ attempts: nextAttempts, updatedAtUtc: new Date().toISOString() }),
+    { expirationTtl: state.windowSeconds }
+  );
+
+  return {
+    ok: true,
+    blocked: nextAttempts >= state.maxAttempts,
+    attempts: nextAttempts,
+    maxAttempts: state.maxAttempts,
+    windowSeconds: state.windowSeconds,
+  };
+}
+
+async function unauthorizedWithCors(request, env) {
+  const cors = corsHeadersFor(request);
+  const ip = request.headers.get('cf-connecting-ip') || '';
+
+  // If the IP is already blocked, return 429.
+  try {
+    const state = await getAuthFailState(env, ip);
+    if (state && state.blocked) {
+      return new Response('Too Many Attempts', {
+        status: 429,
+        headers: {
+          ...cors,
+          'cache-control': 'no-store',
+          'retry-after': String(state.windowSeconds || 600),
+        },
+      });
+    }
+  } catch {
+    // ignore
+  }
+
+  // Record a failure (best-effort). If this pushes the IP over the limit, return 429.
+  try {
+    const r = await recordAuthFailure(env, ip);
+    if (r && r.blocked) {
+      return new Response('Too Many Attempts', {
+        status: 429,
+        headers: {
+          ...cors,
+          'cache-control': 'no-store',
+          'retry-after': String(r.windowSeconds || 600),
+        },
+      });
+    }
+  } catch {
+    // ignore
+  }
+
+  const resp = unauthorizedResponse();
+  const headers = new Headers(resp.headers);
+  for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+  return new Response(resp.body, { status: resp.status, headers });
 }
 
 async function enforceDataRequestRateLimit(env, ip) {
@@ -819,11 +930,7 @@ export default {
       }
 
       if (!isAuthorized(request, env)) {
-        const resp = unauthorizedResponse();
-        const headers = new Headers(resp.headers);
-        const cors = corsHeadersFor(request);
-        for (const [k, v] of Object.entries(cors)) headers.set(k, v);
-        return new Response(resp.body, { status: resp.status, headers });
+          return unauthorizedWithCors(request, env);
       }
 
       const creds = parseBasicAuth(request);
@@ -1121,11 +1228,7 @@ export default {
         }
 
         if (!isAuthorized(request, env)) {
-          const resp = unauthorizedResponse();
-          const headers = new Headers(resp.headers);
-          const cors = corsHeadersFor(request);
-          for (const [k, v] of Object.entries(cors)) headers.set(k, v);
-          return new Response(resp.body, { status: resp.status, headers });
+           return unauthorizedWithCors(request, env);
         }
 
         let body;
@@ -1284,11 +1387,7 @@ export default {
             );
           }
           if (!isAuthorized(request, env)) {
-            const resp = unauthorizedResponse();
-            const headers = new Headers(resp.headers);
-            const cors = corsHeadersFor(request);
-            for (const [k, v] of Object.entries(cors)) headers.set(k, v);
-            return new Response(resp.body, { status: resp.status, headers });
+            return unauthorizedWithCors(request, env);
           }
           let body;
           try {
@@ -1338,11 +1437,7 @@ export default {
         }
 
         if (!isAuthorized(request, env)) {
-          const resp = unauthorizedResponse();
-          const headers = new Headers(resp.headers);
-          const cors = corsHeadersFor(request);
-          for (const [k, v] of Object.entries(cors)) headers.set(k, v);
-          return new Response(resp.body, { status: resp.status, headers });
+           return unauthorizedWithCors(request, env);
         }
 
         return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
@@ -1390,11 +1485,7 @@ export default {
         }
 
         if (!isAuthorized(request, env)) {
-          const resp = unauthorizedResponse();
-          const headers = new Headers(resp.headers);
-          const cors = corsHeadersFor(request);
-          for (const [k, v] of Object.entries(cors)) headers.set(k, v);
-          return new Response(resp.body, { status: resp.status, headers });
+            return unauthorizedWithCors(request, env);
         }
 
         let body;
@@ -1449,11 +1540,7 @@ export default {
       }
 
       if (!isAuthorized(request, env)) {
-        const resp = unauthorizedResponse();
-        const headers = new Headers(resp.headers);
-        const cors = corsHeadersFor(request);
-        for (const [k, v] of Object.entries(cors)) headers.set(k, v);
-        return new Response(resp.body, { status: resp.status, headers });
+        return unauthorizedWithCors(request, env);
       }
 
       return jsonResponse({ ok: true }, { headers: corsHeadersFor(request) });
@@ -1598,11 +1685,7 @@ export default {
       }
 
       if (!isAuthorized(request, env)) {
-        const resp = unauthorizedResponse();
-        const headers = new Headers(resp.headers);
-        const cors = corsHeadersFor(request);
-        for (const [k, v] of Object.entries(cors)) headers.set(k, v);
-        return new Response(resp.body, { status: resp.status, headers });
+        return unauthorizedWithCors(request, env);
       }
 
       let body;

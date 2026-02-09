@@ -1,0 +1,22 @@
+# FastHosts /api hardening (Apache)
+
+# Disable directory listings
+Options -Indexes
+
+# Block direct access to on-disk KV-ish store files
+<FilesMatch "\.store\.json$">
+  Require all denied
+</FilesMatch>
+
+# Block accidental config/backup files if ever uploaded
+<FilesMatch "(?i)\.(env|bak|old|orig|swp|tmp)$">
+  Require all denied
+</FilesMatch>
+
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set X-XSS-Protection "0"
+</IfModule>

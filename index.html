@@ -868,12 +868,32 @@
 
         const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
 
+        const ALLOWED_API_ORIGINS = new Set([
+            window.location.origin,
+            'https://flyingwithjoel.co.uk',
+            'https://www.flyingwithjoel.co.uk',
+            'https://api.flyingwithjoel.co.uk',
+        ]);
+
         function sanitizeApiUrl(raw) {
             const s = (raw || '').trim();
             if (!s) return null;
-            if (/^https?:\/\//i.test(s)) return s.replace(/\s+/g, '');
-            if (s.startsWith('/')) return s;
-            return null;
+
+            if (s.startsWith('/')) {
+                if (!s.startsWith('/api/')) return null;
+                return s;
+            }
+
+            try {
+                const u = new URL(s);
+                if (u.protocol !== 'https:') return null;
+                if (!ALLOWED_API_ORIGINS.has(u.origin)) return null;
+                if (!u.pathname.startsWith('/api/')) return null;
+                u.hash = '';
+                return u.toString();
+            } catch {
+                return null;
+            }
         }
 
         function getScheduleApiOverride() {

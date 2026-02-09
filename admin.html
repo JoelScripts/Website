@@ -1457,13 +1457,35 @@
     const INCIDENT_WATCH_STATE_KEY = 'fwj_admin_incident_watch_state';
     let incidentWatchTimer = null;
 
+    const ALLOWED_API_ORIGINS = new Set([
+      window.location.origin,
+      'https://flyingwithjoel.co.uk',
+      'https://www.flyingwithjoel.co.uk',
+      'https://api.flyingwithjoel.co.uk',
+    ]);
+
     function sanitizeApiUrl(raw) {
       const s = (raw || '').trim();
       if (!s) return null;
-      // Allow absolute http(s) or same-origin relative paths.
-      if (/^https?:\/\//i.test(s)) return s.replace(/\s+/g, '');
-      if (s.startsWith('/')) return s;
-      return null;
+
+      // Only allow same-site API paths.
+      // This prevents malicious links like ?scheduleApi=https://evil.example/api/schedule from stealing Basic Auth creds.
+      if (s.startsWith('/')) {
+        if (!s.startsWith('/api/')) return null;
+        return s;
+      }
+
+      // Allow only HTTPS absolute URLs to known origins + /api/* paths.
+      try {
+        const u = new URL(s);
+        if (u.protocol !== 'https:') return null;
+        if (!ALLOWED_API_ORIGINS.has(u.origin)) return null;
+        if (!u.pathname.startsWith('/api/')) return null;
+        u.hash = '';
+        return u.toString();
+      } catch {
+        return null;
+      }
     }
 
     function getScheduleApiOverride() {
