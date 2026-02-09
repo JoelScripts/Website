@@ -193,7 +193,7 @@
 
         <div class="details">
             <p><strong>What's happening?</strong></p>
-            <p>We're performing essential updates to ensure the best experience and legal compliance for all our visitors.</p>
+            <p id="maintenance-reason-message">We're performing essential updates to ensure the best experience and legal compliance for all our visitors.</p>
             <p style="margin-top: 1rem;" id="expected-return"><strong>Expected return:</strong> <span id="expected-return-message">Loading...</span></p>
         </div>
 
@@ -239,6 +239,18 @@
                 })
                 .catch(() => {
                     document.getElementById('expected-return-message').textContent = 'By the end of January 2026';
+                });
+
+            // Fetch maintenance reason ("What's happening?")
+            fetch('/api/site-mode/maintenance-reason', { cache: 'no-store' })
+                .then(resp => resp.json())
+                .then(data => {
+                    var msg = (data && typeof data.message === 'string' && data.message.trim()) ? data.message.trim() : '';
+                    var el = document.getElementById('maintenance-reason-message');
+                    if (el && msg) el.textContent = msg;
+                })
+                .catch(() => {
+                    // Keep the default text.
                 });
         });
         </script>

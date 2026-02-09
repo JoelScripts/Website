@@ -14,6 +14,7 @@ const SCHEDULE_KEY = 'schedule_v1';
 const TWITCH_TOKEN_KEY = 'twitch_token_v1';
 const SITE_MODE_KEY = 'site_mode_v1';
 const EXPECTED_RETURN_KEY = 'expected_return_v1';
+const MAINTENANCE_REASON_KEY = 'maintenance_reason_v1';
 const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
 const TWITCH_CLIPS_KEY = 'twitch_clips_v1';
 const INCIDENT_NOTICE_KEY = 'incident_notice_v1';
@@ -1345,6 +1346,8 @@ export default {
     //  - GET /api/site-mode/auth -> verifies Basic Auth (for debugging)
     //  - GET /api/site-mode/expected-return -> { message: string|null, updatedAtUtc: string|null }
     //  - PUT /api/site-mode/expected-return -> saves { message }
+    //  - GET /api/site-mode/maintenance-reason -> { message: string|null, updatedAtUtc: string|null }
+    //  - PUT /api/site-mode/maintenance-reason -> saves { message }
     if (isSiteMode) {
       // GET/PUT expected return message
       if (path === '/api/site-mode/expected-return') {
@@ -1407,6 +1410,79 @@ export default {
           }
           const updatedAtUtc = new Date().toISOString();
           await env.SCHEDULE_KV.put(EXPECTED_RETURN_KEY, JSON.stringify({ message, updatedAtUtc }));
+          return jsonResponse({ ok: true, message, updatedAtUtc }, { headers: corsHeadersFor(request) });
+        }
+
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
+      }
+
+      // GET/PUT maintenance reason ("What's happening?") message
+      if (path === '/api/site-mode/maintenance-reason') {
+        if (!env.SCHEDULE_KV) {
+          return jsonResponse(
+            { error: 'Missing KV binding SCHEDULE_KV.' },
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        if (request.method === 'GET') {
+          const raw = await env.SCHEDULE_KV.get(MAINTENANCE_REASON_KEY);
+          if (!raw) {
+            return jsonResponse(
+              { message: null, updatedAtUtc: null },
+              { headers: corsHeadersFor(request) }
+            );
+          }
+          try {
+            const parsed = JSON.parse(raw);
+            const message = typeof parsed.message === 'string' ? parsed.message : null;
+            const updatedAtUtc = typeof parsed.updatedAtUtc === 'string' ? parsed.updatedAtUtc : null;
+            return jsonResponse(
+              { message, updatedAtUtc },
+              { headers: corsHeadersFor(request) }
+            );
+          } catch {
+            return jsonResponse(
+              { message: null, updatedAtUtc: null },
+              { headers: corsHeadersFor(request) }
+            );
+          }
+        }
+
+        if (request.method === 'PUT') {
+          if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+            return jsonResponse(
+              { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+              { status: 500, headers: corsHeadersFor(request) }
+            );
+          }
+          if (!isAuthorized(request, env)) {
+            return unauthorizedWithCors(request, env);
+          }
+          let body;
+          try {
+            body = await request.json();
+          } catch {
+            return jsonResponse(
+              { error: 'Invalid JSON body.' },
+              { status: 400, headers: corsHeadersFor(request) }
+            );
+          }
+          const message = typeof body.message === 'string' ? body.message.trim() : '';
+          if (!message || message.length > 220) {
+            return jsonResponse(
+              { error: 'Message must be a non-empty string up to 220 characters.' },
+              { status: 400, headers: corsHeadersFor(request) }
+            );
+          }
+          const updatedAtUtc = new Date().toISOString();
+          await env.SCHEDULE_KV.put(MAINTENANCE_REASON_KEY, JSON.stringify({ message, updatedAtUtc }));
           return jsonResponse({ ok: true, message, updatedAtUtc }, { headers: corsHeadersFor(request) });
         }
 

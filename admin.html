@@ -991,6 +991,22 @@
             </div>
           </section>
 
+          <section class="admin-panel" aria-label="Maintenance reason">
+            <div class="admin-panel-head">
+              <div>
+                <h3>🛠️ What's Happening</h3>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Shown under “What’s happening?” on the maintenance page.</p>
+              </div>
+            </div>
+
+            <label for="maintenance-reason-input">What's happening message</label>
+            <input id="maintenance-reason-input" type="text" maxlength="220" style="margin-bottom:0.7rem;" />
+            <div class="admin-actions">
+              <button id="btn-maintenance-reason-save" type="button">💾 Save</button>
+              <span id="maintenance-reason-status" class="admin-msg" style="margin-left:1rem;"></span>
+            </div>
+          </section>
+
           <section class="admin-panel span-2" aria-label="Security incident notice">
             <div class="admin-panel-head">
               <div>
@@ -1297,6 +1313,10 @@
     const btnExpectedReturnSaveEl = document.getElementById('btn-expected-return-save');
     const expectedReturnStatusEl = document.getElementById('expected-return-status');
 
+    const maintenanceReasonInputEl = document.getElementById('maintenance-reason-input');
+    const btnMaintenanceReasonSaveEl = document.getElementById('btn-maintenance-reason-save');
+    const maintenanceReasonStatusEl = document.getElementById('maintenance-reason-status');
+
     const incidentPillEl = document.getElementById('incident-pill');
     const incidentEnabledEl = document.getElementById('incident-enabled');
     const incidentUpdatedEl = document.getElementById('incident-updated');
@@ -1419,6 +1439,66 @@
 
         if (expectedReturnInputEl && btnExpectedReturnSaveEl) {
           btnExpectedReturnSaveEl.addEventListener('click', saveExpectedReturnMessage);
+        }
+
+        // --- Maintenance Reason (What's happening?) ---
+        function getMaintenanceReasonApiUrl() {
+          const base = getSiteModeApiOverride() || '/api/site-mode';
+          if (base.endsWith('/')) return base + 'maintenance-reason';
+          if (base.endsWith('site-mode')) return base + '/maintenance-reason';
+          return base + '/maintenance-reason';
+        }
+
+        function fetchMaintenanceReasonMessage() {
+          if (!maintenanceReasonInputEl || !maintenanceReasonStatusEl) return;
+          maintenanceReasonInputEl.value = '';
+          maintenanceReasonStatusEl.textContent = 'Loading...';
+          fetch(getMaintenanceReasonApiUrl(), { cache: 'no-store' })
+            .then(resp => resp.json())
+            .then(data => {
+              if (data && typeof data.message === 'string') {
+                maintenanceReasonInputEl.value = data.message;
+                maintenanceReasonStatusEl.textContent = 'Loaded.';
+              } else {
+                maintenanceReasonStatusEl.textContent = 'No message set.';
+              }
+            })
+            .catch(() => {
+              maintenanceReasonStatusEl.textContent = 'Error loading message.';
+            });
+        }
+
+        function saveMaintenanceReasonMessage() {
+          if (!maintenanceReasonInputEl || !maintenanceReasonStatusEl) return;
+          const msg = maintenanceReasonInputEl.value.trim();
+          if (!msg || msg.length > 220) {
+            maintenanceReasonStatusEl.textContent = 'Message must be 1-220 characters.';
+            return;
+          }
+          maintenanceReasonStatusEl.textContent = 'Saving...';
+          fetch(getMaintenanceReasonApiUrl(), {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(authHeader ? { 'Authorization': authHeader } : {}),
+            },
+            body: JSON.stringify({ message: msg }),
+          })
+            .then(resp => resp.json())
+            .then(data => {
+              if (data && data.ok) {
+                maintenanceReasonStatusEl.textContent = 'Saved!';
+              } else {
+                maintenanceReasonStatusEl.textContent = (data && data.error) ? data.error : 'Error saving.';
+              }
+            })
+            .catch(() => {
+              maintenanceReasonStatusEl.textContent = 'Error saving.';
+            });
+        }
+
+        if (maintenanceReasonInputEl && btnMaintenanceReasonSaveEl) {
+          btnMaintenanceReasonSaveEl.addEventListener('click', saveMaintenanceReasonMessage);
         }
 
         // Load message after unlock
@@ -2664,6 +2744,7 @@
         await loadSiteMode();
         try { if (typeof loadAdminNotes === 'function') await loadAdminNotes(); } catch {}
         try { if (typeof fetchExpectedReturnMessage === 'function') fetchExpectedReturnMessage(); } catch {}
+        try { if (typeof fetchMaintenanceReasonMessage === 'function') fetchMaintenanceReasonMessage(); } catch {}
         try { await loadIncidentNotice(); } catch {}
 
         // Optional: incident change notifications while admin is open.
