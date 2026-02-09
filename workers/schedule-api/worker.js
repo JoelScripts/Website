@@ -15,6 +15,7 @@ const TWITCH_TOKEN_KEY = 'twitch_token_v1';
 const SITE_MODE_KEY = 'site_mode_v1';
 const EXPECTED_RETURN_KEY = 'expected_return_v1';
 const MAINTENANCE_REASON_KEY = 'maintenance_reason_v1';
+const WHATS_NEW_KEY = 'whats_new_v1';
 const TWITCH_FOLLOWERS_KEY = 'twitch_followers_v1';
 const TWITCH_CLIPS_KEY = 'twitch_clips_v1';
 const INCIDENT_NOTICE_KEY = 'incident_notice_v1';
@@ -1348,6 +1349,8 @@ export default {
     //  - PUT /api/site-mode/expected-return -> saves { message }
     //  - GET /api/site-mode/maintenance-reason -> { message: string|null, updatedAtUtc: string|null }
     //  - PUT /api/site-mode/maintenance-reason -> saves { message }
+    //  - GET /api/site-mode/whats-new -> { items: string[], updatedAtUtc: string|null }
+    //  - PUT /api/site-mode/whats-new -> saves { items }
     if (isSiteMode) {
       // GET/PUT expected return message
       if (path === '/api/site-mode/expected-return') {
@@ -1484,6 +1487,103 @@ export default {
           const updatedAtUtc = new Date().toISOString();
           await env.SCHEDULE_KV.put(MAINTENANCE_REASON_KEY, JSON.stringify({ message, updatedAtUtc }));
           return jsonResponse({ ok: true, message, updatedAtUtc }, { headers: corsHeadersFor(request) });
+        }
+
+        return new Response('Method Not Allowed', {
+          status: 405,
+          headers: {
+            ...corsHeadersFor(request),
+            'cache-control': 'no-store',
+          },
+        });
+      }
+
+      // GET/PUT "What's new" bulletin list
+      if (path === '/api/site-mode/whats-new') {
+        if (!env.SCHEDULE_KV) {
+          return jsonResponse(
+            { error: 'Missing KV binding SCHEDULE_KV.' },
+            { status: 500, headers: corsHeadersFor(request) }
+          );
+        }
+
+        if (request.method === 'GET') {
+          const raw = await env.SCHEDULE_KV.get(WHATS_NEW_KEY);
+          if (!raw) {
+            return jsonResponse(
+              { items: [], updatedAtUtc: null },
+              { headers: corsHeadersFor(request) }
+            );
+          }
+          try {
+            const parsed = JSON.parse(raw);
+            const items = Array.isArray(parsed.items) ? parsed.items.filter(x => typeof x === 'string') : [];
+            const updatedAtUtc = typeof parsed.updatedAtUtc === 'string' ? parsed.updatedAtUtc : null;
+            return jsonResponse(
+              { items, updatedAtUtc },
+              { headers: corsHeadersFor(request) }
+            );
+          } catch {
+            return jsonResponse(
+              { items: [], updatedAtUtc: null },
+              { headers: corsHeadersFor(request) }
+            );
+          }
+        }
+
+        if (request.method === 'PUT') {
+          if (!env.ADMIN_USERNAME || !env.ADMIN_PASSWORD) {
+            return jsonResponse(
+              { error: 'Missing ADMIN_USERNAME/ADMIN_PASSWORD secrets.' },
+              { status: 500, headers: corsHeadersFor(request) }
+            );
+          }
+          if (!isAuthorized(request, env)) {
+            return unauthorizedWithCors(request, env);
+          }
+          let body;
+          try {
+            body = await request.json();
+          } catch {
+            return jsonResponse(
+              { error: 'Invalid JSON body.' },
+              { status: 400, headers: corsHeadersFor(request) }
+            );
+          }
+
+          const rawItems = Array.isArray(body.items) ? body.items : null;
+          if (!rawItems) {
+            return jsonResponse(
+              { error: 'items must be an array of strings.' },
+              { status: 400, headers: corsHeadersFor(request) }
+            );
+          }
+
+          const cleaned = rawItems
+            .filter(x => typeof x === 'string')
+            .map(x => x.trim())
+            .filter(Boolean);
+
+          if (cleaned.length > 20) {
+            return jsonResponse(
+              { error: 'items must contain at most 20 bullets.' },
+              { status: 400, headers: corsHeadersFor(request) }
+            );
+          }
+          const tooLong = cleaned.find(x => x.length > 160);
+          if (tooLong) {
+            return jsonResponse(
+              { error: 'Each bullet must be 1-160 characters.' },
+              { status: 400, headers: corsHeadersFor(request) }
+            );
+          }
+
+          const updatedAtUtc = new Date().toISOString();
+          await env.SCHEDULE_KV.put(WHATS_NEW_KEY, JSON.stringify({ items: cleaned, updatedAtUtc }));
+          return jsonResponse(
+            { ok: true, items: cleaned, updatedAtUtc },
+            { headers: corsHeadersFor(request) }
+          );
         }
 
         return new Response('Method Not Allowed', {

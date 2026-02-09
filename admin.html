@@ -1007,6 +1007,23 @@
             </div>
           </section>
 
+          <section class="admin-panel" aria-label="What's new bulletin list">
+            <div class="admin-panel-head">
+              <div>
+                <h3>🆕 What's New</h3>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Bulleted list shown on the maintenance page under “What’s new?”.</p>
+              </div>
+            </div>
+
+            <div id="whats-new-rows" style="display:flex; flex-direction:column; gap:0.55rem; margin-bottom:0.75rem;"></div>
+
+            <div class="admin-actions">
+              <button id="btn-whats-new-add" class="secondary" type="button">＋ Add bullet</button>
+              <button id="btn-whats-new-save" type="button">💾 Save</button>
+              <span id="whats-new-status" class="admin-msg" style="margin-left:1rem;"></span>
+            </div>
+          </section>
+
           <section class="admin-panel span-2" aria-label="Security incident notice">
             <div class="admin-panel-head">
               <div>
@@ -1317,6 +1334,11 @@
     const btnMaintenanceReasonSaveEl = document.getElementById('btn-maintenance-reason-save');
     const maintenanceReasonStatusEl = document.getElementById('maintenance-reason-status');
 
+    const whatsNewRowsEl = document.getElementById('whats-new-rows');
+    const btnWhatsNewAddEl = document.getElementById('btn-whats-new-add');
+    const btnWhatsNewSaveEl = document.getElementById('btn-whats-new-save');
+    const whatsNewStatusEl = document.getElementById('whats-new-status');
+
     const incidentPillEl = document.getElementById('incident-pill');
     const incidentEnabledEl = document.getElementById('incident-enabled');
     const incidentUpdatedEl = document.getElementById('incident-updated');
@@ -1499,6 +1521,118 @@
 
         if (maintenanceReasonInputEl && btnMaintenanceReasonSaveEl) {
           btnMaintenanceReasonSaveEl.addEventListener('click', saveMaintenanceReasonMessage);
+        }
+
+        // --- What's New (bulletin list) ---
+        function getWhatsNewApiUrl() {
+          const base = getSiteModeApiOverride() || '/api/site-mode';
+          if (base.endsWith('/')) return base + 'whats-new';
+          if (base.endsWith('site-mode')) return base + '/whats-new';
+          return base + '/whats-new';
+        }
+
+        function createWhatsNewRow(value) {
+          if (!whatsNewRowsEl) return null;
+
+          const row = document.createElement('div');
+          row.style.display = 'flex';
+          row.style.gap = '0.6rem';
+          row.style.alignItems = 'center';
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.maxLength = 160;
+          input.placeholder = 'e.g. Added new schedule page layout';
+          input.value = (typeof value === 'string') ? value : '';
+          input.style.flex = '1';
+
+          row.appendChild(input);
+          whatsNewRowsEl.appendChild(row);
+          return input;
+        }
+
+        function setWhatsNewStatus(text) {
+          if (!whatsNewStatusEl) return;
+          whatsNewStatusEl.textContent = text || '';
+        }
+
+        function fetchWhatsNewList() {
+          if (!whatsNewRowsEl) return;
+          whatsNewRowsEl.innerHTML = '';
+          setWhatsNewStatus('Loading...');
+          fetch(getWhatsNewApiUrl(), { cache: 'no-store' })
+            .then(resp => resp.json())
+            .then(data => {
+              const items = (data && Array.isArray(data.items)) ? data.items : [];
+              const cleaned = items
+                .map(x => (typeof x === 'string' ? x.trim() : ''))
+                .filter(Boolean);
+
+              if (cleaned.length === 0) {
+                // Show a single empty row so it's obvious you can start typing.
+                createWhatsNewRow('');
+                setWhatsNewStatus('No bullets set yet.');
+                return;
+              }
+
+              cleaned.forEach(t => createWhatsNewRow(t));
+              setWhatsNewStatus('Loaded.');
+            })
+            .catch(() => {
+              createWhatsNewRow('');
+              setWhatsNewStatus('Error loading list.');
+            });
+        }
+
+        function saveWhatsNewList() {
+          if (!whatsNewRowsEl) return;
+          const inputs = Array.from(whatsNewRowsEl.querySelectorAll('input'));
+          const items = inputs
+            .map(i => (i && typeof i.value === 'string') ? i.value.trim() : '')
+            .filter(Boolean);
+
+          const tooLong = items.find(t => t.length > 160);
+          if (tooLong) {
+            setWhatsNewStatus('Each bullet must be 1-160 characters.');
+            return;
+          }
+          if (items.length > 20) {
+            setWhatsNewStatus('Max 20 bullets.');
+            return;
+          }
+
+          setWhatsNewStatus('Saving...');
+          fetch(getWhatsNewApiUrl(), {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(authHeader ? { 'Authorization': authHeader } : {}),
+            },
+            body: JSON.stringify({ items }),
+          })
+            .then(resp => resp.json())
+            .then(data => {
+              if (data && data.ok) {
+                setWhatsNewStatus('Saved!');
+                fetchWhatsNewList();
+              } else {
+                setWhatsNewStatus((data && data.error) ? data.error : 'Error saving.');
+              }
+            })
+            .catch(() => {
+              setWhatsNewStatus('Error saving.');
+            });
+        }
+
+        if (btnWhatsNewAddEl) {
+          btnWhatsNewAddEl.addEventListener('click', () => {
+            const input = createWhatsNewRow('');
+            if (input && typeof input.focus === 'function') input.focus();
+          });
+        }
+
+        if (btnWhatsNewSaveEl) {
+          btnWhatsNewSaveEl.addEventListener('click', saveWhatsNewList);
         }
 
         // Load message after unlock
@@ -2745,6 +2879,7 @@
         try { if (typeof loadAdminNotes === 'function') await loadAdminNotes(); } catch {}
         try { if (typeof fetchExpectedReturnMessage === 'function') fetchExpectedReturnMessage(); } catch {}
         try { if (typeof fetchMaintenanceReasonMessage === 'function') fetchMaintenanceReasonMessage(); } catch {}
+        try { if (typeof fetchWhatsNewList === 'function') fetchWhatsNewList(); } catch {}
         try { await loadIncidentNotice(); } catch {}
 
         // Optional: incident change notifications while admin is open.
