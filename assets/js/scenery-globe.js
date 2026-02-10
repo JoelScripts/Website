@@ -1,7 +1,7 @@
 (() => {
     const GLOBE_CONTAINER_ID = 'scenery-globe';
     const LIST_CONTAINER_ID = 'scenery-list';
-    const DATA_URL = 'assets/data/scenery.json';
+    const DEFAULT_DATA_URL = '/assets/data/scenery.json';
 
     const GLOBE_RETRY_DELAY_MS = 250;
     const GLOBE_MAX_RETRIES = 20;
@@ -61,8 +61,13 @@
             .join('');
     }
 
+    function getDataUrl() {
+        const attr = document.documentElement.getAttribute('data-scenery-url');
+        return attr ? attr.trim() : DEFAULT_DATA_URL;
+    }
+
     async function loadSceneryData() {
-        const resp = await fetch(DATA_URL, { cache: 'no-store' });
+        const resp = await fetch(getDataUrl(), { cache: 'no-store' });
         if (!resp.ok) throw new Error('Failed to load scenery data');
         const json = await resp.json();
         if (!Array.isArray(json)) return [];
@@ -93,7 +98,20 @@
         globe.controls().autoRotate = true;
         globe.controls().autoRotateSpeed = 0.6;
         globe.controls().enableZoom = true;
-        globe.pointOfView({ lat: 20, lng: 0, altitude: 2.2 });
+        globe.controls().enablePan = false;
+        globe.pointOfView({ lat: 12, lng: 0, altitude: 2.3 });
+
+        const resizeGlobe = () => {
+            const width = container.clientWidth || 0;
+            const height = container.clientHeight || 0;
+            if (width > 0 && height > 0) {
+                globe.width(width);
+                globe.height(height);
+            }
+        };
+
+        resizeGlobe();
+        window.addEventListener('resize', resizeGlobe);
 
         container.addEventListener('click', () => {
             document.querySelectorAll('.globe-marker.active').forEach((marker) => {
@@ -112,15 +130,17 @@
     }
 
     async function bootstrapSceneryGlobe() {
+        let points = [];
         try {
-            const points = await loadSceneryData();
+            points = await loadSceneryData();
             renderSceneryList(points);
-            waitForGlobeLibrary(GLOBE_MAX_RETRIES, () => initGlobe(points));
         } catch {
             const list = document.getElementById(LIST_CONTAINER_ID);
             if (list) {
                 list.innerHTML = '<div class="scenery-empty">Unable to load scenery pins right now.</div>';
             }
+        } finally {
+            waitForGlobeLibrary(GLOBE_MAX_RETRIES, () => initGlobe(points));
         }
     }
 
