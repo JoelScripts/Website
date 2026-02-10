@@ -1055,6 +1055,118 @@ body {
     border: 1px solid rgba(255, 140, 66, 0.35);
 }
 
+.world-flight-card {
+    border-color: rgba(102, 187, 106, 0.45);
+    background: radial-gradient(900px 260px at 15% 0%, rgba(76, 175, 80, 0.18), transparent 62%),
+        radial-gradient(900px 260px at 85% 0%, rgba(0, 153, 255, 0.12), transparent 60%),
+        var(--card-bg);
+}
+
+.world-flight-hero {
+    padding: 1.2rem 1.2rem 0.6rem;
+}
+
+.world-flight-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-light);
+}
+
+.world-flight-subtitle {
+    margin-top: 0.25rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.world-flight-route {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.4rem 1.2rem 0.6rem;
+}
+
+.world-flight-pill {
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid rgba(102, 187, 106, 0.35);
+    background: rgba(76, 175, 80, 0.12);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.world-flight-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    padding: 0 1.2rem 0.6rem;
+}
+
+.world-flight-metric {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.6rem;
+    padding: 0.7rem 0.8rem;
+}
+
+.metric-label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.metric-value {
+    margin-top: 0.25rem;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #c6f4cf;
+}
+
+.world-flight-legs {
+    padding: 0 1.2rem 0.8rem;
+}
+
+.world-flight-label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-bottom: 0.45rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.world-flight-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.world-flight-tags span {
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.world-flight-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0 1.2rem 1.2rem;
+}
+
+.world-flight-badge {
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(76, 175, 80, 0.18);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid rgba(76, 175, 80, 0.35);
+}
+
 /* Twitch Clip Embed Container */
 .highlight-iframe-container {
     position: relative;
