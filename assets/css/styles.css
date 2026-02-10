@@ -906,6 +906,11 @@ body {
     object-fit: cover;
 }
 
+.achievement-image {
+    object-fit: contain;
+    background-color: #0b0b0b;
+}
+
 .play-btn {
     position: absolute;
     top: 50%;
@@ -953,6 +958,101 @@ body {
     padding: 0 1rem 1rem;
     font-size: 0.8rem;
     color: var(--text-muted);
+}
+
+.twitch-wrapped-card {
+    border-color: rgba(255, 140, 66, 0.45);
+    background: radial-gradient(800px 240px at 20% 0%, rgba(255, 140, 66, 0.16), transparent 60%),
+        radial-gradient(800px 240px at 80% 0%, rgba(255, 90, 54, 0.12), transparent 60%),
+        var(--card-bg);
+}
+
+.twitch-wrapped-hero {
+    padding: 1.2rem 1.2rem 0.6rem;
+}
+
+.twitch-wrapped-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text-light);
+}
+
+.twitch-wrapped-subtitle {
+    margin-top: 0.25rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.twitch-wrapped-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+    padding: 0.8rem 1.2rem 0.4rem;
+}
+
+.twitch-stat {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 0.6rem;
+    padding: 0.7rem 0.8rem;
+}
+
+.twitch-stat-label {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.twitch-stat-value {
+    margin-top: 0.25rem;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ffd6b6;
+}
+
+.twitch-wrapped-categories {
+    padding: 0.4rem 1.2rem 0.8rem;
+}
+
+.twitch-wrapped-label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-bottom: 0.45rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.twitch-wrapped-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.twitch-wrapped-tags span {
+    padding: 0.3rem 0.6rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.twitch-wrapped-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    padding: 0 1.2rem 1.2rem;
+}
+
+.twitch-wrapped-pill {
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(255, 140, 66, 0.18);
+    color: var(--text-light);
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 1px solid rgba(255, 140, 66, 0.35);
 }
 
 /* Twitch Clip Embed Container */

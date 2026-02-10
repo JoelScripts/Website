@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flying With Joel - Achievements</title>
+    <meta name="description" content="Stream achievements and milestones from Flying With Joel.">
+
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <script src="../assets/js/site-mode.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">flywithjoel</div>
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="schedule.html">Schedule</a></li>
+                <li><a href="../index.html#highlights">Highlights</a></li>
+                <li><a href="achievements.html">Achievements</a></li>
+                <li><a href="../index.html#setup">My Setup</a></li>
+                <li><a href="../index.html#faq">FAQ</a></li>
+                <li><a href="../index.html#affiliates">Affiliates</a></li>
+                <li><a href="suggestions.html">Suggestions</a></li>
+                <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="follow-btn">Follow Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="highlights-section" style="padding-top: 6rem;">
+        <h2>Stream Achievements</h2>
+        <p class="section-subtitle">Milestones and achievements from our streams</p>
+
+        <div class="highlights-grid">
+            <div class="highlight-card">
+                <div class="highlight-thumbnail">
+                        <img src="../assets/img/achievements/World+Flight+2025.png" alt="World Flight 2025 achievement" loading="lazy" class="achievement-image">
+                </div>
+                <h4>Completed World Flight 2025</h4>
+                <span class="view-count">A full global route completed live</span>
+            </div>
+
+            <div class="highlight-card">
+                <div class="highlight-thumbnail">
+                        <img src="../assets/img/achievements/rspca-fundraiser.svg" alt="RSPCA fundraiser achievement" loading="lazy" class="achievement-image">
+                </div>
+                <h4>Raised Money for the RSPCA</h4>
+                <span class="view-count">Community fundraising achievement</span>
+            </div>
+
+            <div class="highlight-card twitch-wrapped-card">
+                <div class="twitch-wrapped-hero">
+                    <div class="twitch-wrapped-title">Twitch Wrapped 2025</div>
+                    <div class="twitch-wrapped-subtitle">Yearly recap of stream milestones</div>
+                </div>
+
+                <div class="twitch-wrapped-stats">
+                    <div class="twitch-stat">
+                        <div class="twitch-stat-label">New Followers</div>
+                        <div class="twitch-stat-value">213</div>
+                    </div>
+                    <div class="twitch-stat">
+                        <div class="twitch-stat-label">Hours Watched</div>
+                        <div class="twitch-stat-value">692</div>
+                    </div>
+                    <div class="twitch-stat">
+                        <div class="twitch-stat-label">New Subscribers</div>
+                        <div class="twitch-stat-value">38</div>
+                    </div>
+                    <div class="twitch-stat">
+                        <div class="twitch-stat-label">Total Streams</div>
+                        <div class="twitch-stat-value">81</div>
+                    </div>
+                    <div class="twitch-stat">
+                        <div class="twitch-stat-label">Chats Received</div>
+                        <div class="twitch-stat-value">21.6K</div>
+                    </div>
+                    <div class="twitch-stat">
+                        <div class="twitch-stat-label">Clips</div>
+                        <div class="twitch-stat-value">22</div>
+                    </div>
+                </div>
+
+                <div class="twitch-wrapped-categories">
+                    <div class="twitch-wrapped-label">Top Categories</div>
+                    <div class="twitch-wrapped-tags">
+                        <span>Flight Simulator 2024</span>
+                        <span>X-Plane 12</span>
+                        <span>Rainbow Six Siege</span>
+                        <span>Farming Simulator 25</span>
+                        <span>Battlefield 6</span>
+                    </div>
+                </div>
+
+                <div class="twitch-wrapped-footer">
+                    <span class="twitch-wrapped-pill">Top Channel Emote: TOGA</span>
+                    <span class="twitch-wrapped-pill">Top Category: Flight Simulator 2024</span>
+                </div>
+            </div>
+
+            <!-- Add new achievements below this line -->
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="cookies.html">Cookie Policy</a>
+                <a href="#" id="cookie-settings-link">Cookie Settings</a>
+                <a href="security.html">Security & Hosting</a>
+                <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank">Twitch</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+        });
+
+        const navItems = navLinks.querySelectorAll('a');
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
