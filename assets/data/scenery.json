@@ -1,0 +1,23 @@
+[
+    {
+        "name": "EGLL London Heathrow",
+        "description": "My main UK hub scenery.",
+        "lat": 51.4706,
+        "lng": -0.4619,
+        "link": "https://example.com/heathrow-scenery"
+    },
+    {
+        "name": "KJFK New York",
+        "description": "Long-haul favorite for transatlantic flights.",
+        "lat": 40.6413,
+        "lng": -73.7781,
+        "link": "https://example.com/jfk-scenery"
+    },
+    {
+        "name": "WSSS Singapore",
+        "description": "Beautiful night lighting and detailed terminals.",
+        "lat": 1.3644,
+        "lng": 103.9915,
+        "link": "https://example.com/singapore-scenery"
+    }
+]
