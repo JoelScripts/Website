@@ -1068,11 +1068,22 @@ body {
     min-height: 360px;
 }
 
+.scenery-globe-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .scenery-globe {
     width: 100%;
     height: 420px;
     border-radius: 0.6rem;
     overflow: hidden;
+}
+
+.scenery-globe canvas {
+    display: block;
+    margin: 0 auto;
 }
 
 .scenery-list {

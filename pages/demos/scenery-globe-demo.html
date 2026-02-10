@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sceneries Globe Demo</title>
+    <meta name="description" content="Demo page for the Sceneries globe tab.">
+    <link rel="stylesheet" href="../../assets/css/styles.css">
+</head>
+<body>
+    <section class="setup-section" style="min-height: 100vh;">
+        <h2>Sceneries Globe Demo</h2>
+        <p class="section-subtitle">Preview of the Sceneries tab layout, globe, and markers.</p>
+
+        <div class="tabs-container" style="margin-bottom: 1.5rem;">
+            <button class="tab-btn">
+                <span class="icon">⚙️</span> Sim Settings
+            </button>
+            <button class="tab-btn">
+                <span class="icon">🎁</span> MSFS Addons
+            </button>
+            <button class="tab-btn">
+                <span class="icon">🎁</span> X-Plane Addons
+            </button>
+            <button class="tab-btn active">
+                <span class="icon">🌍</span> Sceneries
+            </button>
+            <button class="tab-btn">
+                <span class="icon">📺</span> Graphics
+            </button>
+        </div>
+
+        <div class="tab-content active">
+            <div class="setup-scenery-header">
+                <h3>🌍 Sceneries</h3>
+                <p>Drop pins on the globe and link to the scenery packs I use.</p>
+            </div>
+            <div class="setup-scenery-grid">
+                <div class="setup-scenery-card scenery-globe-card">
+                    <div id="scenery-globe" class="scenery-globe" role="img" aria-label="Interactive globe showing scenery locations"></div>
+                </div>
+                <div class="setup-scenery-card">
+                    <div class="scenery-list" id="scenery-list">
+                        <div class="scenery-empty">Loading scenery pins...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="../../assets/js/main.js"></script>
+    <script src="https://unpkg.com/three@0.160.0/build/three.min.js" defer></script>
+    <script src="https://unpkg.com/globe.gl@2.33.0/dist/globe.gl.min.js" defer></script>
+    <script src="../../assets/js/scenery-globe.js" defer></script>
+</body>
+</html>
