@@ -1033,153 +1033,6 @@ body {
     margin-bottom: 2rem;
 }
 
-.setup-scenery-section {
-    margin-top: 3rem;
-}
-
-.setup-scenery-header {
-    text-align: center;
-    margin-bottom: 1.5rem;
-}
-
-.setup-scenery-header h3 {
-    color: var(--text-light);
-    font-size: 1.4rem;
-    margin-bottom: 0.35rem;
-}
-
-.setup-scenery-header p {
-    color: var(--text-muted);
-    font-size: 0.95rem;
-}
-
-.setup-scenery-grid {
-    display: grid;
-    grid-template-columns: minmax(320px, 1.3fr) minmax(260px, 0.7fr);
-    gap: 1.5rem;
-    align-items: stretch;
-}
-
-.setup-scenery-card {
-    background-color: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 0.6rem;
-    padding: 1.25rem;
-    min-height: 360px;
-}
-
-.scenery-globe-card {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.scenery-globe {
-    width: 100%;
-    height: 420px;
-    border-radius: 0.6rem;
-    overflow: hidden;
-}
-
-.scenery-globe canvas {
-    display: block;
-    margin: 0 auto;
-}
-
-.scenery-list {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.scenery-item {
-    border: 1px solid var(--border);
-    border-radius: 0.6rem;
-    padding: 0.9rem;
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.scenery-item-title {
-    font-weight: 700;
-    color: var(--text-light);
-    margin-bottom: 0.3rem;
-}
-
-.scenery-item-desc {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-bottom: 0.6rem;
-}
-
-.scenery-item-link {
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.85rem;
-}
-
-.scenery-empty {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-}
-
-.globe-marker {
-    position: relative;
-    transform: translate(-50%, -50%);
-}
-
-.globe-marker-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--primary);
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    box-shadow: 0 0 10px rgba(255, 140, 66, 0.6);
-    cursor: pointer;
-}
-
-.globe-marker-tooltip {
-    position: absolute;
-    left: 50%;
-    top: -10px;
-    transform: translate(-50%, -100%);
-    min-width: 180px;
-    background: rgba(12, 12, 12, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0.6rem;
-    padding: 0.7rem;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s ease;
-    z-index: 5;
-}
-
-.globe-marker:hover .globe-marker-tooltip,
-.globe-marker.active .globe-marker-tooltip {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.globe-marker-title {
-    font-weight: 700;
-    font-size: 0.85rem;
-    margin-bottom: 0.35rem;
-    color: var(--text-light);
-}
-
-.globe-marker-desc {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-}
-
-.globe-marker-link {
-    display: inline-flex;
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.75rem;
-}
 
 .card {
     background-color: var(--card-bg);
@@ -1622,9 +1475,6 @@ body {
         grid-template-columns: 1fr;
     }
 
-    .setup-scenery-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 @media (max-width: 768px) {
@@ -1746,9 +1596,6 @@ body {
         gap: 1rem;
     }
 
-    .scenery-globe {
-        height: 320px;
-    }
 
     .stream-card,
     .highlight-card,

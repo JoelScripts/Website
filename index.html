@@ -143,9 +143,6 @@
             <button class="tab-btn" data-tab="addons2">
                 <span class="icon">🎁</span> X-Plane Addons
             </button>
-            <button class="tab-btn" data-tab="scenery">
-                <span class="icon">🌍</span> Sceneries
-            </button>
             <button class="tab-btn" data-tab="graphics">
                 <span class="icon">📺</span> Graphics
             </button>
@@ -350,6 +347,16 @@
                         </div>
                     </div>
                     <div class="card">
+                        <h3>🌍 Scenery</h3>
+                        <div class="addon-list">
+                            <div class="addon-item addon-link" style="cursor: default; opacity: 0.92;" role="note" aria-label="Scenery list coming soon">
+                                <span class="addon-name">Soon to be updated</span>
+                                <span class="addon-info">Scenery list is being refreshed</span>
+                            </div>
+                            <!-- Add new scenery addons below this line -->
+                        </div>
+                    </div>
+                    <div class="card">
                         <h3>🛠️ Utilities</h3>
                         <div class="addon-list">
                             <a href="https://www.littlenavmap.org/" target="_blank" class="addon-item addon-link">
@@ -401,6 +408,16 @@
                         </div>
                     </div>
                     <div class="card">
+                        <h3>🌍 Scenery</h3>
+                        <div class="addon-list">
+                            <div class="addon-item addon-link" style="cursor: default; opacity: 0.92;" role="note" aria-label="Scenery list coming soon">
+                                <span class="addon-name">Soon to be updated</span>
+                                <span class="addon-info">Scenery list is being refreshed</span>
+                            </div>
+                            <!-- Add new scenery addons below this line -->
+                        </div>
+                    </div>
+                    <div class="card">
                         <h3>🛠️ Utilities</h3>
                         <div class="addon-list">
                             <a href="https://www.littlenavmap.org/" target="_blank" class="addon-item addon-link">
@@ -420,24 +437,6 @@
                                 <span class="addon-info">Aviation Charts</span>
                             </a>
                             <!-- Add new utility addons below this line -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sceneries Tab -->
-            <div id="scenery" class="tab-content">
-                <div class="setup-scenery-header">
-                    <h3>🌍 Sceneries</h3>
-                    <p>Drop pins on the globe and link to the scenery packs I use.</p>
-                </div>
-                <div class="setup-scenery-grid">
-                    <div class="setup-scenery-card scenery-globe-card">
-                        <div id="scenery-globe" class="scenery-globe" role="img" aria-label="Interactive globe showing scenery locations"></div>
-                    </div>
-                    <div class="setup-scenery-card">
-                        <div class="scenery-list" id="scenery-list">
-                            <div class="scenery-empty">Loading scenery pins...</div>
                         </div>
                     </div>
                 </div>
@@ -653,9 +652,6 @@
     </footer>
 
     <script src="assets/js/main.js"></script>
-    <script src="https://unpkg.com/three@0.160.0/build/three.min.js" defer></script>
-    <script src="https://unpkg.com/globe.gl@2.33.0/dist/globe.gl.min.js" defer></script>
-    <script src="assets/js/scenery-globe.js" defer></script>
     <script>
         // ===== GDPR Consent Helpers =====
         function hasUserConsent() {
