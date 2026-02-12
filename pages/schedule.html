@@ -495,12 +495,33 @@
       if (now - lastLiveCheckAt < 30000 && lastLiveValue !== null) return lastLiveValue;
 
       try {
-        const result = await fetchFirstOkJson(getLiveApiCandidates(), { cache: 'no-store' });
-        const json = result && result.data;
-        if (!json || json.ok !== true || typeof json.live !== 'boolean') return null;
-        lastLiveCheckAt = now;
-        lastLiveValue = json.live;
-        return json.live;
+        const candidates = getLiveApiCandidates();
+        const cacheBust = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+        for (const u of candidates) {
+          try {
+            const url = (u && u.includes('?')) ? `${u}&t=${encodeURIComponent(cacheBust)}` : `${u}?t=${encodeURIComponent(cacheBust)}`;
+            const resp = await fetch(url, {
+              cache: 'no-store',
+              headers: {
+                'cache-control': 'no-cache',
+                'pragma': 'no-cache',
+              },
+            });
+            if (!resp.ok) continue;
+
+            const json = await resp.json();
+            if (!json || json.ok !== true || typeof json.live !== 'boolean') continue;
+
+            lastLiveCheckAt = now;
+            lastLiveValue = json.live;
+            return json.live;
+          } catch {
+            // try next
+          }
+        }
+
+        return null;
       } catch {
         return null;
       }
