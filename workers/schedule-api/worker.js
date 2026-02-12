@@ -433,8 +433,8 @@ async function getTwitchAccessToken(env) {
   const cached = await getCachedTwitchToken(env);
   if (cached) return cached;
 
-  const clientId = env.TWITCH_CLIENT_ID;
-  const clientSecret = env.TWITCH_CLIENT_SECRET;
+  const clientId = env.TWITCH_CLIENT_ID || env.CLIENT_ID;
+  const clientSecret = env.TWITCH_CLIENT_SECRET || env.CLIENT_SECRET;
   if (!clientId || !clientSecret) return null;
 
   const tokenUrl = new URL('https://id.twitch.tv/oauth2/token');
@@ -457,13 +457,13 @@ async function getTwitchAccessToken(env) {
 }
 
 async function isTwitchChannelLive(env) {
-  const clientId = env.TWITCH_CLIENT_ID;
+  const clientId = env.TWITCH_CLIENT_ID || env.CLIENT_ID;
   if (!clientId) return null;
 
   const token = await getTwitchAccessToken(env);
   if (!token) return null;
 
-  const login = (env.TWITCH_CHANNEL_LOGIN || DEFAULT_TWITCH_LOGIN).toString().trim().toLowerCase();
+  const login = (env.TWITCH_CHANNEL_LOGIN || env.TWITCH_LOGIN || DEFAULT_TWITCH_LOGIN).toString().trim().toLowerCase();
   const url = new URL('https://api.twitch.tv/helix/streams');
   url.searchParams.set('user_login', login);
 
@@ -1733,13 +1733,6 @@ export default {
             'cache-control': 'no-store',
           },
         });
-      }
-
-      if (!env.SCHEDULE_KV) {
-        return jsonResponse(
-          { error: 'Missing KV binding SCHEDULE_KV.' },
-          { status: 500, headers: corsHeadersFor(request) }
-        );
       }
 
       const live = await isTwitchChannelLive(env);

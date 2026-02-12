@@ -182,6 +182,10 @@
       'https://api.flyingwithjoel.co.uk/api/schedule.php',
     ];
 
+    // Used to pick the matching live-status endpoint.
+    // Populated at runtime after the schedule JSON loads.
+    let lastScheduleApiUrl = null;
+
     const SCHEDULE_API_LOCALSTORAGE_KEY = 'fwj_schedule_api';
 
     const ALLOWED_API_ORIGINS = new Set([
@@ -253,6 +257,59 @@
         }
       }
       return null;
+    }
+
+    function deriveLiveApiFromScheduleApi(scheduleApiUrl) {
+      const raw = (scheduleApiUrl || '').toString().trim();
+      if (!raw) return null;
+
+      // Relative worker route.
+      if (raw === '/api/schedule') return '/api/schedule/live';
+
+      // FastHosts API uses schedule.php; live check is provided via schedule_live.php.
+      if (raw.endsWith('/api/schedule.php')) {
+        return raw.replace(/\/api\/schedule\.php$/, '/api/schedule_live.php');
+      }
+
+      // Absolute/other variants.
+      try {
+        const u = new URL(raw);
+        if (u.pathname === '/api/schedule') {
+          u.pathname = '/api/schedule/live';
+          u.search = '';
+          u.hash = '';
+          return u.toString();
+        }
+        if (u.pathname.endsWith('/api/schedule.php')) {
+          u.pathname = u.pathname.replace(/\/api\/schedule\.php$/, '/api/schedule_live.php');
+          u.search = '';
+          u.hash = '';
+          return u.toString();
+        }
+      } catch {
+        // ignore
+      }
+
+      return null;
+    }
+
+    function getLiveApiCandidates() {
+      const candidates = [];
+      // Default worker route.
+      candidates.push('/api/schedule/live');
+
+      // Prefer the live endpoint that matches whichever schedule API succeeded.
+      const derivedFromLast = deriveLiveApiFromScheduleApi(lastScheduleApiUrl);
+      if (derivedFromLast) candidates.push(derivedFromLast);
+
+      // Also try deriving from all schedule candidates.
+      for (const s of getScheduleApiCandidates()) {
+        const derived = deriveLiveApiFromScheduleApi(s);
+        if (derived) candidates.push(derived);
+      }
+
+      // De-dupe.
+      return Array.from(new Set(candidates));
     }
 
     function renderWeeklySchedule(items) {
@@ -438,9 +495,8 @@
       if (now - lastLiveCheckAt < 30000 && lastLiveValue !== null) return lastLiveValue;
 
       try {
-        const resp = await fetch('/api/schedule/live', { cache: 'no-store' });
-        if (!resp.ok) return null;
-        const json = await resp.json();
+        const result = await fetchFirstOkJson(getLiveApiCandidates(), { cache: 'no-store' });
+        const json = result && result.data;
         if (!json || json.ok !== true || typeof json.live !== 'boolean') return null;
         lastLiveCheckAt = now;
         lastLiveValue = json.live;
@@ -560,6 +616,7 @@
 
       try {
         const result = await fetchFirstOkJson(getScheduleApiCandidates(), { cache: 'no-store' });
+        lastScheduleApiUrl = result ? result.url : null;
         const items = result && result.data;
 
         if (!Array.isArray(items) || items.length === 0) {
