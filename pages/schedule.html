@@ -620,7 +620,8 @@
         const isBlockedByStatus = card.classList.contains('cancelled') || card.classList.contains('completed');
 
         // Show LIVE badge only on the original live day while stream is live
-        if (isActuallyLive === true && isLiveDay && !isBlockedByStatus) {
+        // Some browsers can block/partition storage, so fall back to matching today's card.
+        if (isActuallyLive === true && (isLiveDay || isToday) && !isBlockedByStatus) {
           card.classList.add('live');
           card.style.cursor = 'pointer';
           applyPillForCard(card, 'LIVE');
