@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navbar Demo - Flying With Joel</title>
+    <meta name="description" content="Demo page for the updated navigation bar styling.">
+
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/js/site-mode.js"></script>
+</head>
+<body>
+    <!-- Navigation Header (Demo: v2 styling enabled) -->
+    <nav class="navbar navbar--v2">
+        <div class="nav-container">
+            <div class="logo">flywithjoel</div>
+            <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-controls="nav-links" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="pages/schedule.html"><span class="nav-icon" aria-hidden="true">📅</span>Schedule</a></li>
+                <li><a href="index.html#highlights"><span class="nav-icon" aria-hidden="true">✨</span>Highlights</a></li>
+                <li><a href="pages/achievements.html"><span class="nav-icon" aria-hidden="true">🏆</span>Achievements</a></li>
+                <li><a href="index.html#setup"><span class="nav-icon" aria-hidden="true">🛠️</span>My Setup</a></li>
+                <li><a href="index.html#faq"><span class="nav-icon" aria-hidden="true">❓</span>FAQ</a></li>
+                <li><a href="index.html#affiliates"><span class="nav-icon" aria-hidden="true">🤝</span>Affiliates</a></li>
+                <li><a href="pages/suggestions.html"><span class="nav-icon" aria-hidden="true">💡</span>Suggestions</a></li>
+                <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" rel="noopener" class="follow-btn"><span class="nav-icon" aria-hidden="true">▶️</span>Follow Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main style="max-width: 1400px; margin: 0 auto; padding: 3rem 2rem;">
+        <h1 style="margin-bottom: 0.75rem;">Navbar Demo</h1>
+        <p style="color: var(--text-muted); max-width: 70ch;">
+            This page previews the improved top bar styling. If you like it, I’ll apply the same change to <strong>index.html</strong>.
+            Resize your browser to check the mobile hamburger menu.
+        </p>
+
+        <div class="card" style="margin-top: 1.5rem;">
+            <h3 style="margin-bottom: 0.35rem;">What’s different?</h3>
+            <p style="color: var(--text-muted); margin: 0;">
+                Slightly more premium navbar background, better link affordance, improved focus styles, and a cleaner mobile dropdown.
+            </p>
+        </div>
+    </main>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+
+        if (hamburger && navLinks) {
+            hamburger.addEventListener('click', () => {
+                hamburger.classList.toggle('active');
+                navLinks.classList.toggle('active');
+                const expanded = hamburger.classList.contains('active');
+                hamburger.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            });
+
+            const navItems = navLinks.querySelectorAll('a');
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    navLinks.classList.remove('active');
+                    hamburger.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

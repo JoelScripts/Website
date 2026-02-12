@@ -467,6 +467,65 @@ body {
     z-index: 100;
 }
 
+/* Navigation (v2)
+   Opt-in via adding .navbar--v2 to the <nav> element so we can demo safely. */
+.navbar.navbar--v2 {
+    background:
+        radial-gradient(900px 260px at 0% 0%, rgba(255, 140, 66, 0.16), transparent 58%),
+        radial-gradient(900px 260px at 100% 0%, rgba(255, 90, 54, 0.12), transparent 58%),
+        rgba(10, 10, 10, 0.72);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(10px);
+}
+
+.navbar.navbar--v2 .nav-container {
+    gap: 1.2rem;
+}
+
+.navbar.navbar--v2 .logo {
+    text-decoration: none;
+}
+
+.navbar.navbar--v2 .nav-links {
+    gap: 1.6rem;
+}
+
+.navbar.navbar--v2 .nav-links a {
+    position: relative;
+    font-weight: 600;
+    padding: 0.45rem 0.15rem;
+}
+
+.navbar.navbar--v2 .nav-links a::after {
+    content: '';
+    position: absolute;
+    left: 0.15rem;
+    right: 0.15rem;
+    bottom: 0.15rem;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.navbar.navbar--v2 .nav-links a:hover::after {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.navbar.navbar--v2 .nav-links a:focus-visible {
+    outline: 2px solid rgba(255, 140, 66, 0.45);
+    outline-offset: 3px;
+    border-radius: 0.35rem;
+}
+
+.navbar.navbar--v2 .follow-btn {
+    border-radius: 999px;
+    box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+}
+
 .nav-container {
     max-width: 1400px;
     margin: 0 auto;
@@ -495,7 +554,17 @@ body {
     color: var(--text-light);
     text-decoration: none;
     font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     transition: color 0.3s ease;
+}
+
+.nav-icon {
+    display: inline-block;
+    line-height: 1;
+    font-size: 1rem;
+    opacity: 0.9;
 }
 
 .nav-links a:hover {
@@ -1694,6 +1763,10 @@ body {
         padding: 1rem;
     }
 
+    .navbar.navbar--v2 {
+        padding: 0.9rem 1rem;
+    }
+
     .logo {
         font-size: 1.1rem;
     }
@@ -1715,6 +1788,13 @@ body {
         overflow: hidden;
         transition: max-height 0.3s ease;
         align-items: stretch;
+    }
+
+    .navbar.navbar--v2 .nav-links {
+        top: 100%;
+        background: rgba(10, 10, 10, 0.92);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
     }
 
     .nav-links.active {

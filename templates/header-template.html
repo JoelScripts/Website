@@ -12,17 +12,23 @@
 </div>
 
 <!-- Main Navigation -->
-<nav class="navbar" style="background: #0a0a0a; border-bottom: 2px solid #0066ff; padding: 1rem 2rem;">
-    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 2rem;">
-        <a href="index.html" style="font-size: 1.5rem; font-weight: 700; color: #0066ff; text-decoration: none;">flywithjoel</a>
-        <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
-            <a href="pages/schedule.html" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Schedule</a>
-            <a href="index.html#highlights" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Highlights</a>
-            <a href="index.html#setup" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Setup</a>
-            <a href="index.html#faq" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">FAQ</a>
-            <a href="index.html#contact" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Contact</a>
-            <a href="suggestions.html" style="color: #e0e0e0; text-decoration: none; transition: color 0.2s;" onmouseover="this.style.color='#0066ff'" onmouseout="this.style.color='#e0e0e0'">Suggestions</a>
-            <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" style="background: #ff6600; color: white; padding: 0.5rem 1rem; border-radius: 0.3rem; text-decoration: none; font-weight: 600; transition: background 0.2s;" onmouseover="this.style.background='#ff7700'" onmouseout="this.style.background='#ff6600'">Follow</a>
-        </div>
+<nav class="navbar navbar--v2">
+    <div class="nav-container">
+        <a href="index.html" class="logo">flywithjoel</a>
+        <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-controls="nav-links" aria-expanded="false">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="pages/schedule.html"><span class="nav-icon" aria-hidden="true">📅</span>Schedule</a></li>
+            <li><a href="index.html#highlights"><span class="nav-icon" aria-hidden="true">✨</span>Highlights</a></li>
+            <li><a href="pages/achievements.html"><span class="nav-icon" aria-hidden="true">🏆</span>Achievements</a></li>
+            <li><a href="index.html#setup"><span class="nav-icon" aria-hidden="true">🛠️</span>Setup</a></li>
+            <li><a href="index.html#faq"><span class="nav-icon" aria-hidden="true">❓</span>FAQ</a></li>
+            <li><a href="index.html#contact"><span class="nav-icon" aria-hidden="true">✉️</span>Contact</a></li>
+            <li><a href="pages/suggestions.html"><span class="nav-icon" aria-hidden="true">💡</span>Suggestions</a></li>
+            <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" rel="noopener" class="follow-btn"><span class="nav-icon" aria-hidden="true">▶️</span>Follow Me</a></li>
+        </ul>
     </div>
 </nav>
