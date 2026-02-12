@@ -506,6 +506,31 @@
       }
     }
 
+    let liveStartDateMemory = null;
+    function safeLsGet(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    }
+    function safeLsSet(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+    function safeLsRemove(key) {
+      try {
+        localStorage.removeItem(key);
+        return true;
+      } catch {
+        return false;
+      }
+    }
+
     function parseZuluMinutes(zuluTimeStr) {
       if (!zuluTimeStr) return null;
       const timeMatch = zuluTimeStr.match(/(\d{1,2}):(\d{2})(?:\s(AM|PM))?\s+Zulu/i);
@@ -535,19 +560,21 @@
       const isActuallyLive = await getIsActuallyLive();
 
       // Track the day the stream started
-      let liveStartDate = localStorage.getItem('fwj_live_start_date');
+      let liveStartDate = safeLsGet('fwj_live_start_date') || liveStartDateMemory;
 
       if (isActuallyLive === true) {
         // Only set if not already set
         if (!liveStartDate) {
           liveStartDate = dateString;
-          localStorage.setItem('fwj_live_start_date', liveStartDate);
+          safeLsSet('fwj_live_start_date', liveStartDate);
+          liveStartDateMemory = liveStartDate;
         }
         // If already set, keep the original value
-      } else {
+      } else if (isActuallyLive === false) {
         // If stream ended, clear
         liveStartDate = null;
-        localStorage.removeItem('fwj_live_start_date');
+        liveStartDateMemory = null;
+        safeLsRemove('fwj_live_start_date');
       }
 
       const dayCards = document.querySelectorAll('.day-card');
