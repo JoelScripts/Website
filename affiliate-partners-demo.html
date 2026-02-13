@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Affiliate Partners Demo - Flying With Joel</title>
+    <meta name="robots" content="noindex">
+
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <script src="assets/js/site-mode.js"></script>
+</head>
+<body>
+    <!-- Navigation Header (same markup as index.html) -->
+    <nav class="navbar navbar--v2">
+        <div class="nav-container">
+            <div class="logo">flywithjoel</div>
+            <button class="hamburger" id="hamburger" aria-label="Toggle navigation" aria-controls="nav-links" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="pages/schedule.html"><span class="nav-icon" aria-hidden="true">📅</span>Schedule</a></li>
+                <li><a href="index.html#highlights"><span class="nav-icon" aria-hidden="true">✨</span>Highlights</a></li>
+                <li><a href="pages/achievements.html"><span class="nav-icon" aria-hidden="true">🏆</span>Achievements</a></li>
+                <li><a href="index.html#faq"><span class="nav-icon" aria-hidden="true">❓</span>FAQ</a></li>
+                <li><a href="#affiliates"><span class="nav-icon" aria-hidden="true">🤝</span>Affiliates</a></li>
+                <li><a href="pages/suggestions.html"><span class="nav-icon" aria-hidden="true">💡</span>Suggestions</a></li>
+                <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" rel="noopener noreferrer" class="follow-btn"><span class="nav-icon" aria-hidden="true">▶️</span>Follow Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Affiliates Section (copied from index.html, with a demo partner added) -->
+    <section id="affiliates" class="affiliates-section">
+        <h2>Affiliate Partners</h2>
+        <p class="section-subtitle">Companies and products I recommend and use</p>
+
+        <div style="background: linear-gradient(90deg, rgba(102, 187, 106, 0.12) 0%, rgba(76, 175, 80, 0.08) 100%); border: 2px solid #4CAF50; border-radius: 0.8rem; padding: 2rem; margin-bottom: 2rem;">
+            <h3 style="margin: 0 0 1rem 0; color: #66BB6A; font-size: 1.1rem;">🤝 Affiliate Disclosure & Legal Notice</h3>
+            <p style="margin: 0 0 1rem 0; color: #e0e0e0; line-height: 1.6;">
+                <strong>We are affiliate partners with these companies.</strong> When you purchase through affiliate links on this page, we earn a small commission at <strong>no additional cost to you.</strong>
+            </p>
+            <div style="background: rgba(102, 187, 106, 0.08); border-left: 4px solid #4CAF50; padding: 1rem; border-radius: 0.4rem; margin-bottom: 1rem;">
+                <p style="margin: 0; color: #d0d0d0; font-size: 0.95rem;">
+                    <strong>What this means:</strong> We may earn a commission if you click our links and make a purchase. This helps support our streaming, content creation, and website maintenance.
+                </p>
+            </div>
+            <div style="background: rgba(102, 187, 106, 0.08); border-left: 4px solid #4CAF50; padding: 1rem; border-radius: 0.4rem;">
+                <p style="margin: 0; color: #d0d0d0; font-size: 0.95rem;">
+                    <strong>Our promise:</strong> We only recommend products and services we genuinely use and believe in. We would recommend them even without affiliate compensation. Your trust is more important than any commission.
+                </p>
+            </div>
+            <p style="margin: 1rem 0 0 0; color: #a0a0a0; font-size: 0.85rem;">
+                <em>FTC Disclosure: In compliance with FTC guidelines, all affiliate links are clearly marked as affiliate links. For more information, see our <a href="pages/privacy.html" style="color: var(--primary); text-decoration: none; font-weight: 600;">Privacy Policy</a>.</em>
+            </p>
+        </div>
+
+        <div class="affiliates-grid">
+            <!-- Existing placeholder card (kept for comparison) -->
+            <div class="affiliate-card">
+                <div class="affiliate-header">
+                    <h3>NONE YET</h3>
+                    <span class="affiliate-badge" style="background: #ff9800; color: white;">Affiliate</span>
+                </div>
+                <p class="affiliate-description">Coming soon with genuine recommendations!</p>
+                <a href="#" class="affiliate-btn" style="background: #66BB6A;">Coming Soon</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; Flying With Joel</p>
+            <div class="footer-links">
+                <a href="pages/privacy.html">Privacy</a>
+                <a href="pages/terms.html">Terms</a>
+                <a href="pages/cookies.html">Cookies</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Minimal hamburger menu toggle (kept small for this demo page)
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+
+        if (hamburger && navLinks) {
+            hamburger.addEventListener('click', () => {
+                const next = !hamburger.classList.contains('active');
+                hamburger.classList.toggle('active');
+                navLinks.classList.toggle('active');
+                hamburger.setAttribute('aria-expanded', String(next));
+            });
+
+            navLinks.querySelectorAll('a').forEach((item) => {
+                item.addEventListener('click', () => {
+                    hamburger.classList.remove('active');
+                    navLinks.classList.remove('active');
+                    hamburger.setAttribute('aria-expanded', 'false');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

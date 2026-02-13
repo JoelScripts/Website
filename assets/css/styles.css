@@ -480,6 +480,8 @@ body {
 
 .navbar.navbar--v2 .nav-container {
     gap: 1.2rem;
+    /* Give the v2 navbar more room before we collapse it */
+    max-width: 1600px;
 }
 
 .navbar.navbar--v2 .logo {
@@ -494,6 +496,7 @@ body {
     position: relative;
     font-weight: 600;
     padding: 0.45rem 0.15rem;
+    white-space: nowrap;
 }
 
 .navbar.navbar--v2 .nav-links a::after {
@@ -1741,6 +1744,54 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 1600px) {
+    /*
+      Prevent the v2 navbar from wrapping links on mid-size screens.
+      Instead, collapse into the hamburger + dropdown menu.
+    */
+    .navbar.navbar--v2 .hamburger {
+        display: flex;
+    }
+
+    .navbar.navbar--v2 .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(10, 10, 10, 0.92);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        gap: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        align-items: stretch;
+        z-index: 100;
+    }
+
+    .navbar.navbar--v2 .nav-links.active {
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    .navbar.navbar--v2 .nav-links li {
+        border-bottom: 1px solid var(--border);
+    }
+
+    .navbar.navbar--v2 .nav-links a {
+        display: block;
+        padding: 1rem 2rem;
+        font-size: 0.9rem;
+    }
+
+    .navbar.navbar--v2 .follow-btn {
+        display: inline-block;
+        margin: 1rem 2rem;
+        padding: 0.6rem 1.2rem;
+    }
+}
+
 @media (max-width: 1024px) {
     .hero {
         grid-template-columns: 1fr;
