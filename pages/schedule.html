@@ -599,35 +599,23 @@
         const streamTimeEl = card.querySelector('.stream-time');
         if (!streamTimeEl) return;
 
-        const zuluTimeStr = streamTimeEl.getAttribute('data-zulu-time');
-        if (!zuluTimeStr) {
-          card.classList.remove('live');
-          applyPillForCard(card);
-          return;
-        }
-
-        const streamUTCTime = parseZuluMinutes(zuluTimeStr);
-        if (streamUTCTime === null) {
-          card.classList.remove('live');
-          applyPillForCard(card);
-          return;
-        }
-
         const cardDate = card.getAttribute('data-date');
         const isLiveDay = liveStartDate && cardDate === liveStartDate;
         const isToday = cardDate === dateString;
-        const hasStarted = currentUTCTime >= streamUTCTime;
         const isBlockedByStatus = card.classList.contains('cancelled') || card.classList.contains('completed');
 
-        // Show LIVE badge only on the original live day while stream is live
-        // Some browsers can block/partition storage, so fall back to matching today's card.
-        if (isActuallyLive === true && (isLiveDay || isToday) && !isBlockedByStatus) {
+        // Show LIVE badge only on the original live day while stream is live.
+        if (isActuallyLive === true && isLiveDay && !isBlockedByStatus) {
           card.classList.add('live');
           card.style.cursor = 'pointer';
           applyPillForCard(card, 'LIVE');
         } else {
           card.classList.remove('live');
           card.style.cursor = 'default';
+
+          const zuluTimeStr = streamTimeEl.getAttribute('data-zulu-time');
+          const streamUTCTime = zuluTimeStr ? parseZuluMinutes(zuluTimeStr) : null;
+          const hasStarted = streamUTCTime !== null && currentUTCTime >= streamUTCTime;
 
           // If the stream has started and Twitch is offline, treat it as completed.
           // This makes LIVE -> COMPLETED when you end stream, without needing manual edits.

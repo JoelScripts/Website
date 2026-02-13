@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Schedule Delayed + Live Fix Demo — Flying With Joel</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="stylesheet" href="../../assets/css/styles.css" />
+  <script src="../../assets/js/site-mode.js"></script>
+  <style>
+    .wrap { max-width: 1100px; margin: 2.25rem auto; padding: 0 1rem; }
+    .lead { color: var(--text-muted); margin-top: 0.35rem; }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } }
+    .card-lite {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 0.9rem;
+      padding: 1rem;
+    }
+    .demo-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.8rem;
+      margin-top: 0.85rem;
+    }
+    .demo-controls label { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; }
+    .demo-note { color: var(--text-muted); font-size: 0.92rem; margin-top: 0.65rem; }
+    .compare-title { margin: 0 0 0.5rem 0; }
+    .mini-head { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.65rem; }
+
+    .sample-card {
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .validator { margin-top: 1.25rem; }
+    .validator-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+      margin-top: 0.8rem;
+    }
+    @media (min-width: 760px) {
+      .validator-row { grid-template-columns: 1fr 1fr; }
+    }
+    .validator label {
+      display: block;
+      margin-bottom: 0.35rem;
+      font-weight: 700;
+    }
+    .validator input {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border-radius: 0.65rem;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(0,0,0,0.22);
+      color: #fff;
+    }
+    .hint {
+      margin-top: 0.6rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      min-height: 1.3em;
+    }
+    .hint.err { color: #ff9a9a; }
+    .hint.ok { color: #9BE7A0; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar--v2">
+    <div class="nav-container">
+      <div class="logo">flywithjoel</div>
+      <ul class="nav-links" style="display:flex; gap: 1rem;">
+        <li><a href="../../index.html"><span class="nav-icon" aria-hidden="true">🏠</span>Home</a></li>
+        <li><a href="../schedule.html"><span class="nav-icon" aria-hidden="true">📅</span>Schedule</a></li>
+        <li><a href="../../admin.html"><span class="nav-icon" aria-hidden="true">🛠️</span>Admin</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section class="card-lite">
+      <h1 style="margin:0; color: var(--primary);">Schedule Update Demo</h1>
+      <p class="lead">This demo shows what changed: delayed streams now still get a LIVE badge when Twitch says you are live, and delayed times are now strictly validated in Admin.</p>
+    </section>
+
+    <section class="grid" aria-label="Before and after live badge comparison">
+      <article class="card-lite">
+        <h2 class="compare-title">Before (old behavior)</h2>
+        <p class="mini-head">Delayed stream without a parseable delayed Zulu time could stay DELAYED even while live.</p>
+        <div id="old-card" class="day-card has-stream delayed sample-card" data-date="2-13">
+          <div class="status-pill delayed">DELAYED</div>
+          <div class="day-name">THU</div>
+          <div class="day-date" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Feb 13 (Today)</div>
+          <div class="game-logo">✈️</div>
+          <div class="stream-time" id="old-time">Delayed (new time TBC)</div>
+          <div class="stream-title">Microsoft Flight Simulator</div>
+          <div style="font-size: 0.8rem; color: #FFB74D; margin-top: 0.5rem; font-weight: 700;">⏰ Delayed</div>
+        </div>
+      </article>
+
+      <article class="card-lite">
+        <h2 class="compare-title">Now (new behavior)</h2>
+        <p class="mini-head">When Twitch is live, the same delayed stream can still show LIVE.</p>
+        <div id="new-card" class="day-card has-stream delayed sample-card" data-date="2-13">
+          <div class="status-pill delayed">DELAYED</div>
+          <div class="day-name">THU</div>
+          <div class="day-date" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">Feb 13 (Today)</div>
+          <div class="game-logo">✈️</div>
+          <div class="stream-time" id="new-time">Delayed (new time TBC)</div>
+          <div class="stream-title">Microsoft Flight Simulator</div>
+          <div style="font-size: 0.8rem; color: #FFB74D; margin-top: 0.5rem; font-weight: 700;">⏰ Delayed</div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card-lite" style="margin-top: 1rem;">
+      <div class="demo-controls">
+        <label>
+          <input type="checkbox" id="simulate-live" />
+          Simulate Twitch says stream is LIVE
+        </label>
+      </div>
+      <p class="demo-note">Toggle this to compare old vs new logic. Old remains DELAYED in this edge case; new switches to LIVE.</p>
+    </section>
+
+    <section class="card-lite validator" aria-label="Delayed time validation demo">
+      <h2 style="margin:0;">New delayed-time validation (Admin)</h2>
+      <p class="lead">For delayed status, the "New Time (Zulu)" field now requires a valid Zulu time format.</p>
+
+      <div class="validator-row">
+        <div>
+          <label for="delayed-input">New Time (Zulu)</label>
+          <input id="delayed-input" type="text" placeholder="Try: 19:30 or 7:30 PM" />
+        </div>
+        <div>
+          <label for="original-input">Original Time (optional)</label>
+          <input id="original-input" type="text" placeholder="Try: 18:00" />
+        </div>
+      </div>
+
+      <div id="validation-hint" class="hint">Enter a delayed time to validate.</div>
+      <p class="demo-note">Accepted examples: 19:30, 07:30, 7:30 PM, 11:00 am (with or without typing "Zulu").</p>
+    </section>
+  </main>
+
+  <script>
+    function normalizeZulu(raw) {
+      const r = (raw || '').trim();
+      if (!r) return '';
+      return r.toLowerCase().includes('zulu') ? r : `${r} Zulu`;
+    }
+
+    function parseZuluTimeToMinutes(raw) {
+      const normalized = normalizeZulu(raw);
+      if (!normalized) return null;
+
+      const m = normalized.match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?\s+Zulu$/i);
+      if (!m) return null;
+
+      let hours = parseInt(m[1], 10);
+      const minutes = parseInt(m[2], 10);
+      const period = (m[3] || '').toUpperCase();
+
+      if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+      if (minutes < 0 || minutes > 59) return null;
+
+      if (period) {
+        if (hours < 1 || hours > 12) return null;
+        if (period === 'PM' && hours !== 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+      } else {
+        if (hours < 0 || hours > 23) return null;
+      }
+
+      return (hours * 60) + minutes;
+    }
+
+    function isValidZuluTime(raw) {
+      return parseZuluTimeToMinutes(raw) !== null;
+    }
+
+    function renderStatusPill(card, text, className) {
+      const pill = card.querySelector('.status-pill');
+      if (!pill) return;
+      pill.textContent = text;
+      pill.className = `status-pill ${className}`;
+    }
+
+    function setCardLive(card, on) {
+      card.classList.toggle('live', on);
+      card.classList.toggle('delayed', !on);
+      renderStatusPill(card, on ? 'LIVE' : 'DELAYED', on ? 'live' : 'delayed');
+    }
+
+    function updateLiveComparison() {
+      const live = Boolean(document.getElementById('simulate-live')?.checked);
+      const oldCard = document.getElementById('old-card');
+      const newCard = document.getElementById('new-card');
+
+      // Simulated edge case: delayed card has no parseable delayed zulu time.
+      // Old logic would keep DELAYED even if Twitch is live.
+      setCardLive(oldCard, false);
+
+      // New logic: if Twitch says live and card isn't cancelled/completed, show LIVE.
+      setCardLive(newCard, live);
+    }
+
+    function updateValidationHint() {
+      const delayedInput = document.getElementById('delayed-input');
+      const hint = document.getElementById('validation-hint');
+      if (!delayedInput || !hint) return;
+
+      const raw = (delayedInput.value || '').trim();
+      if (!raw) {
+        hint.textContent = 'Enter delayed start (Zulu), e.g. 19:30 or 7:30 PM.';
+        hint.className = 'hint';
+        return;
+      }
+
+      if (!isValidZuluTime(raw)) {
+        hint.textContent = 'Invalid Zulu time. Use HH:MM or H:MM AM/PM.';
+        hint.className = 'hint err';
+        return;
+      }
+
+      hint.textContent = `Valid delayed start time: ${normalizeZulu(raw)}`;
+      hint.className = 'hint ok';
+    }
+
+    document.getElementById('simulate-live')?.addEventListener('change', updateLiveComparison);
+    document.getElementById('delayed-input')?.addEventListener('input', updateValidationHint);
+
+    updateLiveComparison();
+    updateValidationHint();
+  </script>
+
+  <div id="cookie-consent-banner" class="cookie-consent-banner">
+    <div class="cookie-consent-content">
+      <p>We use local storage (localStorage) to remember your choices (such as your consent preference for optional third-party embeds/resources). <a href="../privacy.html">Learn more about our privacy practices</a>.</p>
+    </div>
+    <div class="cookie-consent-buttons">
+      <button id="cookie-accept-btn" class="cookie-consent-btn accept">Accept</button>
+      <button id="cookie-reject-btn" class="cookie-consent-btn decline">Decline</button>
+    </div>
+  </div>
+  <script src="../../assets/js/main.js"></script>
+</body>
+</html>

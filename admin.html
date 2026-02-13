@@ -12,6 +12,40 @@
       if (!r) return '';
       return r.toLowerCase().includes('zulu') ? r : `${r} Zulu`;
     }
+
+    // Strict validator for Zulu times used by schedule entries.
+    // Accepts:
+    // - 24h: 18:00, 07:30
+    // - 12h: 7:30 PM, 11:00 am
+    // With or without explicit "Zulu" suffix.
+    function parseZuluTimeToMinutes(raw) {
+      const normalized = normalizeZulu(raw);
+      if (!normalized) return null;
+
+      const m = normalized.match(/^(\d{1,2}):(\d{2})(?:\s*(AM|PM))?\s+Zulu$/i);
+      if (!m) return null;
+
+      let hours = parseInt(m[1], 10);
+      const minutes = parseInt(m[2], 10);
+      const period = (m[3] || '').toUpperCase();
+
+      if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+      if (minutes < 0 || minutes > 59) return null;
+
+      if (period) {
+        if (hours < 1 || hours > 12) return null;
+        if (period === 'PM' && hours !== 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+      } else {
+        if (hours < 0 || hours > 23) return null;
+      }
+
+      return (hours * 60) + minutes;
+    }
+
+    function isValidZuluTime(raw) {
+      return parseZuluTimeToMinutes(raw) !== null;
+    }
   </script>
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <link rel="stylesheet" href="assets/css/styles.css" />
@@ -2666,7 +2700,22 @@
       // Show/hide delayed UI
       delayedWrap.style.display = isDelayed ? '' : 'none';
       delayedToEl.disabled = !isDelayed ? true : false;
-      delayedHintEl.textContent = isDelayed ? 'Enter the delayed (new) start time' : '';
+      if (isDelayed) {
+        const delayedRaw = (delayedToEl.value || '').trim();
+        if (!delayedRaw) {
+          delayedHintEl.textContent = 'Enter delayed start (Zulu), e.g. 19:30 or 7:30 PM.';
+          delayedHintEl.style.color = 'rgba(255,255,255,0.62)';
+        } else if (!isValidZuluTime(delayedRaw)) {
+          delayedHintEl.textContent = 'Invalid Zulu time. Use HH:MM or H:MM AM/PM.';
+          delayedHintEl.style.color = '#ff9a9a';
+        } else {
+          delayedHintEl.textContent = 'Valid delayed start time.';
+          delayedHintEl.style.color = '#9BE7A0';
+        }
+      } else {
+        delayedHintEl.textContent = '';
+        delayedHintEl.style.color = '';
+      }
 
       // Show/hide VOD UI (only meaningful for completed)
       vodWrap.style.display = isCompleted ? '' : 'none';
@@ -3016,6 +3065,11 @@
           const delayedTo = (row.querySelector('.delayedTo').value || '').trim();
           if (!delayedTo) {
             setStatus(`Error: For delayed status, you must enter a new time (Zulu) for day ${i + 1}.`, 'err');
+            row.querySelector('.delayedTo').focus();
+            return;
+          }
+          if (!isValidZuluTime(delayedTo)) {
+            setStatus(`Error: Delayed time must be valid Zulu format for day ${i + 1} (example: 19:30 or 7:30 PM).`, 'err');
             row.querySelector('.delayedTo').focus();
             return;
           }
