@@ -523,7 +523,9 @@
             try {
                 const url = new URL(value);
                 if (url.protocol !== 'https:') return null;
-                if (!ALLOWED_SUGGESTIONS_API_ORIGINS.has(url.origin)) return null;
+                const isAllowedOrigin = ALLOWED_SUGGESTIONS_API_ORIGINS.has(url.origin);
+                const isWorkersDevHost = /\.workers\.dev$/i.test(url.hostname || '');
+                if (!isAllowedOrigin && !isWorkersDevHost) return null;
                 if (!url.pathname.startsWith('/api/')) return null;
                 url.hash = '';
                 return url.toString();
