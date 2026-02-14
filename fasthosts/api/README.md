@@ -5,6 +5,7 @@ This folder contains a small PHP endpoint you can upload to your FastHosts web s
 
 - `GET /api/schedule.php` (public) — returns schedule JSON
 - `PUT /api/schedule.php` (protected) — updates schedule JSON (HTTP Basic auth)
+- `POST /api/suggestions` (public) — accepts suggestion JSON and forwards to Discord webhook
 
 It also includes an optional site mode endpoint:
 
@@ -24,9 +25,15 @@ Then the website/admin can call:
 1. Create a folder `api/` on your FastHosts hosting.
 2. Upload:
    - `schedule.php`
+   - `suggestions.php`
    - `site_mode.php` (optional)
 
 The script stores the current schedule in `schedule.store.json` alongside it.
+
+For suggestions forwarding, set one of these environment variables:
+
+- `SUGGESTIONS_DISCORD_WEBHOOK_URL` (preferred)
+- `DISCORD_WEBHOOK_URL` (fallback)
 
 ## Configure credentials (FastHosts)
 

@@ -495,6 +495,59 @@
             return null;
         }
 
+        function normalizeEndpoint(value) {
+            return (value || '').trim();
+        }
+
+        function getSuggestionEndpointCandidates() {
+            const configured = normalizeEndpoint(
+                document.querySelector('meta[name="fwj-suggestions-endpoint"]')?.getAttribute('content')
+            );
+
+            const endpoints = [];
+            if (configured) {
+                endpoints.push(configured);
+            } else {
+                endpoints.push('/api/suggestions');
+            }
+
+            const hasPhpFallback = endpoints.some((value) => /\/api\/suggestions\.php\/?$/i.test(value));
+            if (!hasPhpFallback) {
+                endpoints.push('/api/suggestions.php');
+            }
+
+            return endpoints;
+        }
+
+        async function postSuggestion(formData) {
+            const endpoints = getSuggestionEndpointCandidates();
+            let lastResponse = null;
+
+            for (let i = 0; i < endpoints.length; i += 1) {
+                const endpoint = endpoints[i];
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    return response;
+                }
+
+                lastResponse = response;
+                const isFirstAttempt = i === 0;
+                const shouldRetryWithFallback = isFirstAttempt && (response.status === 404 || response.status === 405);
+                if (!shouldRetryWithFallback) {
+                    return response;
+                }
+            }
+
+            return lastResponse;
+        }
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -527,17 +580,9 @@
             }
 
             try {
-                const endpoint = document.querySelector('meta[name="fwj-suggestions-endpoint"]')?.getAttribute('content') || '/api/suggestions';
-
                 // Send to the server-side proxy (Cloudflare Worker recommended) to avoid exposing the Discord webhook.
-                // Recommended Worker route: https://flyingwithjoel.co.uk/api/suggestions
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
+                // Preferred route: /api/suggestions. If unavailable on this host, fallback tries /api/suggestions.php.
+                const response = await postSuggestion(formData);
 
                 if (response.ok) {
                     localStorage.setItem('fwj-suggestions-last-submit', String(Date.now()));
@@ -567,10 +612,14 @@
                             details = `✗ ${data.error.trim()}`;
                         } else if (response.status === 404) {
                             details = '✗ Submission endpoint is not configured yet.';
+                        } else if (response.status === 405) {
+                            details = '✗ Submission endpoint exists but is not accepting POST yet.';
                         }
                     } catch {
                         if (response.status === 404) {
                             details = '✗ Submission endpoint is not configured yet.';
+                        } else if (response.status === 405) {
+                            details = '✗ Submission endpoint exists but is not accepting POST yet.';
                         }
                     }
                     throw new Error(details);

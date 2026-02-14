@@ -3,6 +3,11 @@
 # Disable directory listings
 Options -Indexes
 
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^suggestions/?$ suggestions.php [L,QSA]
+</IfModule>
+
 # Block direct access to on-disk KV-ish store files
 <FilesMatch "\.store\.json$">
   Require all denied
