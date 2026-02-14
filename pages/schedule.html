@@ -563,6 +563,57 @@
       return streamHours * 60 + streamMinutes;
     }
 
+    function getDateKeyFromDate(dateObj) {
+      if (!(dateObj instanceof Date)) return '';
+      return `${dateObj.getMonth() + 1}-${dateObj.getDate()}`;
+    }
+
+    function inferLiveStartDateFromCards(dayCards, todayDateKey, currentUTCTime) {
+      if (!dayCards || dayCards.length === 0) return null;
+
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayDateKey = getDateKeyFromDate(yesterday);
+
+      let todayCard = null;
+      let yesterdayCard = null;
+
+      dayCards.forEach((card) => {
+        const key = card.getAttribute('data-date');
+        if (key === todayDateKey) todayCard = card;
+        if (key === yesterdayDateKey) yesterdayCard = card;
+      });
+
+      const candidates = [];
+
+      function pushCandidate(card, dayOffsetMinutes) {
+        if (!card) return;
+        if (card.classList.contains('cancelled') || card.classList.contains('completed')) return;
+
+        const streamTimeEl = card.querySelector('.stream-time');
+        if (!streamTimeEl) return;
+
+        const streamUTCTime = parseZuluMinutes(streamTimeEl.getAttribute('data-zulu-time'));
+        if (streamUTCTime === null) return;
+
+        const elapsed = currentUTCTime + dayOffsetMinutes - streamUTCTime;
+        if (elapsed >= 0) {
+          candidates.push({
+            dateKey: card.getAttribute('data-date'),
+            elapsed,
+          });
+        }
+      }
+
+      pushCandidate(todayCard, 0);
+      pushCandidate(yesterdayCard, 24 * 60);
+
+      if (candidates.length === 0) return null;
+
+      candidates.sort((a, b) => a.elapsed - b.elapsed);
+      return candidates[0].dateKey || null;
+    }
+
     async function updateLiveStatus() {
       const now = new Date();
       const currentUTCHours = now.getUTCHours();
@@ -575,14 +626,16 @@
       const dateString = `${month}-${date}`;
 
       const isActuallyLive = await getIsActuallyLive();
+      const dayCards = Array.from(document.querySelectorAll('.day-card'));
 
       // Track the day the stream started
       let liveStartDate = safeLsGet('fwj_live_start_date') || liveStartDateMemory;
 
       if (isActuallyLive === true) {
-        // Only set if not already set
+        // Only set if not already set; infer the best matching card first
+        // so an overnight stream does not jump to the new day at midnight.
         if (!liveStartDate) {
-          liveStartDate = dateString;
+          liveStartDate = inferLiveStartDateFromCards(dayCards, dateString, currentUTCTime) || dateString;
           safeLsSet('fwj_live_start_date', liveStartDate);
           liveStartDateMemory = liveStartDate;
         }
@@ -594,7 +647,6 @@
         safeLsRemove('fwj_live_start_date');
       }
 
-      const dayCards = document.querySelectorAll('.day-card');
       dayCards.forEach(card => {
         const streamTimeEl = card.querySelector('.stream-time');
         if (!streamTimeEl) return;
