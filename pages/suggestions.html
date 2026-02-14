@@ -339,6 +339,22 @@
         let turnstileWidgetId = null;
         let turnstileToken = '';
 
+        const SUGGESTIONS_API_CANDIDATES = [
+            '/api/suggestions',
+            '/api/suggestions.php',
+            'https://api.flyingwithjoel.co.uk/api/suggestions',
+            'https://api.flyingwithjoel.co.uk/api/suggestions.php',
+        ];
+
+        const SUGGESTIONS_API_LOCALSTORAGE_KEY = 'fwj_suggestions_api';
+
+        const ALLOWED_SUGGESTIONS_API_ORIGINS = new Set([
+            window.location.origin,
+            'https://flyingwithjoel.co.uk',
+            'https://www.flyingwithjoel.co.uk',
+            'https://api.flyingwithjoel.co.uk',
+        ]);
+
         function getTurnstileSiteKey() {
             return (document.querySelector('meta[name="fwj-turnstile-sitekey"]')?.getAttribute('content') || '').trim();
         }
@@ -495,28 +511,57 @@
             return null;
         }
 
-        function normalizeEndpoint(value) {
-            return (value || '').trim();
+        function sanitizeSuggestionApiUrl(raw) {
+            const value = (raw || '').trim();
+            if (!value) return null;
+
+            if (value.startsWith('/')) {
+                if (!value.startsWith('/api/')) return null;
+                return value;
+            }
+
+            try {
+                const url = new URL(value);
+                if (url.protocol !== 'https:') return null;
+                if (!ALLOWED_SUGGESTIONS_API_ORIGINS.has(url.origin)) return null;
+                if (!url.pathname.startsWith('/api/')) return null;
+                url.hash = '';
+                return url.toString();
+            } catch {
+                return null;
+            }
+        }
+
+        function getSuggestionsApiOverride() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const qp = sanitizeSuggestionApiUrl(params.get('suggestionsApi'));
+                if (qp) {
+                    localStorage.setItem(SUGGESTIONS_API_LOCALSTORAGE_KEY, qp);
+                    return qp;
+                }
+            } catch {
+                // ignore
+            }
+
+            try {
+                const fromLs = sanitizeSuggestionApiUrl(localStorage.getItem(SUGGESTIONS_API_LOCALSTORAGE_KEY));
+                if (fromLs) return fromLs;
+            } catch {
+                // ignore
+            }
+
+            const fromMeta = sanitizeSuggestionApiUrl(
+                document.querySelector('meta[name="fwj-suggestions-endpoint"]')?.getAttribute('content') || ''
+            );
+
+            return fromMeta;
         }
 
         function getSuggestionEndpointCandidates() {
-            const configured = normalizeEndpoint(
-                document.querySelector('meta[name="fwj-suggestions-endpoint"]')?.getAttribute('content')
-            );
-
-            const endpoints = [];
-            if (configured) {
-                endpoints.push(configured);
-            } else {
-                endpoints.push('/api/suggestions');
-            }
-
-            const hasPhpFallback = endpoints.some((value) => /\/api\/suggestions\.php\/?$/i.test(value));
-            if (!hasPhpFallback) {
-                endpoints.push('/api/suggestions.php');
-            }
-
-            return endpoints;
+            const override = getSuggestionsApiOverride();
+            const all = [override, ...SUGGESTIONS_API_CANDIDATES].filter(Boolean);
+            return Array.from(new Set(all));
         }
 
         async function postSuggestion(formData) {
@@ -525,23 +570,33 @@
 
             for (let i = 0; i < endpoints.length; i += 1) {
                 const endpoint = endpoints[i];
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(formData)
-                });
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
 
-                if (response.ok) {
-                    return response;
-                }
+                    if (response.ok) {
+                        return response;
+                    }
 
-                lastResponse = response;
-                const isFirstAttempt = i === 0;
-                const shouldRetryWithFallback = isFirstAttempt && (response.status === 404 || response.status === 405);
-                if (!shouldRetryWithFallback) {
+                    lastResponse = response;
+
+                    const canRetry = response.status === 404 || response.status === 405;
+                    const hasMoreCandidates = i < endpoints.length - 1;
+                    if (canRetry && hasMoreCandidates) {
+                        continue;
+                    }
+
                     return response;
+                } catch {
+                    const hasMoreCandidates = i < endpoints.length - 1;
+                    if (hasMoreCandidates) {
+                        continue;
+                    }
                 }
             }
 
