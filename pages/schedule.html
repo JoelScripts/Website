@@ -614,6 +614,38 @@
       return candidates[0].dateKey || null;
     }
 
+    function isLiveStartDateStale(liveStartDate, dayCards, todayDateKey, currentUTCTime) {
+      if (!liveStartDate) return true;
+
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayDateKey = getDateKeyFromDate(yesterday);
+
+      if (liveStartDate !== todayDateKey && liveStartDate !== yesterdayDateKey) {
+        return true;
+      }
+
+      const card = dayCards.find(c => c.getAttribute('data-date') === liveStartDate);
+      if (!card) return true;
+      if (card.classList.contains('cancelled') || card.classList.contains('completed')) return true;
+
+      const streamTimeEl = card.querySelector('.stream-time');
+      if (!streamTimeEl) return true;
+
+      const streamUTCTime = parseZuluMinutes(streamTimeEl.getAttribute('data-zulu-time'));
+      if (streamUTCTime === null) return false;
+
+      const dayOffsetMinutes = (liveStartDate === yesterdayDateKey) ? (24 * 60) : 0;
+      const elapsed = currentUTCTime + dayOffsetMinutes - streamUTCTime;
+
+      // If this card's scheduled start is still in the future or implausibly old,
+      // treat stored value as stale and re-infer.
+      if (elapsed < 0) return true;
+      if (elapsed > 20 * 60) return true;
+
+      return false;
+    }
+
     async function updateLiveStatus() {
       const now = new Date();
       const currentUTCHours = now.getUTCHours();
@@ -632,6 +664,12 @@
       let liveStartDate = safeLsGet('fwj_live_start_date') || liveStartDateMemory;
 
       if (isActuallyLive === true) {
+        if (liveStartDate && isLiveStartDateStale(liveStartDate, dayCards, dateString, currentUTCTime)) {
+          liveStartDate = null;
+          safeLsRemove('fwj_live_start_date');
+          liveStartDateMemory = null;
+        }
+
         // Only set if not already set; infer the best matching card first
         // so an overnight stream does not jump to the new day at midnight.
         if (!liveStartDate) {
