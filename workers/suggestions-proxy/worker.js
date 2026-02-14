@@ -152,6 +152,7 @@ function buildDiscordMessage(s) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const discordWebhookUrl = String(env.DISCORD_WEBHOOK_URL || env.SUGGESTIONS_DISCORD_WEBHOOK_URL || '').trim();
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders(request, env) });
@@ -165,7 +166,7 @@ export default {
       return jsonResponse({ error: 'Method not allowed' }, { status: 405, headers: cors });
     }
 
-    if (!env.DISCORD_WEBHOOK_URL) {
+    if (!discordWebhookUrl) {
       return jsonResponse({ error: 'Server not configured.' }, { status: 500, headers: cors });
     }
 
@@ -229,7 +230,7 @@ export default {
 
     const discordMessage = buildDiscordMessage(suggestion);
 
-    const forward = await fetch(env.DISCORD_WEBHOOK_URL, {
+    const forward = await fetch(discordWebhookUrl, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(discordMessage),
