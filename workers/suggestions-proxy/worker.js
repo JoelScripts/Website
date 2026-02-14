@@ -167,7 +167,10 @@ export default {
     }
 
     if (!discordWebhookUrl) {
-      return jsonResponse({ error: 'Server not configured.' }, { status: 500, headers: cors });
+      return jsonResponse(
+        { error: 'Server not configured. Missing DISCORD_WEBHOOK_URL or SUGGESTIONS_DISCORD_WEBHOOK_URL.' },
+        { status: 500, headers: cors }
+      );
     }
 
     // Allow a trailing slash to avoid accidental 404s when routing.
