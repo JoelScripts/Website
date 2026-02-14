@@ -564,9 +564,12 @@
             return Array.from(new Set(all));
         }
 
+        let lastSuggestionSubmitDiagnostics = [];
+
         async function postSuggestion(formData) {
             const endpoints = getSuggestionEndpointCandidates();
             let lastResponse = null;
+            lastSuggestionSubmitDiagnostics = [];
 
             for (let i = 0; i < endpoints.length; i += 1) {
                 const endpoint = endpoints[i];
@@ -583,6 +586,12 @@
                         return response;
                     }
 
+                    lastSuggestionSubmitDiagnostics.push({
+                        endpoint,
+                        status: response.status,
+                        kind: 'http',
+                    });
+
                     lastResponse = response;
 
                     const canRetry = response.status === 404 || response.status === 405;
@@ -593,6 +602,12 @@
 
                     return response;
                 } catch {
+                    lastSuggestionSubmitDiagnostics.push({
+                        endpoint,
+                        status: null,
+                        kind: 'network',
+                    });
+
                     const hasMoreCandidates = i < endpoints.length - 1;
                     if (hasMoreCandidates) {
                         continue;
@@ -661,17 +676,33 @@
                     }, 5000);
                 } else {
                     let details = '✗ Oops! Something went wrong. Please try again.';
+                    const saw405 = lastSuggestionSubmitDiagnostics.some((d) => d && d.kind === 'http' && d.status === 405);
+                    const saw404 = lastSuggestionSubmitDiagnostics.some((d) => d && d.kind === 'http' && d.status === 404);
+                    const sawNetwork = lastSuggestionSubmitDiagnostics.some((d) => d && d.kind === 'network');
+
                     try {
                         const data = await response.json();
                         if (data && typeof data.error === 'string' && data.error.trim()) {
                             details = `✗ ${data.error.trim()}`;
+                        } else if (saw405 && sawNetwork) {
+                            details = '✗ Suggestions API is misconfigured (POST blocked and fallback host unreachable).';
+                        } else if (saw405) {
+                            details = '✗ Suggestions API is deployed but POST is not enabled on this host.';
+                        } else if (saw404) {
+                            details = '✗ Suggestions API endpoint is missing on this host.';
                         } else if (response.status === 404) {
                             details = '✗ Submission endpoint is not configured yet.';
                         } else if (response.status === 405) {
                             details = '✗ Submission endpoint exists but is not accepting POST yet.';
                         }
                     } catch {
-                        if (response.status === 404) {
+                        if (saw405 && sawNetwork) {
+                            details = '✗ Suggestions API is misconfigured (POST blocked and fallback host unreachable).';
+                        } else if (saw405) {
+                            details = '✗ Suggestions API is deployed but POST is not enabled on this host.';
+                        } else if (saw404) {
+                            details = '✗ Suggestions API endpoint is missing on this host.';
+                        } else if (response.status === 404) {
                             details = '✗ Submission endpoint is not configured yet.';
                         } else if (response.status === 405) {
                             details = '✗ Submission endpoint exists but is not accepting POST yet.';
