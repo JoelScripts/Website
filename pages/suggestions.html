@@ -526,6 +526,19 @@
                 const isAllowedOrigin = ALLOWED_SUGGESTIONS_API_ORIGINS.has(url.origin);
                 const isWorkersDevHost = /\.workers\.dev$/i.test(url.hostname || '');
                 if (!isAllowedOrigin && !isWorkersDevHost) return null;
+
+                // Convenience: if a workers.dev URL is provided without a path,
+                // normalize it to the expected endpoint.
+                if (isWorkersDevHost && (!url.pathname || url.pathname === '/')) {
+                    url.pathname = '/api/suggestions';
+                }
+
+                // Convenience: if a known API origin is provided without a path,
+                // normalize it to the default suggestions endpoint.
+                if (isAllowedOrigin && (!url.pathname || url.pathname === '/')) {
+                    url.pathname = '/api/suggestions';
+                }
+
                 if (!url.pathname.startsWith('/api/')) return null;
                 url.hash = '';
                 return url.toString();
