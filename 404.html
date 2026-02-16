@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Page Not Found - Flying With Joel</title>
+  <meta name="robots" content="noindex,nofollow" />
+  <link rel="stylesheet" href="assets/css/styles.css" />
+  <script>
+    (function () {
+      try {
+        var path = window.location.pathname || "/";
+        var search = window.location.search || "";
+        var hash = window.location.hash || "";
+
+        if (path === "/") return;
+
+        var normalizedPath = path;
+        if (normalizedPath.length > 1 && normalizedPath.endsWith("/")) {
+          normalizedPath = normalizedPath.replace(/\/+$/, "");
+        }
+
+        if (normalizedPath && !normalizedPath.includes(".")) {
+          window.location.replace(normalizedPath + ".html" + search + hash);
+          return;
+        }
+      } catch (error) {
+        // continue to fallback content
+      }
+    })();
+  </script>
+</head>
+<body>
+  <main style="max-width: 760px; margin: 4rem auto; padding: 0 1.25rem; text-align: center;">
+    <h1 style="margin: 0 0 0.85rem 0; color: var(--primary);">Page not found</h1>
+    <p style="margin: 0 0 1.25rem 0; color: var(--text-muted); line-height: 1.7;">
+      The page could not be found. If you followed an old link, the URL format may have changed.
+    </p>
+    <p style="margin: 0;">
+      <a href="index.html" style="color: var(--primary); text-decoration: none; font-weight: 700;">Return to homepage</a>
+    </p>
+  </main>
+</body>
+</html>
