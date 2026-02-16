@@ -14,81 +14,11 @@
     }
   })();
 
-  function toCleanPath(path) {
-    if (!path || !path.endsWith('.html')) return path;
-    if (path === '/index.html') return '/';
-    return path.slice(0, -5);
-  }
-
-  (function normalizeAddressBarUrl() {
-    try {
-      const cleaned = toCleanPath(pathname);
-      if (!cleaned || cleaned === pathname) return;
-      const suffix = `${window.location.search || ''}${window.location.hash || ''}`;
-      window.history.replaceState(null, '', `${cleaned}${suffix}`);
-    } catch {
-      // no-op
-    }
-  })();
-
-  function toCleanHref(rawHref) {
-    if (!rawHref) return rawHref;
-    const href = String(rawHref).trim();
-    if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('javascript:')) {
-      return rawHref;
-    }
-
-    try {
-      const target = new URL(href, window.location.origin);
-      if (target.origin !== window.location.origin) return rawHref;
-
-      if (target.pathname === '/index.html') {
-        target.pathname = '/';
-      } else if (target.pathname.endsWith('.html')) {
-        target.pathname = target.pathname.slice(0, -5);
-      } else {
-        return rawHref;
-      }
-
-      return `${target.pathname}${target.search}${target.hash}`;
-    } catch {
-      return rawHref;
-    }
-  }
-
-  function normalizeAnchorHrefs() {
-    try {
-      const anchors = document.querySelectorAll('a[href]');
-      for (const anchor of anchors) {
-        const rawHref = anchor.getAttribute('href');
-        const cleanedHref = toCleanHref(rawHref);
-        if (cleanedHref && cleanedHref !== rawHref) {
-          anchor.setAttribute('href', cleanedHref);
-        }
-      }
-    } catch {
-      // no-op
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', normalizeAnchorHrefs, { once: true });
-  } else {
-    normalizeAnchorHrefs();
-  }
-
   // Don't redirect the maintenance page itself.
-  if (pathname.endsWith('/pages/maintenance.html') || pathname.endsWith('/pages/maintenance')) return;
+  if (pathname.endsWith('/pages/maintenance.html')) return;
 
   // Don't lock admins out of the toggle.
-  if (
-    pathname.endsWith('/admin.html') ||
-    pathname.endsWith('/admin-preview.html') ||
-    pathname.endsWith('/admin') ||
-    pathname.endsWith('/admin-preview')
-  ) {
-    return;
-  }
+  if (pathname.endsWith('/admin.html') || pathname.endsWith('/admin-preview.html')) return;
 
   const MAINTENANCE_PATH = '/pages/maintenance.html';
   const API_CANDIDATES = [
