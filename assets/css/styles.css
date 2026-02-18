@@ -926,20 +926,17 @@ body {
 }
 
 .stream-title {
-    font-size: 1rem;
+    font-size: 0.96rem;
     color: var(--text-light);
     font-weight: 600;
-    margin-top: 0.5rem;
+    margin-top: 0.35rem;
     max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible;
+    text-overflow: clip;
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    display: block;
     line-height: 1.35;
     letter-spacing: 0.01em;
 }
