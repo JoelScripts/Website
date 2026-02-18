@@ -398,7 +398,9 @@
 
         const streamTitleEl = document.createElement('div');
         streamTitleEl.className = 'stream-title';
-        streamTitleEl.textContent = item && item.streamTitle ? String(item.streamTitle) : '-';
+        const streamTitleText = item && item.streamTitle ? String(item.streamTitle) : '-';
+        streamTitleEl.textContent = streamTitleText;
+        streamTitleEl.title = streamTitleText;
 
         card.appendChild(dayNameEl);
         card.appendChild(dateEl);
