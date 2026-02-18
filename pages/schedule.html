@@ -15,7 +15,7 @@
   <meta name="twitter:title" content="Schedule - Flying With Joel" />
   <meta name="twitter:description" content="View the 7-day stream schedule for Flying With Joel." />
   <meta name="twitter:image" content="https://flyingwithjoel.co.uk/assets/hero-plane.jpg" />
-  <link rel="stylesheet" href="../assets/css/styles.css" />
+  <link rel="stylesheet" href="../assets/css/styles.css?v=20260218-titlefix" />
   <script src="../assets/js/site-mode.js?v=20260216"></script>
   <style>
     .schedule-nav { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
@@ -50,6 +50,20 @@
     @media (max-width: 720px) {
       .nav-links { display: none !important; }
       .nav-mobile { display: block; }
+    }
+
+    /* Ensure long admin-set stream titles are fully readable on this page. */
+    .weekly-schedule .day-card .stream-title {
+      display: block !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      overflow-wrap: anywhere !important;
+      word-break: break-word !important;
+      -webkit-line-clamp: unset !important;
+      line-clamp: unset !important;
+      -webkit-box-orient: initial !important;
+      max-height: none !important;
     }
   </style>
 </head>
