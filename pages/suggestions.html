@@ -290,12 +290,16 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="name">Your Name  <span class="optional">(Optional)</span></label>
-                        <input type="text" id="name" name="name" placeholder="John Doe" >
+                        <label for="name">Your Name <span class="optional">(Optional, anonymous allowed)</span>
+                            <span style="display:inline-block;margin-left:3px;cursor:pointer;color:var(--primary);font-size:0.95em;vertical-align:middle;opacity:0.55;" tabindex="0" title="You do NOT need to enter your real name. Use a generic nickname or leave blank for full anonymity.">❓</span>
+                        </label>
+                        <input type="text" id="name" name="name" placeholder="Anonymous, nickname, or blank" autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label for="twitchHandle">Your Twitch Handle</label>
-                        <input type="text" id="twitchHandle" name="twitchHandle" placeholder="YourTwitchName">
+                        <label for="twitchHandle">Your Twitch Handle <span class="optional">(Optional)</span>
+                            <span style="display:inline-block;margin-left:3px;cursor:pointer;color:var(--primary);font-size:0.95em;vertical-align:middle;opacity:0.55;" tabindex="0" title="Optional. Only enter if you want a shoutout. Leave blank for privacy.">❓</span>
+                        </label>
+                        <input type="text" id="twitchHandle" name="twitchHandle" placeholder="Leave blank for privacy">
                     </div>
                 </div>
 
@@ -303,7 +307,7 @@
                     <label style="font-weight: 500; color: var(--text-muted); display: flex; gap: 0.7rem; align-items: flex-start; cursor: pointer;">
                         <input type="checkbox" id="suggestionsConsent" name="suggestionsConsent" required style="margin-top: 0.25rem;">
                         <span style="line-height: 1.5;">
-                            I understand and consent that the information I submit will be sent to Discord for review, and may be processed/stored by Discord as a third-party service. I can request deletion via the contact details in the Privacy Policy.
+                            <strong>Privacy Notice:</strong> Personal data is NOT required. You may submit suggestions anonymously. If you choose to provide a name or Twitch handle, it is optional and only used for shoutouts. All data is sent securely and can be deleted on request. See our <a href="privacy.html" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> for details.
                         </span>
                     </label>
                 </div>

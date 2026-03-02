@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suggestions Demo - Flying With Joel</title>
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <style>
+                .help-icon {
+                    display: inline-block;
+                    margin-left: 3px;
+                    cursor: pointer;
+                    color: var(--primary);
+                    font-size: 0.95em;
+                    vertical-align: middle;
+                    opacity: 0.55;
+                    transition: color 0.2s, opacity 0.2s;
+                }
+                .help-icon:hover, .help-icon:focus {
+                    color: var(--secondary);
+                    opacity: 1;
+                }
+                .help-tooltip {
+                    display: none;
+                    position: absolute;
+                    left: 110%;
+                    top: 0;
+                    z-index: 10;
+                    background: var(--card-bg);
+                    color: var(--text-light);
+                    border: 1px solid var(--border);
+                    border-radius: 0.5rem;
+                    padding: 0.8rem 1.1rem;
+                    font-size: 0.98em;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+                    min-width: 220px;
+                    max-width: 320px;
+                }
+                .form-group {
+                    position: relative;
+                }
+                .form-group .help-tooltip {
+                    top: 2.2em;
+                    left: 0;
+                }
+                .form-group .help-icon:focus + .help-tooltip,
+                .form-group .help-icon:hover + .help-tooltip {
+                    display: block;
+                }
+        .suggestions-container {
+            max-width: 900px;
+            margin: 3rem auto;
+            padding: 2.5rem 2rem;
+            background: linear-gradient(120deg, rgba(255,140,66,0.08) 0%, rgba(255,90,54,0.08) 100%);
+            border-radius: 1.2rem;
+            box-shadow: 0 6px 32px rgba(0,0,0,0.22);
+        }
+        .suggestions-header h1 {
+            font-size: 2.7rem;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        .suggestions-header p {
+            color: var(--text-muted);
+            font-size: 1.08rem;
+            line-height: 1.7;
+        }
+        .suggestion-form {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.8rem;
+            padding: 2.2rem 1.5rem;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            background-color: #0a0a0a;
+            border: 1px solid var(--border);
+            color: var(--text-light);
+            padding: 0.85rem;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(255, 140, 66, 0.3);
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+            font-family: 'Courier New', monospace;
+        }
+        .form-group select {
+            cursor: pointer;
+        }
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+        .submit-btn {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 1rem 2.2rem;
+            border-radius: 0.5rem;
+            font-size: 1.08rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        .submit-btn:hover {
+            transform: scale(1.03);
+        }
+        .success-message, .error-message {
+            display: none;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-weight: 600;
+        }
+        .success-message {
+            background-color: rgba(76, 175, 80, 0.12);
+            border: 1px solid #4CAF50;
+            color: #66BB6A;
+        }
+        .error-message {
+            background-color: rgba(255, 68, 68, 0.12);
+            border: 1px solid #ff4444;
+            color: #ff6666;
+        }
+        .required {
+            color: var(--secondary);
+        }
+        @media (max-width: 900px) {
+            .suggestions-container {
+                padding: 1.2rem;
+            }
+            .suggestion-form {
+                padding: 1.2rem 0.5rem;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar--v2">
+        <div class="nav-container">
+            <div class="logo">flywithjoel</div>
+            <ul class="nav-links">
+                <li><a href="../index.html"><span class="nav-icon" aria-hidden="true">🏠</span>Home</a></li>
+                <li><a href="schedule.html"><span class="nav-icon" aria-hidden="true">📅</span>Schedule</a></li>
+                <li><a href="../index.html#highlights"><span class="nav-icon" aria-hidden="true">✨</span>Highlights</a></li>
+                <li><a href="../index.html#faq"><span class="nav-icon" aria-hidden="true">❓</span>FAQ</a></li>
+                <li><a href="../index.html#affiliates"><span class="nav-icon" aria-hidden="true">🤝</span>Affiliates</a></li>
+                <li><a href="../index.html#contact"><span class="nav-icon" aria-hidden="true">✉️</span>Contact Me</a></li>
+                <li><a href="privacy.html"><span class="nav-icon" aria-hidden="true">🔐</span>Privacy</a></li>
+                <li><a href="terms.html"><span class="nav-icon" aria-hidden="true">📜</span>Terms</a></li>
+                <li><a href="suggestions-demo.html" style="color: var(--primary); font-weight: 600;"><span class="nav-icon" aria-hidden="true">💡</span>Suggestions Demo</a></li>
+                <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" class="follow-btn"><span class="nav-icon" aria-hidden="true">▶️</span>Follow Me</a></li>
+            </ul>
+        </div>
+    </nav>
+    <section class="suggestions-container">
+        <div class="suggestions-header">
+            <h1 style="display: flex; align-items: center; justify-content: center; gap: 0.7rem;">
+                <span style="font-size: 2.2rem;">💡</span>
+                Flight Suggestions (Demo)
+            </h1>
+            <p>Share your flight ideas! This demo page features a completely overhauled design for easier use and a more modern look.</p>
+        </div>
+        <div class="suggestion-form" style="position: relative;">
+            <div style="position: absolute; right: 1.5rem; top: 1.5rem; background: linear-gradient(90deg, var(--primary), var(--secondary)); color: #fff; padding: 0.5rem 1.2rem; border-radius: 999px; font-weight: 700; font-size: 0.95rem; box-shadow: 0 2px 12px rgba(0,0,0,0.18);">Demo Only</div>
+            <div class="success-message" id="successMessage">✓ Thank you! Your suggestion has been submitted successfully!</div>
+            <div class="error-message" id="errorMessage">✗ Oops! Something went wrong. Please try again.</div>
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="flightDate"><span style="margin-right:6px;">📅</span>Date of Flight
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">Select the date for your suggested flight. If unsure, pick a date close to when you want it featured.</span>
+                        </label>
+                        <input type="date" id="flightDate" name="flightDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="flightNumber"><span style="margin-right:6px;">✈️</span>Flight Number <span class="required">*</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">The official flight number (e.g., VS73). You can find this on airline websites or flight tracking apps.</span>
+                        </label>
+                        <input type="text" id="flightNumber" name="flightNumber" placeholder="e.g., VS73" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="callsign"><span style="margin-right:6px;">🔢</span>Callsign <span class="required">*</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">The callsign used by pilots and ATC (e.g., VIR73Q). Usually found on flight tracking sites or airline info.</span>
+                        </label>
+                        <input type="text" id="callsign" name="callsign" placeholder="e.g., VIR73Q" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="aircraft"><span style="margin-right:6px;">🛩️</span>Aircraft Used <span class="required">*</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">Type of aircraft (e.g., A359, B738). Check the flight details or airline info for this.</span>
+                        </label>
+                        <input type="text" id="aircraft" name="aircraft" placeholder="e.g., A359" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="departure"><span style="margin-right:6px;">🛫</span>Departure Airport <span class="required">*</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">The airport you want to depart from. Use the city or airport code (e.g., Manchester or MAN).</span>
+                        </label>
+                        <input type="text" id="departure" name="departure" placeholder="e.g., Manchester" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="arrival"><span style="margin-right:6px;">🛬</span>Arrival Airport <span class="required">*</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">The airport you want to arrive at. Use the city or airport code (e.g., Orlando or MCO).</span>
+                        </label>
+                        <input type="text" id="arrival" name="arrival" placeholder="e.g., Orlando" required>
+                    </div>
+                </div>
+                <div class="form-group full">
+                    <label for="route"><span style="margin-right:6px;">🗺️</span>Route (IATA Codes) <span class="required">*</span>
+                        <span class="help-icon" tabindex="0">❓</span>
+                        <span class="help-tooltip">Enter the route using airport codes (e.g., MAN - MCO). You can find these on flight tracking sites or airline info.</span>
+                    </label>
+                    <input type="text" id="route" name="route" placeholder="e.g., MAN - MCO" required>
+                </div>
+                <div class="form-group full">
+                    <label for="flightRadarLink"><span style="margin-right:6px;">🔗</span>Link to Flight (FlightRadar24 Link)
+                        <span class="help-icon" tabindex="0">❓</span>
+                        <span class="help-tooltip">Paste the link from <a href="https://flightradar24.com" target="_blank" style="color:var(--primary);text-decoration:underline;">FlightRadar24</a> for your flight. Search for your flight number, then copy the URL from your browser's address bar.</span>
+                    </label>
+                    <input type="url" id="flightRadarLink" name="flightRadarLink" placeholder="https://flightradar24.com/...">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="flightTime"><span style="margin-right:6px;">⏱️</span>Flight Time <span class="required">*</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">How long the flight takes (e.g., 8 hours). You can estimate or check flight details online.</span>
+                        </label>
+                        <input type="text" id="flightTime" name="flightTime" placeholder="e.g., 8 hours" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="flightLength"><span style="margin-right:6px;">📏</span>Flight Length <span class="required">*</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">Select if the flight is short, medium, or long haul. If unsure, pick based on flight time.</span>
+                        </label>
+                        <select id="flightLength" name="flightLength" required>
+                            <option value="">-- Select flight length --</option>
+                            <option value="Short Haul">Short Haul</option>
+                            <option value="Medium Haul 4+Hours">Medium Haul (4+ Hours)</option>
+                            <option value="Long Haul 7+Hours">Long Haul (7+ Hours)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name"><span style="margin-right:6px;">🧑</span>Your Name <span class="optional">(Optional, anonymous allowed)</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">You do NOT need to enter your real name. Use a generic nickname or leave blank for full anonymity.</span>
+                        </label>
+                        <input type="text" id="name" name="name" placeholder="Anonymous, nickname, or blank" autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="twitchHandle"><span style="margin-right:6px;">🎮</span>Your Twitch Handle <span class="optional">(Optional)</span>
+                            <span class="help-icon" tabindex="0">❓</span>
+                            <span class="help-tooltip">Optional. Only enter if you want a shoutout. Leave blank for privacy.</span>
+                        </label>
+                        <input type="text" id="twitchHandle" name="twitchHandle" placeholder="Leave blank for privacy">
+                    </div>
+                </div>
+                <div class="form-group full" style="margin-top: 0.5rem;">
+                    <label style="font-weight: 500; color: var(--text-muted); display: flex; gap: 0.7rem; align-items: flex-start; cursor: pointer;">
+                        <input type="checkbox" id="suggestionsConsent" name="suggestionsConsent" required style="margin-top: 0.25rem;">
+                        <span style="line-height: 1.5;">
+                            <strong>Privacy Notice:</strong> Personal data is NOT required. You may submit suggestions anonymously. If you choose to provide a name or Twitch handle, it is optional and only used for shoutouts. All data is sent securely and can be deleted on request. See our <a href="privacy.html" style="color:var(--primary);text-decoration:underline;">Privacy Policy</a> for details.
+                        </span>
+                    </label>
+                </div>
+                <button type="submit" class="submit-btn" style="margin-top: 1.2rem; font-size: 1.15rem;">🚀 Submit Flight Suggestion</button>
+            </form>
+        </div>
+    </section>
+    <footer class="footer" style="margin-top: 3rem;">
+        <div class="footer-content">
+            <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="cookies.html">Cookie Policy</a>
+                <a href="#" id="cookie-settings-link">Cookie Settings</a>
+                <a href="security.html">Security & Hosting</a>
+            </div>
+        </div>
+    </footer>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>
