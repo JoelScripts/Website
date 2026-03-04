@@ -219,7 +219,7 @@ export default {
       timestamp: clampString(payload.timestamp, 40) || new Date().toISOString(),
     };
 
-    const required = ['flightNumber', 'callsign', 'aircraft', 'departure', 'arrival', 'route', 'flightTime', 'flightLength', 'name'];
+    const required = ['flightNumber', 'callsign', 'aircraft', 'departure', 'arrival', 'route', 'flightTime', 'flightLength'];
     for (const key of required) {
       if (!suggestion[key]) {
         return jsonResponse({ error: `Missing required field: ${key}` }, { status: 400, headers: cors });
