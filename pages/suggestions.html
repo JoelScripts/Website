@@ -485,7 +485,7 @@
             const name = normalizeText(document.getElementById('name').value);
             const twitchHandle = normalizeText(document.getElementById('twitchHandle').value);
 
-            if (name.length < 2 || name.length > 60) return '✗ Name must be 2–60 characters.';
+            if (name.length > 0 && (name.length < 2 || name.length > 60)) return '✗ Name must be 2–60 characters.';
             if (flightNumber.length < 2 || flightNumber.length > 8) return '✗ Flight Number must be 2–8 characters.';
             if (callsign.length < 3 || callsign.length > 10) return '✗ Callsign must be 3–10 characters.';
             if (aircraft.length < 2 || aircraft.length > 20) return '✗ Aircraft must be 2–20 characters.';
