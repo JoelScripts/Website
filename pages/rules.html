@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rules - Flying With Joel</title>
+    <meta name="description" content="Community rules for the Flying With Joel Discord server and Twitch chat.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://flyingwithjoel.co.uk/pages/rules.html">
+    <meta property="og:title" content="Rules - Flying With Joel">
+    <meta property="og:description" content="Community rules for the Flying With Joel Discord server and Twitch chat.">
+    <meta property="og:image" content="https://flyingwithjoel.co.uk/assets/hero-plane.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://flyingwithjoel.co.uk/pages/rules.html">
+    <meta name="twitter:title" content="Rules - Flying With Joel">
+    <meta name="twitter:description" content="Community rules for the Flying With Joel Discord server and Twitch chat.">
+    <meta name="twitter:image" content="https://flyingwithjoel.co.uk/assets/hero-plane.jpg">
+    <link rel="stylesheet" href="../assets/css/styles.css">
+    <script src="../assets/js/site-mode.js?v=20260216"></script>
+    <style>
+        :root {
+            --page-bg: #0a0d14;
+            --surface: rgba(15, 19, 28, 0.92);
+            --surface-soft: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-strong: rgba(255, 255, 255, 0.14);
+            --text-main: #f5f7fb;
+            --text-muted: #a5aec2;
+            --discord: #5b7cff;
+            --twitch: #a45cff;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body.rules-page {
+            background:
+                radial-gradient(circle at top left, rgba(91, 124, 255, 0.12), transparent 24%),
+                radial-gradient(circle at top right, rgba(164, 92, 255, 0.1), transparent 24%),
+                linear-gradient(180deg, #0b0f17 0%, #080a10 100%);
+            color: var(--text-main);
+        }
+
+        .rules-shell {
+            max-width: 1160px;
+            margin: 0 auto;
+            padding: 5.9rem 1.1rem 2.8rem;
+        }
+
+        .rules-hero {
+            padding: 2rem 0 1.5rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .eyebrow {
+            display: inline-block;
+            margin-bottom: 0.9rem;
+            color: var(--text-muted);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .rules-hero h1 {
+            margin: 0 0 0.8rem;
+            max-width: 8ch;
+            font-size: clamp(2.7rem, 6vw, 5rem);
+            line-height: 0.9;
+            letter-spacing: -0.06em;
+        }
+
+        .rules-hero p {
+            margin: 0;
+            max-width: 62ch;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.75;
+        }
+
+        .jump-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        .jump-links button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.72rem 0.98rem;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--surface-soft);
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: border-color 180ms ease, transform 180ms ease, background 180ms ease;
+            cursor: pointer;
+        }
+
+        .jump-links button:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .jump-links button.discord-link:hover,
+        .jump-links button.discord-link.is-active {
+            border-color: rgba(91, 124, 255, 0.4);
+            background: rgba(91, 124, 255, 0.12);
+        }
+
+        .jump-links button.twitch-link:hover,
+        .jump-links button.twitch-link.is-active {
+            border-color: rgba(164, 92, 255, 0.4);
+            background: rgba(164, 92, 255, 0.12);
+        }
+
+        .rules-tabs {
+            border: 1px solid var(--border);
+            border-radius: 1.6rem;
+            background: linear-gradient(180deg, rgba(15, 19, 28, 0.92), rgba(10, 13, 19, 0.96));
+            overflow: hidden;
+        }
+
+        .rules-panels {
+            position: relative;
+        }
+
+        .rules-section {
+            display: none;
+            padding: 1.35rem 1.35rem 1.15rem;
+        }
+
+        .rules-section.is-active {
+            display: block;
+        }
+
+        .section-head {
+            display: grid;
+            gap: 0.7rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-topline {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .section-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .section-label::before {
+            content: "";
+            width: 0.6rem;
+            height: 0.6rem;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .discord-section .section-label {
+            color: #dbe4ff;
+        }
+
+        .twitch-section .section-label {
+            color: #efd9ff;
+        }
+
+        .section-count {
+            color: var(--text-muted);
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        .section-head h2 {
+            margin: 0;
+            font-size: clamp(1.8rem, 3vw, 2.4rem);
+            line-height: 1;
+            letter-spacing: -0.04em;
+        }
+
+        .section-head p {
+            margin: 0;
+            max-width: 58ch;
+            color: var(--text-muted);
+            font-size: 0.96rem;
+            line-height: 1.7;
+        }
+
+        .rules-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            border-top: 1px solid var(--border);
+        }
+
+        .rules-list li {
+            display: grid;
+            grid-template-columns: 92px 1fr;
+            gap: 1rem;
+            padding: 1.15rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .rule-meta {
+            display: grid;
+            gap: 0.45rem;
+            justify-items: start;
+            padding-top: 0.05rem;
+        }
+
+        .rule-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.2rem;
+            height: 2.2rem;
+            border-radius: 50%;
+            border: 1px solid var(--border-strong);
+            font-size: 0.95rem;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .discord-section .rule-icon {
+            background: linear-gradient(135deg, rgba(91, 124, 255, 0.24), rgba(66, 165, 255, 0.08));
+        }
+
+        .twitch-section .rule-icon {
+            background: linear-gradient(135deg, rgba(164, 92, 255, 0.24), rgba(255, 124, 188, 0.08));
+        }
+
+        .rule-number {
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .rule-text h3 {
+            margin: 0 0 0.3rem;
+            font-size: 1.08rem;
+            line-height: 1.3;
+            letter-spacing: -0.02em;
+        }
+
+        .rule-text p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.72;
+            max-width: 62ch;
+        }
+
+        .rules-footer {
+            margin-top: 1.8rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: grid;
+            gap: 0.9rem;
+        }
+
+        .footer-note {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        @media (max-width: 640px) {
+            .rules-shell {
+                padding: 5.3rem 0.95rem 2.2rem;
+            }
+
+            .rules-hero {
+                padding-top: 1.3rem;
+            }
+
+            .rules-section {
+                padding: 1.1rem 1rem 1rem;
+            }
+
+            .rules-list li {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .rule-number {
+                padding-top: 0;
+            }
+        }
+
+    </style>
+</head>
+<body class="rules-page">
+    <nav class="navbar navbar--v2">
+        <div class="nav-container">
+            <a href="../index.html" class="logo">flywithjoel</a>
+            <button class="hamburger" id="hamburger" aria-label="Open navigation menu" aria-controls="nav-links" aria-expanded="false">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="schedule.html"><span class="nav-icon" aria-hidden="true">📅</span>Schedule</a></li>
+                <li><a href="../index.html#highlights"><span class="nav-icon" aria-hidden="true">✨</span>Highlights</a></li>
+                <li><a href="achievements.html"><span class="nav-icon" aria-hidden="true">🏆</span>Achievements</a></li>
+                <li><a href="rules.html"><span class="nav-icon" aria-hidden="true">📜</span>Rules</a></li>
+                <li><a href="../index.html#faq"><span class="nav-icon" aria-hidden="true">❓</span>FAQ</a></li>
+                <li><a href="suggestions.html"><span class="nav-icon" aria-hidden="true">💡</span>Suggestions</a></li>
+                <li><a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" rel="noopener" class="follow-btn"><span class="nav-icon" aria-hidden="true">▶️</span>Follow Me</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="rules-shell">
+        <section class="rules-hero">
+            <div class="eyebrow">Community Rules</div>
+            <h1>Rules for the community</h1>
+            <p>
+                This page has been rebuilt to feel simpler, cleaner, and easier to read.
+                The Discord server rules and Twitch chat rules are separated below in a calm, uncluttered layout.
+            </p>
+            <nav class="jump-links" aria-label="Choose rules section">
+                <button type="button" class="discord-link is-active" data-tab-target="discord-rules" aria-selected="true">📘 Discord rules</button>
+                <button type="button" class="twitch-link" data-tab-target="twitch-rules" aria-selected="false">💜 Twitch chat rules</button>
+            </nav>
+        </section>
+
+        <section class="rules-tabs" aria-label="Rules by platform">
+            <div class="rules-panels">
+            <section class="rules-section discord-section is-active" id="discord-rules" data-tab-panel>
+                <div class="section-head">
+                    <div class="section-topline">
+                        <div class="section-label">Discord Community</div>
+                        <div class="section-count">12 rules</div>
+                    </div>
+                    <h2>Discord server rules</h2>
+                    <p>These rules help keep the server respectful, organised, and enjoyable for everyone in the community.</p>
+                </div>
+                <ol class="rules-list">
+                    <li><div class="rule-meta"><div class="rule-icon">🤝</div><div class="rule-number">Rule 01</div></div><div class="rule-text"><h3>Be respectful to everyone</h3><p>No hate speech, harassment, bullying, discrimination, or personal attacks. Take personal issues to DMs.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">📵</div><div class="rule-number">Rule 02</div></div><div class="rule-text"><h3>No spamming</h3><p>Avoid excessive messages, emoji spam, reaction spam, and repeated bot commands. Keep chat readable.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🛡️</div><div class="rule-number">Rule 03</div></div><div class="rule-text"><h3>Keep content safe for work</h3><p>No NSFW images, videos, gore, or suggestive content anywhere in the server.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🚫</div><div class="rule-number">Rule 04</div></div><div class="rule-text"><h3>No illegal activity</h3><p>No piracy, hacking, scams, or anything that breaks Discord rules or platform guidelines.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">📢</div><div class="rule-number">Rule 05</div></div><div class="rule-text"><h3>No unsolicited self-promotion</h3><p>Do not advertise your Twitch, YouTube, Discord, socials, or other platforms without permission.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🎯</div><div class="rule-number">Rule 06</div></div><div class="rule-text"><h3>Respect stream boundaries</h3><p>No spoilers, disruptive behaviour, or off-topic spam during live events. Let Joel and the mods handle moderation.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🗂️</div><div class="rule-number">Rule 07</div></div><div class="rule-text"><h3>Use the right channels</h3><p>Keep flight sim talk, emote ideas, tech help, and other topics in the correct channels.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🎭</div><div class="rule-number">Rule 08</div></div><div class="rule-text"><h3>No impersonation</h3><p>Do not pretend to be Joel, a moderator, or another community member.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🔗</div><div class="rule-number">Rule 09</div></div><div class="rule-text"><h3>Keep links clean</h3><p>Only share safe, relevant links. No malicious URLs, clickbait, or inappropriate links.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🔒</div><div class="rule-number">Rule 10</div></div><div class="rule-text"><h3>Protect privacy</h3><p>No doxxing and no sharing personal information about yourself or anyone else without consent.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">⏳</div><div class="rule-number">Rule 11</div></div><div class="rule-text"><h3>Wait before submitting unban requests</h3><p>If you are banned from Twitch chat, wait at least 7 days before submitting an appeal or unban request.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">⚖️</div><div class="rule-number">Rule 12</div></div><div class="rule-text"><h3>No alt accounts or ban evasion</h3><p>Do not use alternate accounts to bypass mutes, timeouts, bans, or any other moderation action.</p></div></li>
+                </ol>
+            </section>
+
+            <section class="rules-section twitch-section" id="twitch-rules" data-tab-panel>
+                <div class="section-head">
+                    <div class="section-topline">
+                        <div class="section-label">Twitch Community</div>
+                        <div class="section-count">11 rules</div>
+                    </div>
+                    <h2>Twitch chat rules</h2>
+                    <p>These rules keep stream chat clear, friendly, and welcoming for both regular viewers and new visitors.</p>
+                </div>
+                <ol class="rules-list">
+                    <li><div class="rule-meta"><div class="rule-icon">💬</div><div class="rule-number">Rule 01</div></div><div class="rule-text"><h3>No hate speech, harassment, bullying, or drama</h3><p>Respect everyone in chat and take personal issues to DMs instead of bringing them into stream chat.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">📵</div><div class="rule-number">Rule 02</div></div><div class="rule-text"><h3>Keep messages, emojis, and bot commands reasonable</h3><p>No spam walls, repeated copy-paste, or flooding chat in a way that disrupts the stream.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🛡️</div><div class="rule-number">Rule 03</div></div><div class="rule-text"><h3>No NSFW, gore, or suggestive content</h3><p>Keep chat safe for work and appropriate for the whole community.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🚫</div><div class="rule-number">Rule 04</div></div><div class="rule-text"><h3>No piracy, hacking, or anything against platform guidelines</h3><p>Do not encourage or discuss illegal activity that breaks Twitch, Discord, or community rules.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">📢</div><div class="rule-number">Rule 05</div></div><div class="rule-text"><h3>Do not advertise your channels or servers</h3><p>No self-promo for your Twitch, YouTube, Discord, socials, or communities unless invited.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🎯</div><div class="rule-number">Rule 06</div></div><div class="rule-text"><h3>No spoilers, off-topic spam, or disrupting live events</h3><p>Help keep the stream flowing by staying on-topic and not derailing big moments.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🎭</div><div class="rule-number">Rule 07</div></div><div class="rule-text"><h3>Do not pretend to be Joel, mods, or other users</h3><p>Impersonation causes confusion and will be treated seriously.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🔗</div><div class="rule-number">Rule 08</div></div><div class="rule-text"><h3>No clickbait, NSFW, or malicious URLs</h3><p>Only share links that are safe, relevant, and appropriate for stream chat.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">🔒</div><div class="rule-number">Rule 09</div></div><div class="rule-text"><h3>No doxxing or sharing personal info</h3><p>Never post private or identifying information about yourself or anyone else.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">⏳</div><div class="rule-number">Rule 10</div></div><div class="rule-text"><h3>Wait 7 days before submitting an appeal</h3><p>If you are banned, do not rush an unban request immediately. Appeals sent too early may be denied.</p></div></li>
+                    <li><div class="rule-meta"><div class="rule-icon">⚖️</div><div class="rule-number">Rule 11</div></div><div class="rule-text"><h3>Bypassing moderation leads to more penalties</h3><p>Using alt accounts or trying to evade moderation actions will lead to further punishment.</p></div></li>
+                </ol>
+
+            </section>
+            </div>
+        </section>
+
+        <section class="rules-footer" aria-label="Notes">
+            <div class="footer-note">
+                Breaking these rules may lead to message removal, timeouts, kicks, or bans depending on the situation and severity.
+                The goal is always to keep the community welcoming, safe, and enjoyable for everyone.
+            </div>
+            <div class="footer-note">
+                If something needs moderation attention, contact the mod team instead of escalating it publicly in chat.
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Flying With Joel. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="cookies.html">Cookie Policy</a>
+                <a href="#" id="cookie-settings-link">Cookie Settings</a>
+                <a href="security.html">Security &amp; Hosting</a>
+                <a href="https://www.twitch.tv/Flyingwithjoel" target="_blank" rel="noopener">Twitch</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.getElementById('nav-links');
+
+        hamburger.addEventListener('click', () => {
+            const isOpen = hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        navLinks.querySelectorAll('a').forEach((item) => {
+            item.addEventListener('click', () => {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+                hamburger.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        const tabButtons = document.querySelectorAll('[data-tab-target]');
+        const tabPanels = document.querySelectorAll('[data-tab-panel]');
+
+        tabButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-tab-target');
+
+                tabButtons.forEach((btn) => {
+                    btn.classList.remove('is-active');
+                    btn.setAttribute('aria-selected', 'false');
+                });
+
+                tabPanels.forEach((panel) => {
+                    panel.classList.remove('is-active');
+                });
+
+                button.classList.add('is-active');
+                button.setAttribute('aria-selected', 'true');
+
+                const activePanel = document.getElementById(targetId);
+                if (activePanel) {
+                    activePanel.classList.add('is-active');
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>

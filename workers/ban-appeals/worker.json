@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "fwj-ban-appeals-proxy",
+  "main": "worker.js",
+  "compatibility_date": "2026-03-21",
+  "routes": [
+    {
+      "pattern": "flyingwithjoel.co.uk/api/twitch-ban-appeal*",
+      "zone_name": "flyingwithjoel.co.uk"
+    },
+    {
+      "pattern": "www.flyingwithjoel.co.uk/api/twitch-ban-appeal*",
+      "zone_name": "flyingwithjoel.co.uk"
+    }
+  ],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://flyingwithjoel.co.uk,https://www.flyingwithjoel.co.uk"
+  }
+}

@@ -6,6 +6,7 @@ Options -Indexes
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteRule ^suggestions/?$ suggestions.php [L,QSA]
+  RewriteRule ^twitch-ban-appeal/?$ twitch_ban_appeal.php [L,QSA]
 </IfModule>
 
 # Block direct access to on-disk KV-ish store files
