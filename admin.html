@@ -216,6 +216,30 @@
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
+    .time-converter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+    .time-converter-grid > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .time-converter-output {
+      margin-top: 0.9rem;
+      padding: 0.85rem 0.95rem;
+      border-radius: 0.75rem;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.18);
+      color: rgba(255,255,255,0.92);
+      min-height: 3.4rem;
+      line-height: 1.5;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      white-space: pre-wrap;
+    }
+
     .login-card {
       padding: 0;
       overflow: hidden;
@@ -1129,6 +1153,20 @@
             <div class="admin-actions">
               <button id="btn-generate-discord-message" type="button">🔄 Generate</button>
             </div>
+
+            <div class="time-converter-grid">
+              <div>
+                <label for="uk-time-date">UK Date</label>
+                <input id="uk-time-date" type="date" />
+              </div>
+              <div>
+                <label for="uk-time-input">UK Time</label>
+                <input id="uk-time-input" type="time" step="60" placeholder="19:00" />
+              </div>
+            </div>
+            <p class="admin-msg" style="margin-top: 0.7rem;">Uses the UK timezone automatically, so BST/GMT clock changes are accounted for.</p>
+            <label for="uk-zulu-output" style="margin-top: 0.8rem;">Zulu Output</label>
+            <div id="uk-zulu-output" class="time-converter-output" aria-live="polite">Pick a UK date and time to convert it to Zulu.</div>
           </section>
 
           <section class="admin-panel span-2" aria-label="Admin notes">
@@ -1335,12 +1373,130 @@
       if (previewEl) previewEl.value = msg;
     }
 
+    function getLondonDateParts(date) {
+      const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/London',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      });
+      const parts = formatter.formatToParts(date);
+      const out = {};
+      for (const part of parts) {
+        if (part.type !== 'literal') out[part.type] = part.value;
+      }
+      return {
+        year: Number(out.year),
+        month: Number(out.month),
+        day: Number(out.day),
+        hour: Number(out.hour),
+        minute: Number(out.minute),
+      };
+    }
+
+    function formatZuluFromDate(date) {
+      const hh = String(date.getUTCHours()).padStart(2, '0');
+      const mm = String(date.getUTCMinutes()).padStart(2, '0');
+      return `${hh}:${mm} Zulu`;
+    }
+
+    function findUtcMatchesForLondonLocal(dateStr, timeStr) {
+      if (!dateStr || !timeStr) return [];
+
+      const dateMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const timeMatch = timeStr.match(/^(\d{2}):(\d{2})$/);
+      if (!dateMatch || !timeMatch) return [];
+
+      const year = Number(dateMatch[1]);
+      const month = Number(dateMatch[2]);
+      const day = Number(dateMatch[3]);
+      const hour = Number(timeMatch[1]);
+      const minute = Number(timeMatch[2]);
+
+      if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day) || !Number.isFinite(hour) || !Number.isFinite(minute)) {
+        return [];
+      }
+
+      const targetUtc = Date.UTC(year, month - 1, day, hour, minute);
+      const matches = [];
+
+      for (let deltaMinutes = -180; deltaMinutes <= 180; deltaMinutes += 1) {
+        const candidate = new Date(targetUtc + (deltaMinutes * 60000));
+        const parts = getLondonDateParts(candidate);
+        if (
+          parts.year === year &&
+          parts.month === month &&
+          parts.day === day &&
+          parts.hour === hour &&
+          parts.minute === minute
+        ) {
+          matches.push(candidate);
+        }
+      }
+
+      const deduped = [];
+      const seen = new Set();
+      for (const match of matches) {
+        const key = String(match.getTime());
+        if (!seen.has(key)) {
+          seen.add(key);
+          deduped.push(match);
+        }
+      }
+      return deduped.sort((a, b) => a.getTime() - b.getTime());
+    }
+
+    function updateUkZuluConverter() {
+      const dateEl = document.getElementById('uk-time-date');
+      const timeEl = document.getElementById('uk-time-input');
+      const outputEl = document.getElementById('uk-zulu-output');
+      if (!dateEl || !timeEl || !outputEl) return;
+
+      const dateStr = (dateEl.value || '').trim();
+      const timeStr = (timeEl.value || '').trim();
+
+      if (!dateStr || !timeStr) {
+        outputEl.textContent = 'Pick a UK date and time to convert it to Zulu.';
+        return;
+      }
+
+      const matches = findUtcMatchesForLondonLocal(dateStr, timeStr);
+      if (matches.length === 1) {
+        outputEl.textContent = formatZuluFromDate(matches[0]);
+        return;
+      }
+
+      if (matches.length > 1) {
+        outputEl.textContent = `Ambiguous UK time because the clocks go back.\nFirst Zulu: ${formatZuluFromDate(matches[0])}\nSecond Zulu: ${formatZuluFromDate(matches[1])}`;
+        return;
+      }
+
+      outputEl.textContent = 'That UK time does not exist because the clocks go forward for BST.';
+    }
+
     // Wire up button
     document.addEventListener('DOMContentLoaded', function() {
       const btn = document.getElementById('btn-generate-discord-message');
       if (btn) btn.addEventListener('click', updateDiscordMessagePreview);
+      const ukDateEl = document.getElementById('uk-time-date');
+      const ukTimeEl = document.getElementById('uk-time-input');
+      const todayLondon = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Europe/London',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).format(new Date());
+
+      if (ukDateEl && !ukDateEl.value) ukDateEl.value = todayLondon;
+      if (ukDateEl) ukDateEl.addEventListener('input', updateUkZuluConverter);
+      if (ukTimeEl) ukTimeEl.addEventListener('input', updateUkZuluConverter);
+
       // Auto-generate on load
       updateDiscordMessagePreview();
+      updateUkZuluConverter();
     });
 
     // Also update preview whenever the schedule changes
