@@ -1574,35 +1574,82 @@
       return 'Flight Sim';
     }
 
+    function detectAircraftType(title) {
+      const lower = title.toLowerCase();
+      const aircraft = [
+        { match: /\ba3(?:18|19|20|21|30|40|50)\b|airbus/i, label: 'Airbus' },
+        { match: /\bb7(?:17|27|37|47|57|67|77|87)\b|boeing/i, label: 'Boeing' },
+        { match: /\bcessna|c172|c208\b/i, label: 'Cessna' },
+        { match: /\bcitation|cj4|longitude\b/i, label: 'Citation' },
+        { match: /\bembraer|e1(?:70|75|90|95)|e2\b/i, label: 'Embraer' },
+        { match: /\bconcorde\b/i, label: 'Concorde' },
+        { match: /\b747\b/i, label: '747' },
+        { match: /\b737\b/i, label: '737' },
+        { match: /\ba320\b/i, label: 'A320' },
+      ];
+
+      const found = aircraft.find((item) => item.match.test(lower));
+      return found ? found.label : '';
+    }
+
+    function detectRouteTitle(title) {
+      const normalized = cleanStreamTitleInput(title);
+      const routeMatch = normalized.match(/\b(.{2,48}?)\s+(?:to|->)\s+(.{2,48}?)(?:\s+(?:in|on|with|using)\s+|$|\||-)/i);
+      if (!routeMatch) return null;
+
+      return {
+        from: titleCaseStreamWords(routeMatch[1].replace(/\bfrom\s+/i, '')),
+        to: titleCaseStreamWords(routeMatch[2]),
+      };
+    }
+
+    function stripKnownStreamWords(title) {
+      return cleanStreamTitleInput(title)
+        .replace(/\b(msfs ?2024|msfs|microsoft flight simulator ?2024?|x-?plane ?12|flight sim(?:ulator)?|live stream|stream|live)\b/ig, '')
+        .replace(/\b(in|on|with|using)\s*$/i, '')
+        .replace(/\s+([|-])\s*$/g, '')
+        .replace(/^\s*([|-])\s+/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+    }
+
     function buildStreamTitleSuggestions(rawTitle) {
       const clean = cleanStreamTitleInput(rawTitle);
       if (!clean) return [];
 
       const polished = titleCaseStreamWords(clean);
       const sim = detectStreamSim(clean);
-      const withoutTrailingLive = polished.replace(/\s*\|\s*live\s*$/i, '').replace(/\s+-\s+live\s*$/i, '');
-      const hasRoute = /\b(to|from|eg[a-z]{2}|kl[a-z]{2}|lf[a-z]{2}|ed[a-z]{2}|le[a-z]{2}|lp[a-z]{2}|lo[a-z]{2})\b/i.test(clean);
+      const aircraft = detectAircraftType(clean);
+      const route = detectRouteTitle(clean);
+      const base = titleCaseStreamWords(stripKnownStreamWords(clean)) || polished;
+      const conciseBase = route ? `${route.from} to ${route.to}` : base.replace(/\s*\|\s*$/g, '').replace(/\s+-\s*$/g, '');
+      const aircraftBit = aircraft ? `${aircraft} ` : '';
 
-      const routeFlair = hasRoute
+      const routeFlair = route
         ? [
-            `${withoutTrailingLive} | Realistic ${sim} Flight`,
-            `${withoutTrailingLive} | Approach, Arrival and Chill`,
-            `${withoutTrailingLive} | Full Flight Live`,
+            `${route.from} to ${route.to} | Full ${aircraftBit}${sim} Flight`,
+            `Can We Nail the Arrival into ${route.to}? | ${sim}`,
+            `${route.to} Arrival Challenge | ${route.from} to ${route.to}`,
+            `Realistic ${aircraftBit}Ops: ${route.from} to ${route.to}`,
+            `Chill Cruise to ${route.to} | ${sim} Live`,
+            `${route.from} -> ${route.to} | Startup to Shutdown`,
           ]
         : [
-            `${withoutTrailingLive} | ${sim} Live`,
-            `${withoutTrailingLive} | Chill Flight Sim Stream`,
-            `${withoutTrailingLive} | Flying With Joel Live`,
+            `${conciseBase} | ${sim} Live`,
+            `Chill Flight Sim Night | ${conciseBase}`,
+            `Realistic ${aircraftBit}Ops | ${conciseBase}`,
+            `Can We Pull This Off? | ${conciseBase}`,
+            `${conciseBase} | Flying With Joel Live`,
+            `${conciseBase} | Viewer Flight Night`,
           ];
 
       const suggestions = [
-        polished,
-        `${withoutTrailingLive} | Live Flight Sim`,
-        `${withoutTrailingLive} | ${sim} Stream`,
-        `Can We Nail It? ${withoutTrailingLive}`,
-        `Chill Skies: ${withoutTrailingLive}`,
-        `Realistic Ops: ${withoutTrailingLive}`,
-        `Today's Flight: ${withoutTrailingLive}`,
+        `${polished} | Live`,
+        `${conciseBase} | ${sim}`,
+        `${conciseBase} | Realistic Flight Sim`,
+        `${conciseBase} | Chill Skies Live`,
+        `${conciseBase} | Takeoff to Touchdown`,
+        `Tonight's Flight: ${conciseBase}`,
         ...routeFlair,
       ];
 
