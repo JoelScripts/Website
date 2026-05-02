@@ -277,6 +277,17 @@
       font-weight: 700;
     }
 
+    .discord-event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+    .discord-event-grid > div {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
     .login-card {
       padding: 0;
       overflow: hidden;
@@ -1206,6 +1217,58 @@
             <div id="uk-zulu-output" class="time-converter-output" aria-live="polite">Pick a UK date and time to convert it to Zulu.</div>
           </section>
 
+          <section class="admin-panel span-2" aria-label="Discord server event builder">
+            <div class="admin-panel-head">
+              <div>
+                <h3>Discord Server Event Builder</h3>
+                <p class="admin-msg" style="margin-top: 0.2rem;">Generate event fields from one scheduled stream.</p>
+              </div>
+            </div>
+
+            <div class="discord-event-grid">
+              <div>
+                <label for="discord-event-stream">Stream</label>
+                <select id="discord-event-stream"></select>
+              </div>
+              <div>
+                <label for="discord-event-duration">Duration</label>
+                <select id="discord-event-duration">
+                  <option value="60">1 hour</option>
+                  <option value="90">1 hour 30 mins</option>
+                  <option value="120" selected>2 hours</option>
+                  <option value="180">3 hours</option>
+                  <option value="240">4 hours</option>
+                </select>
+              </div>
+              <div>
+                <label for="discord-event-location">Location</label>
+                <input id="discord-event-location" type="url" value="https://www.twitch.tv/Flyingwithjoel" />
+              </div>
+            </div>
+
+            <div class="admin-row" style="margin-bottom:0.8rem;">
+              <div>
+                <label for="discord-event-title">Event title</label>
+                <input id="discord-event-title" type="text" maxlength="100" />
+              </div>
+              <div>
+                <label for="discord-event-time">Discord timestamp</label>
+                <input id="discord-event-time" type="text" readonly />
+              </div>
+            </div>
+
+            <label for="discord-event-description">Event description</label>
+            <textarea id="discord-event-description" readonly style="min-height:150px; margin-bottom:0.7rem;"></textarea>
+
+            <div class="admin-actions">
+              <button id="btn-generate-discord-event" type="button">Generate event</button>
+              <button id="btn-copy-discord-event-title" class="secondary" type="button">Copy title</button>
+              <button id="btn-copy-discord-event-description" class="secondary" type="button">Copy description</button>
+              <button id="btn-copy-discord-event-all" class="secondary" type="button">Copy all fields</button>
+              <span id="discord-event-status" class="admin-msg"></span>
+            </div>
+          </section>
+
           <section class="admin-panel span-2" aria-label="Stream title helper">
             <div class="admin-panel-head">
               <div>
@@ -1434,6 +1497,173 @@
       const msg = generateDiscordMessage(schedule);
       const previewEl = document.getElementById('discord-message-preview');
       if (previewEl) previewEl.value = msg;
+    }
+
+    function getDiscordEventEls() {
+      return {
+        stream: document.getElementById('discord-event-stream'),
+        duration: document.getElementById('discord-event-duration'),
+        location: document.getElementById('discord-event-location'),
+        title: document.getElementById('discord-event-title'),
+        time: document.getElementById('discord-event-time'),
+        description: document.getElementById('discord-event-description'),
+        status: document.getElementById('discord-event-status'),
+      };
+    }
+
+    function setDiscordEventStatus(text, kind) {
+      const els = getDiscordEventEls();
+      if (!els.status) return;
+      els.status.textContent = text || '';
+      els.status.className = 'admin-msg' + (kind ? ` ${kind}` : '');
+    }
+
+    function getDiscordEventCandidates(schedule) {
+      return (schedule || [])
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => {
+          const status = String(item && item.status ? item.status : 'none').toLowerCase();
+          return ['scheduled', 'live', 'delayed'].includes(status) && (item.zuluTime || item.timeText);
+        });
+    }
+
+    function updateDiscordEventStreamOptions() {
+      const els = getDiscordEventEls();
+      if (!els.stream) return;
+
+      const previousValue = els.stream.value;
+      const candidates = getDiscordEventCandidates(scheduleFromEditor());
+      els.stream.innerHTML = '';
+
+      if (!candidates.length) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'No scheduled streams available';
+        els.stream.appendChild(option);
+        return;
+      }
+
+      for (const { item, index } of candidates) {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = `${item.dayName || '-'} ${item.dateText || ''} - ${item.timeText || item.zuluTime || 'TBC'} - ${item.streamTitle || 'Stream'}`;
+        els.stream.appendChild(option);
+      }
+
+      if (previousValue && Array.from(els.stream.options).some((option) => option.value === previousValue)) {
+        els.stream.value = previousValue;
+      }
+    }
+
+    function getScheduleItemUtcDate(item) {
+      if (!item || !item.dateKey) return null;
+
+      const parts = String(item.dateKey).split('-');
+      const month = parseInt(parts[0], 10);
+      const day = parseInt(parts[1], 10);
+      const minutes = parseZuluTimeToMinutes(item.zuluTime || item.timeText || '');
+
+      if (!Number.isFinite(month) || !Number.isFinite(day) || minutes === null) return null;
+
+      const now = new Date();
+      const hour = Math.floor(minutes / 60);
+      const minute = minutes % 60;
+      const candidates = [
+        new Date(Date.UTC(now.getUTCFullYear() - 1, month - 1, day, hour, minute)),
+        new Date(Date.UTC(now.getUTCFullYear(), month - 1, day, hour, minute)),
+        new Date(Date.UTC(now.getUTCFullYear() + 1, month - 1, day, hour, minute)),
+      ];
+
+      candidates.sort((a, b) => Math.abs(a.getTime() - now.getTime()) - Math.abs(b.getTime() - now.getTime()));
+      return candidates[0];
+    }
+
+    function buildDiscordEventFields() {
+      const els = getDiscordEventEls();
+      updateDiscordEventStreamOptions();
+      if (!els.stream || !els.stream.value) return null;
+
+      const schedule = scheduleFromEditor();
+      const item = schedule[parseInt(els.stream.value, 10)];
+      const start = getScheduleItemUtcDate(item);
+      if (!item || !start) return null;
+
+      const durationMinutes = Math.max(15, parseInt(els.duration ? els.duration.value : '120', 10) || 120);
+      const end = new Date(start.getTime() + (durationMinutes * 60000));
+      const unixStart = Math.floor(start.getTime() / 1000);
+      const unixEnd = Math.floor(end.getTime() / 1000);
+      const streamTitle = (item.streamTitle && item.streamTitle !== '-') ? item.streamTitle : 'Flight Simulator Live';
+      const eventTitle = `Flying With Joel: ${streamTitle}`.slice(0, 100);
+      const location = (els.location && els.location.value.trim()) || 'https://www.twitch.tv/Flyingwithjoel';
+      const timestamp = `<t:${unixStart}:F> (<t:${unixStart}:R>)`;
+      const description = [
+        `Join Flying With Joel live on Twitch for ${streamTitle}.`,
+        '',
+        `Starts: ${timestamp}`,
+        `Ends: <t:${unixEnd}:t>`,
+        `Watch: ${location}`,
+      ].join('\n');
+
+      return {
+        title: eventTitle,
+        timestamp,
+        description,
+        all: [
+          `Title: ${eventTitle}`,
+          `Location: ${location}`,
+          `Start: ${start.toISOString()} UTC`,
+          `End: ${end.toISOString()} UTC`,
+          `Discord time: ${timestamp}`,
+          '',
+          description,
+        ].join('\n'),
+      };
+    }
+
+    function generateDiscordEventFields() {
+      const els = getDiscordEventEls();
+      const fields = buildDiscordEventFields();
+
+      if (!fields) {
+        if (els.title) els.title.value = '';
+        if (els.time) els.time.value = '';
+        if (els.description) els.description.value = '';
+        setDiscordEventStatus('Pick a scheduled stream with a valid Zulu time.', 'err');
+        return null;
+      }
+
+      if (els.title && !els.title.value.trim()) els.title.value = fields.title;
+      if (els.time) els.time.value = fields.timestamp;
+      if (els.description) els.description.value = fields.description;
+      setDiscordEventStatus('Event fields generated.', 'ok');
+      return {
+        ...fields,
+        title: els.title && els.title.value.trim() ? els.title.value.trim() : fields.title,
+      };
+    }
+
+    async function copyDiscordEventField(kind) {
+      const fields = generateDiscordEventFields();
+      if (!fields) return;
+
+      const els = getDiscordEventEls();
+      const values = {
+        title: els.title ? els.title.value : fields.title,
+        description: els.description ? els.description.value : fields.description,
+        all: [
+          `Title: ${els.title ? els.title.value : fields.title}`,
+          `Timestamp: ${els.time ? els.time.value : fields.timestamp}`,
+          '',
+          els.description ? els.description.value : fields.description,
+        ].join('\n'),
+      };
+
+      try {
+        await navigator.clipboard.writeText(values[kind] || values.all);
+        setDiscordEventStatus('Copied.', 'ok');
+      } catch {
+        setDiscordEventStatus('Copy failed. Select the field manually.', 'err');
+      }
     }
 
     function getLondonDateParts(date) {
@@ -1757,6 +1987,14 @@
       const streamTitleInputEl = document.getElementById('stream-title-input');
       const btnGenerateStreamTitlesEl = document.getElementById('btn-generate-stream-titles');
       const btnClearStreamTitlesEl = document.getElementById('btn-clear-stream-titles');
+      const discordEventStreamEl = document.getElementById('discord-event-stream');
+      const discordEventDurationEl = document.getElementById('discord-event-duration');
+      const discordEventLocationEl = document.getElementById('discord-event-location');
+      const discordEventTitleEl = document.getElementById('discord-event-title');
+      const btnGenerateDiscordEventEl = document.getElementById('btn-generate-discord-event');
+      const btnCopyDiscordEventTitleEl = document.getElementById('btn-copy-discord-event-title');
+      const btnCopyDiscordEventDescriptionEl = document.getElementById('btn-copy-discord-event-description');
+      const btnCopyDiscordEventAllEl = document.getElementById('btn-copy-discord-event-all');
       const todayLondon = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'Europe/London',
         year: 'numeric',
@@ -1769,6 +2007,18 @@
       if (ukTimeEl) ukTimeEl.addEventListener('input', updateUkZuluConverter);
       if (btnGenerateStreamTitlesEl) btnGenerateStreamTitlesEl.addEventListener('click', generateStreamTitleSuggestions);
       if (btnClearStreamTitlesEl) btnClearStreamTitlesEl.addEventListener('click', clearStreamTitleSuggestions);
+      if (btnGenerateDiscordEventEl) btnGenerateDiscordEventEl.addEventListener('click', generateDiscordEventFields);
+      if (btnCopyDiscordEventTitleEl) btnCopyDiscordEventTitleEl.addEventListener('click', () => copyDiscordEventField('title'));
+      if (btnCopyDiscordEventDescriptionEl) btnCopyDiscordEventDescriptionEl.addEventListener('click', () => copyDiscordEventField('description'));
+      if (btnCopyDiscordEventAllEl) btnCopyDiscordEventAllEl.addEventListener('click', () => copyDiscordEventField('all'));
+      if (discordEventStreamEl) {
+        discordEventStreamEl.addEventListener('change', () => {
+          if (discordEventTitleEl) discordEventTitleEl.value = '';
+          generateDiscordEventFields();
+        });
+      }
+      if (discordEventDurationEl) discordEventDurationEl.addEventListener('change', generateDiscordEventFields);
+      if (discordEventLocationEl) discordEventLocationEl.addEventListener('input', generateDiscordEventFields);
       if (streamTitleInputEl) {
         streamTitleInputEl.addEventListener('keydown', (event) => {
           if (event.key === 'Enter') {
@@ -1780,6 +2030,7 @@
 
       // Auto-generate on load
       updateDiscordMessagePreview();
+      updateDiscordEventStreamOptions();
       updateUkZuluConverter();
     });
 
@@ -1788,6 +2039,10 @@
     renderEditor = function(items) {
       origRenderEditor(items);
       updateDiscordMessagePreview();
+      updateDiscordEventStreamOptions();
+      const discordEventStreamEl = document.getElementById('discord-event-stream');
+      if (discordEventStreamEl && discordEventStreamEl.value) generateDiscordEventFields();
+      else setDiscordEventStatus('', null);
     };
     // --- Reset to Rolling 7 Days ---
     // NOTE: This intentionally excludes "today" and loads the NEXT 7 days.
