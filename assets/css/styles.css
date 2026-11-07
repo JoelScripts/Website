@@ -2872,3 +2872,45 @@ body.terms-page {
     margin-left: auto;
     margin-right: auto;
 }
+
+
+/* Achievements page layout: keep the full set of cards compact at normal zoom. */
+.highlights-grid {
+    align-items: start;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+}
+
+.world-flight-metrics,
+.twitch-wrapped-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem;
+}
+
+.world-flight-metric,
+.twitch-stat {
+    min-width: 0;
+    padding: 0.55rem 0.65rem;
+}
+
+.world-flight-hero {
+    padding-top: 1rem;
+}
+
+.world-flight-route {
+    gap: 0.4rem;
+}
+
+.world-flight-footer {
+    gap: 0.45rem;
+}
+
+@media (max-width: 560px) {
+    .highlights-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .world-flight-metrics,
+    .twitch-wrapped-stats {
+        grid-template-columns: 1fr;
+    }
+}
