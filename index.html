@@ -974,7 +974,76 @@
         </div>
     </footer>
 
-    <script src="assets/js/main.js"></script>
+    <script src="assets/js/main.js?v=20261108-partner-tabs-interaction-fix"></script>
+    <script id="partner-tabs-interaction-fix">
+    (() => {
+        const initializePartnerTabs = () => {
+            const section = document.getElementById('affiliates');
+            if (!section || section.dataset.partnerTabsReady === 'true') return;
+            section.dataset.partnerTabsReady = 'true';
+
+            const buttons = Array.from(section.querySelectorAll('[data-partner-tab]'));
+            const panels = Array.from(section.querySelectorAll('[data-partner-panel]'));
+            if (!buttons.length || !panels.length) return;
+
+            const activate = (selectedKey, focusButton = false) => {
+                const selectedButton = buttons.find(button => button.dataset.partnerTab === selectedKey);
+                const selectedPanel = panels.find(panel => panel.dataset.partnerPanel === selectedKey);
+                if (!selectedButton || !selectedPanel) return;
+
+                buttons.forEach(button => {
+                    const active = button === selectedButton;
+                    button.classList.toggle('active', active);
+                    button.setAttribute('aria-selected', active ? 'true' : 'false');
+                    button.setAttribute('tabindex', active ? '0' : '-1');
+                });
+
+                panels.forEach(panel => {
+                    const active = panel === selectedPanel;
+                    panel.hidden = !active;
+                    panel.classList.toggle('active', active);
+                    panel.setAttribute('aria-hidden', active ? 'false' : 'true');
+                });
+
+                if (focusButton) selectedButton.focus();
+            };
+
+            // Delegate clicks from the tablist so clicks on the icon or label work too.
+            section.addEventListener('click', event => {
+                const button = event.target.closest('button[data-partner-tab]');
+                if (!button || !section.contains(button)) return;
+                event.preventDefault();
+                event.stopPropagation();
+                activate(button.dataset.partnerTab);
+            });
+
+            section.addEventListener('keydown', event => {
+                const button = event.target.closest('button[data-partner-tab]');
+                if (!button) return;
+                const current = buttons.indexOf(button);
+                let next = null;
+                if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (current + 1) % buttons.length;
+                if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (current - 1 + buttons.length) % buttons.length;
+                if (event.key === 'Home') next = 0;
+                if (event.key === 'End') next = buttons.length - 1;
+                if (next !== null) {
+                    event.preventDefault();
+                    activate(buttons[next].dataset.partnerTab, true);
+                }
+            });
+
+            const initial = buttons.find(button => button.getAttribute('aria-selected') === 'true') || buttons[0];
+            activate(initial.dataset.partnerTab);
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializePartnerTabs, { once: true });
+        } else {
+            initializePartnerTabs();
+        }
+    })();
+    </script>
+
     <script>
         // ===== GDPR Consent Helpers =====
         function hasUserConsent() {
