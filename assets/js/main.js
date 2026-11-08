@@ -250,3 +250,53 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+
+
+// Homepage Partners category tabs (scoped so other site tabs are unaffected).
+(() => {
+    const partnerSection = document.querySelector('#affiliates');
+    if (!partnerSection) return;
+
+    const tabButtons = Array.from(partnerSection.querySelectorAll('[data-partner-tab]'));
+    const tabPanels = Array.from(partnerSection.querySelectorAll('[data-partner-panel]'));
+    if (!tabButtons.length || !tabPanels.length) return;
+
+    const activatePartnerTab = (button, moveFocus = false) => {
+        const selected = button.dataset.partnerTab;
+
+        tabButtons.forEach((tab) => {
+            const isActive = tab === button;
+            tab.classList.toggle('active', isActive);
+            tab.setAttribute('aria-selected', String(isActive));
+            tab.tabIndex = isActive ? 0 : -1;
+        });
+
+        tabPanels.forEach((panel) => {
+            const isActive = panel.dataset.partnerPanel === selected;
+            panel.hidden = !isActive;
+            panel.classList.toggle('active', isActive);
+        });
+
+        if (moveFocus) button.focus();
+    };
+
+    tabButtons.forEach((button, index) => {
+        button.addEventListener('click', () => activatePartnerTab(button));
+
+        button.addEventListener('keydown', (event) => {
+            let nextIndex = null;
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') nextIndex = (index + 1) % tabButtons.length;
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') nextIndex = (index - 1 + tabButtons.length) % tabButtons.length;
+            if (event.key === 'Home') nextIndex = 0;
+            if (event.key === 'End') nextIndex = tabButtons.length - 1;
+
+            if (nextIndex !== null) {
+                event.preventDefault();
+                activatePartnerTab(tabButtons[nextIndex], true);
+            }
+        });
+    });
+
+    const initiallySelected = tabButtons.find((button) => button.getAttribute('aria-selected') === 'true') || tabButtons[0];
+    activatePartnerTab(initiallySelected);
+})();

@@ -706,8 +706,22 @@
 
     <!-- Affiliates Section -->
     <section id="affiliates" class="affiliates-section">
-        <h2>Affiliate Partners</h2>
-        <p class="section-subtitle">Companies and products I recommend and use</p>
+        <h2>Partners</h2>
+        <p class="section-subtitle">Companies, development groups and virtual airlines I’m partnered with</p>
+        <div class="partner-tabs" role="tablist" aria-label="Partner categories">
+            <button class="partner-tab-btn active" id="partner-tab-companies" type="button" role="tab"
+                    aria-selected="true" aria-controls="partner-panel-companies" data-partner-tab="companies">
+                <span aria-hidden="true">🏢</span> Companies &amp; Dev Groups
+            </button>
+            <button class="partner-tab-btn" id="partner-tab-virtual-airlines" type="button" role="tab"
+                    aria-selected="false" aria-controls="partner-panel-virtual-airlines" data-partner-tab="virtual-airlines" tabindex="-1">
+                <span aria-hidden="true">✈️</span> Virtual Airlines
+            </button>
+        </div>
+
+        <div class="partner-tab-panels">
+            <div class="partner-tab-panel active" id="partner-panel-companies" role="tabpanel"
+                 aria-labelledby="partner-tab-companies" data-partner-panel="companies">
         <div style="background: linear-gradient(90deg, rgba(102, 187, 106, 0.12) 0%, rgba(76, 175, 80, 0.08) 100%); border: 2px solid #4CAF50; border-radius: 0.8rem; padding: 2rem; margin-bottom: 2rem;">
             <h3 style="margin: 0 0 1rem 0; color: #66BB6A; font-size: 1.1rem;">🤝 Affiliate Disclosure & Legal Notice</h3>
             <p style="margin: 0 0 1rem 0; color: #e0e0e0; line-height: 1.6;">
@@ -784,6 +798,69 @@
             <!-- Copy and paste the template above, then update: h3 (company name), affiliate-badge (category), affiliate-description (description), and href (link) -->
 
         </div>
+            </div>
+            </div>
+            <div class="partner-tab-panel" id="partner-panel-virtual-airlines" role="tabpanel"
+                 aria-labelledby="partner-tab-virtual-airlines" data-partner-panel="virtual-airlines" hidden>
+                <div class="virtual-airlines-intro">
+                    <span class="virtual-airlines-intro__icon" aria-hidden="true">✈</span>
+                    <div>
+                        <span class="virtual-airlines-intro__eyebrow">OUR AVIATION NETWORK</span>
+                        <h3>Virtual Airline Partners</h3>
+                        <p>Meet the flight-simulation communities we work alongside. Explore each airline and visit its website to learn more.</p>
+                    </div>
+                </div>
+                <article class="va-partner-card" aria-label="Icelandair Virtual partner profile">
+                    <div class="va-partner-card__header">
+                        <div class="va-partner-card__brand">
+                            <img class="va-partner-card__logo" src="assets/img/partners/icelandair-virtual-logo.png" alt="Icelandair Virtual" width="360" height="160">
+                            <div class="va-partner-card__identity">
+                                <span class="va-partner-card__eyebrow">VIRTUAL AIRLINE PARTNER</span>
+                                <p class="va-partner-card__tagline">Welcome to our World.</p>
+                            </div>
+                        </div>
+                        <span class="va-partner-card__hub"><span aria-hidden="true">●</span> Keflavík, Iceland <b>KEF</b></span>
+                    </div>
+
+                    <p class="va-partner-card__description">
+                        An independent flight-simulation airline built around realistic schedules, a coherent fleet and a welcoming pilot community.
+                        Fly from its Keflavík hub across Europe and North America in Microsoft Flight Simulator or X-Plane.
+                    </p>
+
+                    <div class="va-partner-card__details" aria-label="Icelandair Virtual at a glance">
+                        <div class="va-partner-card__detail">
+                            <span class="va-partner-card__detail-label">ROUTE NETWORK</span>
+                            <strong>Europe &amp; North America</strong>
+                            <small>International operations from Iceland</small>
+                        </div>
+                        <div class="va-partner-card__detail">
+                            <span class="va-partner-card__detail-label">SIMULATOR SUPPORT</span>
+                            <strong>MSFS &amp; X-Plane</strong>
+                            <small>Flight simulation platforms</small>
+                        </div>
+                        <div class="va-partner-card__detail">
+                            <span class="va-partner-card__detail-label">FEATURED FLEET</span>
+                            <strong>A321LR · 737 MAX · 757 · 767</strong>
+                            <small>Also includes Dash 8 aircraft</small>
+                        </div>
+                    </div>
+
+                    <div class="va-partner-card__footer">
+                        <div class="va-partner-card__independent">
+                            <strong>Independent virtual airline</strong>
+                            <span>Community-run flight simulation organisation</span>
+                        </div>
+                        <a class="va-partner-card__link" href="https://icelandairvirtual.org/" target="_blank" rel="noopener noreferrer">
+                            Visit airline website <span aria-hidden="true">↗</span>
+                        </a>
+                    </div>
+                    <p class="va-partner-card__disclaimer">
+                        Icelandair Virtual is an independent simulation community and is not affiliated with or endorsed by the real-world Icelandair.
+                    </p>
+                </article>
+            </div>
+        </div>
+
         <div style="display: flex; justify-content: center; margin-top: 0.4rem;">
             <div style="width: min(100%, 760px); background: linear-gradient(135deg, rgba(18, 24, 32, 0.98) 0%, rgba(25, 33, 46, 0.96) 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 1rem; padding: 1.35rem 1.5rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);">
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
